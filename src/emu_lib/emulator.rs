@@ -1,10 +1,9 @@
 use super::cpu::{Cpu, CPUType, i8080::I8080, z80::Z80};
 use super::memory::Memory;
 
-struct Emulator<> {
-    memory: Memory,
-    cpu_type: CPUType,
-    cpu: Box<dyn Cpu>,
+struct Emulator {
+    pub memory: Memory,
+    pub cpu: Box<dyn Cpu>,
 }
 
 impl Emulator {
@@ -15,7 +14,6 @@ impl Emulator {
         };
         Emulator {
             memory: Memory::new(),
-            cpu_type,
             cpu,
         }
     }
@@ -25,19 +23,14 @@ impl Emulator {
     }
 
     fn set_cpu_type(&mut self, cpu_type: CPUType) {
-        if self.cpu_type == cpu_type {
+        if self.cpu.type_of() == cpu_type {
             return;
         }
-        self.cpu_type = cpu_type;
-        self.cpu = match self.cpu_type {
+        self.cpu = match cpu_type {
             CPUType::Z80 =>
                 Box::new(Z80::new()),
             CPUType::I8080 =>
                 Box::new(I8080::new())
         };
-    }
-
-    fn get_cpu_type(&self) -> &CPUType {
-        &self.cpu_type
     }
 }

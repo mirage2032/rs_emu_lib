@@ -20,4 +20,8 @@ impl super::super::cpu::Cpu for I8080 {
     fn decode(&self, memory: &Memory, pos: u16) -> Box<dyn super::super::cpu::BaseInstruction> {
         unimplemented!()
     }
+
+    fn type_of(&self) -> super::super::cpu::CPUType {
+        super::super::cpu::CPUType::I8080
+    }
 }

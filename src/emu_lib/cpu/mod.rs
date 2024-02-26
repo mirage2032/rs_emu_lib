@@ -17,6 +17,7 @@ pub trait Cpu {
     fn step(&mut self, memory: &mut Memory) -> u16;
     fn registers(&mut self) -> &mut dyn RegisterOps;
     fn decode(&self, memory: &Memory, pos: u16) -> Box<dyn BaseInstruction>;
+    fn type_of(&self) -> CPUType;
 }
 
 pub struct InstructionCommon {

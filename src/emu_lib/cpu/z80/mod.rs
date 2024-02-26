@@ -35,4 +35,7 @@ impl Cpu for Z80 {
     fn decode(&self, memory: &Memory, pos: u16) -> Box<dyn BaseInstruction> {
         decode(memory, pos)
     }
+    fn type_of(&self) -> super::super::cpu::CPUType {
+        super::super::cpu::CPUType::Z80
+    }
 }
