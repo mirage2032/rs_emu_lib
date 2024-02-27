@@ -3,6 +3,12 @@ use std::time::{Duration, SystemTime};
 use super::cpu::{Cpu, CPUType, i8080::I8080, z80::Z80};
 use super::memory::Memory;
 
+enum StopReason {
+    Breakpoint,
+    Halt,
+    Error(String),
+}
+
 struct Emulator {
     pub memory: Memory,
     pub cpu: Box<dyn Cpu>,
@@ -22,23 +28,29 @@ impl Emulator {
         }
     }
 
-    fn step(&mut self) -> u16 {
+    fn step(&mut self) -> Result<u16, String> {
         self.cpu.step(&mut self.memory)
     }
 
-    fn run(&mut self, frequency: f32) {
+    fn run(&mut self, frequency: f32) -> StopReason {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
         let mut last_tick_time = SystemTime::now();
 
         loop {
             let current_time = SystemTime::now();
             let elapsed_time = current_time.duration_since(last_tick_time).unwrap();
-
-            let cycles = self.step();
+            let cycles = match self.step() {
+                Ok(cycles) => { cycles }
+                Err(e) => return StopReason::Error(e),
+            };
             let instruction_time = tick_duration * cycles as u32;
 
+            if self.cpu.halted() {
+                return StopReason::Halt;
+            }
+
             if self.breakpoints.contains(self.cpu.registers().pc()) {
-                break;
+                return StopReason::Breakpoint;
             }
 
             // Calculate remaining time to sleep
@@ -53,7 +65,6 @@ impl Emulator {
             if instruction_time < tick_duration {
                 std::thread::sleep(remaining_time);
             }
-
         }
     }
 

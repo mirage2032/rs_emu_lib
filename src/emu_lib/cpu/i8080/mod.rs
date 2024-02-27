@@ -12,8 +12,8 @@ impl I8080 {
 }
 
 impl super::super::cpu::Cpu for I8080 {
-    fn step(&mut self, memory: &mut Memory) -> u16 {
-        0
+    fn step(&mut self, memory: &mut Memory) -> Result<u16,String> {
+        unimplemented!()
     }
 
     fn decode(&self, memory: &Memory, pos: u16) -> Box<dyn super::super::cpu::BaseInstruction> {

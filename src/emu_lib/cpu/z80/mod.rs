@@ -23,10 +23,10 @@ impl Z80 {
 }
 
 impl Cpu for Z80 {
-    fn step(&mut self, memory: &mut Memory) -> u16 {
+    fn step(&mut self, memory: &mut Memory) -> Result<u16,String> {
         let instruction = decode(memory, self.registers.pc);
-        instruction.execute(memory, self);
-        instruction.common().cycles
+        instruction.execute(memory, self)?;
+        Ok(instruction.common().cycles)
     }
 
 

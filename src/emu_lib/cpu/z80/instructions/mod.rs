@@ -4,6 +4,7 @@ use crate::emu_lib::memory::Memory;
 
 mod nop;
 mod ld;
+mod halt;
 
 pub fn decode(memory: &Memory, pos: u16) -> Box<dyn ExecutableInstruction<Z80>> {
     let instruction: Box<dyn ExecutableInstruction<Z80>> = match memory.read8(pos) {

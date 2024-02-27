@@ -26,7 +26,7 @@ pub trait RegisterOps {
 }
 
 pub trait Cpu {
-    fn step(&mut self, memory: &mut Memory) -> u16;
+    fn step(&mut self, memory: &mut Memory) -> Result<u16,String>;
     fn decode(&self, memory: &Memory, pos: u16) -> Box<dyn BaseInstruction>;
     fn type_of(&self) -> CPUType;
     fn registers(&mut self) -> &mut dyn RegisterOps;
@@ -45,11 +45,12 @@ pub trait BaseInstruction: Display {
 }
 
 trait ExecutableInstruction<T: Cpu>: BaseInstruction {
-    fn runner(&self, memory: &mut Memory, cpu: &mut T);
-    fn execute(&self, memory: &mut Memory, cpu: &mut T) {
-        self.runner(memory, cpu);
+    fn runner(&self, memory: &mut Memory, cpu: &mut T) -> Result<(), String>;
+    fn execute(&self, memory: &mut Memory, cpu: &mut T) -> Result<(), String> {
+        self.runner(memory, cpu)?;
         if self.common().increment_pc {
             *cpu.registers().pc() += self.common().length;
         }
+        Ok(())
     }
 }

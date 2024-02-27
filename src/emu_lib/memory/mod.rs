@@ -63,12 +63,12 @@ impl Memory {
         let high = self.read8(addr + 1);
         (high as u16) << 8 | low as u16
     }
-    pub fn write(&mut self, addr: u16, data: u8) -> Result<(), &str> {
+    pub fn write8(&mut self, addr: u16, data: u8) -> Result<(), String> {
         if let Ok((device_idx, offset)) = self.get_elem_idx(addr) {
             self.data[device_idx].write(offset, data)?;
             Ok(())
         } else {
-            Err("Address not mapped")
+            Err("Address not mapped".to_string())
         }
     }
 
