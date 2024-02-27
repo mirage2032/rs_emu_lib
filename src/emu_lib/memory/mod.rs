@@ -1,10 +1,19 @@
-use std::io::Write;
+use std::fs::File;
+use std::io;
+use std::io::{BufReader, Read, Write};
 use std::ops::Index;
 
 mod memdevice;
 
 pub struct Memory {
     data: Vec<Box<dyn memdevice::MemDevice>>,
+}
+
+pub enum MemoryError {
+    OpenFile,
+    ReadError,
+    ReadOnly(usize, u16),
+    NotMapped(u16),
 }
 
 impl Memory {
@@ -41,7 +50,7 @@ impl Memory {
         }
         Err("Address not mapped")
     }
-    pub fn read(&self, addr: u16) -> u8 {
+    pub fn read8(&self, addr: u16) -> u8 {
         if let Ok((device_idx, offset)) = self.get_elem_idx(addr) {
             *self.data[device_idx].read(offset)
         } else {
@@ -50,8 +59,8 @@ impl Memory {
     }
 
     pub fn read16(&self, addr: u16) -> u16 {
-        let low = self.read(addr);
-        let high = self.read(addr + 1);
+        let low = self.read8(addr);
+        let high = self.read8(addr + 1);
         (high as u16) << 8 | low as u16
     }
     pub fn write(&mut self, addr: u16, data: u8) -> Result<(), &str> {
@@ -64,13 +73,47 @@ impl Memory {
     }
 
     pub fn save(&self, filename: &str) -> Result<(), &str> {
-        let mut file = std::fs::File::create(filename).map_err(|_| "Error creating file")?;
+        let mut file = File::create(filename).map_err(|_| "Error creating file")?;
         for device in &self.data {
             for byte in 0..device.size() {
                 file.write_all(&[*device.read(byte)]).map_err(|_| "Error writing to file")?;
             }
         }
         Ok(())
+    }
+
+    pub fn load(&mut self, filename: &str) -> Result<(), Vec<MemoryError>> {
+        match File::open(filename) {
+            Ok(file) => {
+                let mut result = vec![];
+                let mut reader = BufReader::new(file);
+                let mut index: u16 = 0;
+                for device in &mut self.data {
+                    if device.is_read_only() {
+                        result.push(MemoryError::ReadOnly(index as usize, device.size()));
+                    } else {
+                        match reader.read_exact(device.data_mut()) {
+                            Ok(_) => {
+                                index += device.size();
+                            }
+                            Err(ref err) if err.kind() == io::ErrorKind::UnexpectedEof => {
+                                break;
+                            }
+                            Err(_) => {
+                                result.push(MemoryError::ReadError);
+                                break;
+                            }
+                        }
+                    }
+                }
+                if result.is_empty() {
+                    Ok(())
+                } else {
+                    Err(result)
+                }
+            }
+            Err(_) => Err(vec![MemoryError::OpenFile]),
+        }
     }
 }
 

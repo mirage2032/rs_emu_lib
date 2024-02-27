@@ -3,6 +3,7 @@ use std::ops::Index;
 pub trait MemDevice {
     fn size(&self) -> u16;
     fn read(&self, addr: u16) -> &u8;
+    fn data_mut(&mut self) -> &mut Vec<u8>;
     fn write(&mut self, addr: u16, data: u8) -> Result<(), &str>;
     fn is_read_only(&self) -> bool;
     fn clear(&mut self) -> Result<(), &str> {
@@ -52,6 +53,10 @@ impl MemDevice for MemBank {
     }
     fn read(&self, addr: u16) -> &u8 {
         &self.data[addr as usize]
+    }
+    
+    fn data_mut(&mut self) -> &mut Vec<u8> {
+        &mut self.data
     }
     fn write(&mut self, addr: u16, data: u8) -> Result<(), &str> {
         if self.read_only {
