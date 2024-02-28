@@ -35,7 +35,7 @@ impl Emulator {
         self.cpu.step(&mut self.memory)
     }
 
-    pub fn run_w_cb<T: Fn(&mut Self, &Box<dyn BaseInstruction>)>(&mut self, frequency: f32, callback: Option<T>) -> StopReason
+    pub fn run_w_cb<T: Fn(&mut Self, &dyn BaseInstruction)>(&mut self, frequency: f32, callback: Option<T>) -> StopReason
     {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
         let mut last_tick_time = SystemTime::now();
@@ -48,7 +48,7 @@ impl Emulator {
                 Err(e) => return StopReason::Error(e),
             };
             if let Some(cb) = &callback {
-                cb(self, &instruction);
+                cb(self, instruction.as_ref());
             }
             let instruction_time = tick_duration * instruction.common().get_cycles() as u32;
 
@@ -75,9 +75,12 @@ impl Emulator {
     }
 
     pub fn run(&mut self, frequency: f32) -> StopReason {
-        self.run_w_cb(frequency, None::<fn(&mut Self, &Box<dyn BaseInstruction>)>)
+        self.run_w_cb(frequency, None::<fn(&mut Self, &dyn BaseInstruction)>)
     }
-
+    
+    pub fn decode(&self, pos: u16) -> Result<Box<dyn BaseInstruction>, String> {
+        self.cpu.decode(&self.memory, pos)
+    }
     pub fn set_cpu_type(&mut self, cpu_type: CPUType) {
         if self.cpu.type_of() == cpu_type {
             return;

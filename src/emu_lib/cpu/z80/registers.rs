@@ -20,7 +20,7 @@ pub struct Flags {
 }
 
 #[cfg(target_endian = "big")]
-#[derive(Default)]
+#[derive(Default,Debug)]
 #[repr(C)]
 pub struct ByteRegisters {
     pub a: u8,
@@ -34,7 +34,7 @@ pub struct ByteRegisters {
 }
 
 #[cfg(target_endian = "little")]
-#[derive(Default)]
+#[derive(Default, Debug)]
 #[repr(C)]
 pub struct ByteRegisters {
     pub f: Flags,
@@ -69,6 +69,7 @@ impl DerefMut for ByteRegisters {
     }
 }
 
+#[derive(Debug)]
 pub struct Registers {
     pub main: ByteRegisters,
     pub shadow: ByteRegisters,
@@ -129,6 +130,8 @@ impl RegisterOps for Registers {
             _ => panic!("Invalid register"),
         }
     }
+    
+    
 
     fn set_16(&mut self, register: &str, value: u16) {
         match register {
@@ -181,11 +184,17 @@ impl RegisterOps for Registers {
         map.insert("r", SingleRegister::Bit8(self.r));
         map
     }
-
-    fn pc(&mut self) -> &mut u16 {
+    
+    fn pc(&self) -> &u16 {
+        &self.pc
+    }
+    fn pc_mut_ref(&mut self) -> &mut u16 {
         &mut self.pc
     }
-    fn sp(&mut self) -> &mut Stack<u16> {
+    fn sp(&self) -> &Stack<u16> {
+        &self.sp
+    }
+    fn sp_mut_ref(&mut self) -> &mut Stack<u16> {
         &mut self.sp
     }
 }

@@ -1,4 +1,4 @@
-use crate::emu_lib::cpu::{BaseInstruction, RegisterOps};
+use crate::emu_lib::cpu::{BaseInstruction, Cpu, RegisterOps};
 
 use super::super::memory::Memory;
 
@@ -12,7 +12,7 @@ impl I8080 {
     }
 }
 
-impl super::super::cpu::Cpu for I8080 {
+impl Cpu for I8080 {
     fn step(&mut self, memory: &mut Memory) -> Result<Box<dyn BaseInstruction>, String> {
         unimplemented!()
     }

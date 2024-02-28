@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 use crate::emu_lib::memory::Memory;
 
@@ -19,13 +19,15 @@ pub enum SingleRegister {
 
 type Stack<T> = Vec<T>;
 
-pub trait RegisterOps {
+pub trait RegisterOps: Debug {
     fn clear(&mut self);
     fn set_8(&mut self, register: &str, value: u8);
     fn set_16(&mut self, register: &str, value: u16);
     fn get_all(&self) -> HashMap<&str, SingleRegister>;
-    fn pc(&mut self) -> &mut u16;
-    fn sp(&mut self) -> &mut Stack<u16>;
+    fn pc(&self) -> &u16;
+    fn pc_mut_ref(&mut self) -> &mut u16;
+    fn sp(&self) -> &Stack<u16>;
+    fn sp_mut_ref(&mut self) -> &mut Stack<u16>;
 }
 
 pub trait Cpu {
@@ -64,7 +66,7 @@ trait ExecutableInstruction<T: Cpu>: BaseInstruction {
     fn execute(&self, memory: &mut Memory, cpu: &mut T) -> Result<(), String> {
         self.runner(memory, cpu)?;
         if self.common().increment_pc {
-            *cpu.registers().pc() += self.common().length;
+            *cpu.registers().pc_mut_ref() += self.common().length;
         }
         Ok(())
     }
