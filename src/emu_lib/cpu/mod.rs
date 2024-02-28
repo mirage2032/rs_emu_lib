@@ -17,17 +17,20 @@ pub enum SingleRegister {
     Bit16(u16),
 }
 
+type Stack<T> = Vec<T>;
+
 pub trait RegisterOps {
     fn clear(&mut self);
     fn set_8(&mut self, register: &str, value: u8);
     fn set_16(&mut self, register: &str, value: u16);
     fn get_all(&self) -> HashMap<&str, SingleRegister>;
     fn pc(&mut self) -> &mut u16;
+    fn sp(&mut self) -> &mut Stack<u16>;
 }
 
 pub trait Cpu {
-    fn step(&mut self, memory: &mut Memory) -> Result<u16,String>;
-    fn decode(&self, memory: &Memory, pos: u16) -> Box<dyn BaseInstruction>;
+    fn step(&mut self, memory: &mut Memory) -> Result<u16, String>;
+    fn decode(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>,String>;
     fn type_of(&self) -> CPUType;
     fn registers(&mut self) -> &mut dyn RegisterOps;
     fn halted(&self) -> bool;

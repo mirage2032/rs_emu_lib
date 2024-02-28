@@ -5,39 +5,39 @@ use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCom
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::{Memory, ReadableMemory};
 
-pub struct LD_BC_NN {
+pub struct LD_C_N {
     common: InstructionCommon,
-    nn: u16,
+    n: u8,
 }
 
-impl LD_BC_NN {
-    pub fn new(memory: &Memory, pos: u16) -> Result<LD_BC_NN, String> {
-        Ok(LD_BC_NN {
+impl LD_C_N {
+    pub fn new(memory: &Memory, pos: u16) -> Result<LD_C_N, String>{
+        Ok(LD_C_N {
             common: InstructionCommon {
-                length: 3,
-                cycles: 10,
+                length: 2,
+                cycles: 7,
                 increment_pc: true,
             },
-            nn: memory.read(pos + 1)?,
+            n: memory.read(pos + 1)?,
         })
     }
 }
 
-impl Display for LD_BC_NN {
+impl Display for LD_C_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld bc, {:x}", self.nn)
+        write!(f, "ld c, n")
     }
 }
 
-impl BaseInstruction for LD_BC_NN {
+impl BaseInstruction for LD_C_N {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_BC_NN {
+impl ExecutableInstruction<Z80> for LD_C_N {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
-        cpu.registers.main.bc = self.nn;
+        cpu.registers.main.c = self.n;
         Ok(())
     }
 }

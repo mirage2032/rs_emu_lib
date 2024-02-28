@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io;
 use std::io::{BufReader, Read, Write};
 use std::ops::Index;
-
 mod memdevice;
 
 pub struct Memory {
@@ -14,6 +13,14 @@ pub enum MemoryError {
     ReadError,
     ReadOnly(usize, u16),
     NotMapped(u16),
+}
+
+pub trait ReadableMemory<T> {
+    fn read(&self, addr: u16) -> Result<T, String>;
+}
+
+pub trait WritableMemory<T> {
+    fn write(&mut self, addr: u16, data: T) -> Result<(), String>;
 }
 
 impl Memory {
@@ -44,32 +51,11 @@ impl Memory {
         let mut offset = 0u16;
         for (index, device) in self.data.iter().enumerate() {
             if addr >= offset && addr < offset + device.size() {
-                return Ok((index, addr - offset));
+                return Ok((index, addr - offset)); // Return the index and the offset
             }
             offset += device.size();
         }
         Err("Address not mapped")
-    }
-    pub fn read8(&self, addr: u16) -> u8 {
-        if let Ok((device_idx, offset)) = self.get_elem_idx(addr) {
-            *self.data[device_idx].read(offset)
-        } else {
-            0
-        }
-    }
-
-    pub fn read16(&self, addr: u16) -> u16 {
-        let low = self.read8(addr);
-        let high = self.read8(addr + 1);
-        (high as u16) << 8 | low as u16
-    }
-    pub fn write8(&mut self, addr: u16, data: u8) -> Result<(), String> {
-        if let Ok((device_idx, offset)) = self.get_elem_idx(addr) {
-            self.data[device_idx].write(offset, data)?;
-            Ok(())
-        } else {
-            Err("Address not mapped".to_string())
-        }
     }
 
     pub fn save(&self, filename: &str) -> Result<(), &str> {
@@ -114,6 +100,39 @@ impl Memory {
             }
             Err(_) => Err(vec![MemoryError::OpenFile]),
         }
+    }
+}
+
+impl ReadableMemory<u8> for Memory {
+    fn read(&self, addr: u16) -> Result<u8, String> {
+        let (device_idx, offset) = self.get_elem_idx(addr)?;
+        Ok(*self.data[device_idx].read(offset))
+    }
+}
+
+impl ReadableMemory<u16> for Memory {
+    fn read(&self, addr: u16) -> Result<u16, String> {
+        let low: u8 = self.read(addr)?;
+        let high: u8 = self.read(addr + 1)?;
+        Ok(u16::from_le_bytes([low, high]))
+    }
+}
+
+impl WritableMemory<u8> for Memory {
+    fn write(&mut self, addr: u16, data: u8) -> Result<(), String> {
+        let (device_idx, offset) = self.get_elem_idx(addr)?;
+        self.data[device_idx].write(offset, data)?;
+        Ok(())
+    }
+}
+
+impl WritableMemory<u16> for Memory {
+    fn write(&mut self, addr: u16, data: u16) -> Result<(), String> {
+        let bytes = data.to_le_bytes();
+        let (device_idx, offset) = self.get_elem_idx(addr)?;
+        self.data[device_idx].write(offset, bytes[0])?;
+        self.data[device_idx].write(offset, bytes[1])?;
+        Ok(())
     }
 }
 

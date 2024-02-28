@@ -29,10 +29,13 @@ impl Emulator {
     }
 
     fn step(&mut self) -> Result<u16, String> {
+        if self.cpu.halted() {
+            return Ok(0);
+        }
         self.cpu.step(&mut self.memory)
     }
 
-    fn run(&mut self, frequency: f32) -> StopReason {
+    fn run(&mut self, frequency: f32, callback: Option<impl Fn(&mut Emulator)>) -> StopReason {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
         let mut last_tick_time = SystemTime::now();
 
@@ -43,6 +46,9 @@ impl Emulator {
                 Ok(cycles) => { cycles }
                 Err(e) => return StopReason::Error(e),
             };
+            if let Some(cb) = &callback {
+                cb(self);
+            }
             let instruction_time = tick_duration * cycles as u32;
 
             if self.cpu.halted() {
@@ -60,7 +66,6 @@ impl Emulator {
                 Duration::from_secs(0)
             };
             last_tick_time = SystemTime::now();
-
             // Sleep only if there's remaining time and execution time is less than tick duration
             if instruction_time < tick_duration {
                 std::thread::sleep(remaining_time);
@@ -68,7 +73,7 @@ impl Emulator {
         }
     }
 
-    fn set_cpu_type(&mut self, cpu_type: CPUType) {
+    pub fn set_cpu_type(&mut self, cpu_type: CPUType) {
         if self.cpu.type_of() == cpu_type {
             return;
         }

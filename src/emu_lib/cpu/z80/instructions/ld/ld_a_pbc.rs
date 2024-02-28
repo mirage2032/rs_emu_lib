@@ -3,15 +3,15 @@ use std::fmt::Display;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::{Memory, WritableMemory};
+use crate::emu_lib::memory::{Memory, ReadableMemory};
 
-pub struct LD_PBC_A {
+pub struct LD_A_PBC {
     common: InstructionCommon,
 }
 
-impl LD_PBC_A {
-    pub fn new() -> LD_PBC_A {
-        LD_PBC_A {
+impl LD_A_PBC {
+    pub fn new() -> LD_A_PBC {
+        LD_A_PBC {
             common: InstructionCommon {
                 length: 1,
                 cycles: 7,
@@ -21,22 +21,21 @@ impl LD_PBC_A {
     }
 }
 
-impl Display for LD_PBC_A {
+impl Display for LD_A_PBC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld (bc), a")
+        write!(f, "ld a, (bc)",)
     }
 }
 
-impl BaseInstruction for LD_PBC_A {
+impl BaseInstruction for LD_A_PBC {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_PBC_A {
+impl ExecutableInstruction<Z80> for LD_A_PBC {
     fn runner(&self, memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
-        let location = cpu.registers.main.bc;
-        memory.write(location, cpu.registers.main.a)?;
+        cpu.registers.main.a = memory.read(cpu.registers.main.bc)?;
         Ok(())
     }
 }

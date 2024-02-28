@@ -1,6 +1,6 @@
 use registers::Registers;
 
-use crate::emu_lib::cpu::{BaseInstruction, Cpu};
+use crate::emu_lib::cpu::{BaseInstruction, Cpu, ExecutableInstruction};
 use crate::emu_lib::cpu::z80::instructions::decode;
 
 use super::super::memory::Memory;
@@ -23,15 +23,15 @@ impl Z80 {
 }
 
 impl Cpu for Z80 {
-    fn step(&mut self, memory: &mut Memory) -> Result<u16,String> {
-        let instruction = decode(memory, self.registers.pc);
+    fn step(&mut self, memory: &mut Memory) -> Result<u16, String> {
+        let instruction = decode(memory, self.registers.pc)?;
         instruction.execute(memory, self)?;
         Ok(instruction.common().cycles)
     }
 
 
-    fn decode(&self, memory: &Memory, pos: u16) -> Box<dyn BaseInstruction> {
-        decode(memory, pos)
+    fn decode(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String> {
+        decode(memory, pos).map(|i| i as Box<(dyn BaseInstruction)>)
     }
     fn type_of(&self) -> super::super::cpu::CPUType {
         super::super::cpu::CPUType::Z80

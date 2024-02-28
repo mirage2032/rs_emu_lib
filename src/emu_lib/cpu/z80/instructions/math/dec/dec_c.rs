@@ -1,42 +1,42 @@
 use std::fmt;
 use std::fmt::Display;
+use crate::dec_r;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::{Memory, WritableMemory};
+use crate::emu_lib::memory::Memory;
 
-pub struct LD_PBC_A {
+pub struct DEC_C {
     common: InstructionCommon,
 }
 
-impl LD_PBC_A {
-    pub fn new() -> LD_PBC_A {
-        LD_PBC_A {
+impl DEC_C {
+    pub fn new() -> DEC_C {
+        DEC_C {
             common: InstructionCommon {
                 length: 1,
-                cycles: 7,
+                cycles: 4,
                 increment_pc: true,
             },
         }
     }
 }
 
-impl Display for LD_PBC_A {
+impl Display for DEC_C {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld (bc), a")
+        write!(f, "dec c")
     }
 }
 
-impl BaseInstruction for LD_PBC_A {
+impl BaseInstruction for DEC_C {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_PBC_A {
-    fn runner(&self, memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
-        let location = cpu.registers.main.bc;
-        memory.write(location, cpu.registers.main.a)?;
+impl ExecutableInstruction<Z80> for DEC_C {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+        dec_r!(&mut cpu.registers.main.c, &mut cpu.registers.main.f);
         Ok(())
     }
 }

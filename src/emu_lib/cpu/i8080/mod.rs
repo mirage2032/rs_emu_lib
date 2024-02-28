@@ -1,4 +1,5 @@
-use crate::emu_lib::cpu::RegisterOps;
+use crate::emu_lib::cpu::{BaseInstruction, RegisterOps};
+
 use super::super::memory::Memory;
 
 pub struct I8080 {
@@ -7,16 +8,16 @@ pub struct I8080 {
 
 impl I8080 {
     pub fn new() -> I8080 {
-        I8080 {halted: false}
+        I8080 { halted: false }
     }
 }
 
 impl super::super::cpu::Cpu for I8080 {
-    fn step(&mut self, memory: &mut Memory) -> Result<u16,String> {
+    fn step(&mut self, memory: &mut Memory) -> Result<u16, String> {
         unimplemented!()
     }
 
-    fn decode(&self, memory: &Memory, pos: u16) -> Box<dyn super::super::cpu::BaseInstruction> {
+    fn decode(&self, memory: &Memory, pos: u16) -> Result<Box<dyn BaseInstruction>, String> {
         unimplemented!()
     }
 

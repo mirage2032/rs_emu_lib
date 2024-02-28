@@ -1,14 +1,30 @@
 use std::collections::HashMap;
 use std::ops::{Deref, DerefMut};
-use crate::emu_lib::cpu::{RegisterOps, SingleRegister};
 
+use bitfield_struct::bitfield;
+
+use crate::emu_lib::cpu::{RegisterOps, SingleRegister, Stack};
+
+#[bitfield(u8)]
+#[derive(PartialEq, Eq)]
+pub struct Flags {
+    // Define your fields with their sizes
+    pub carry: bool,
+    pub add_sub: bool,
+    pub parity_overflow: bool,
+    _bit3: bool,
+    pub half_carry: bool,
+    _bit5: bool,
+    pub zero: bool,
+    pub sign: bool,
+}
 
 #[cfg(target_endian = "big")]
 #[derive(Default)]
 #[repr(C)]
 pub struct ByteRegisters {
     pub a: u8,
-    pub f: u8,
+    pub f: Flags,
     pub b: u8,
     pub c: u8,
     pub d: u8,
@@ -21,7 +37,7 @@ pub struct ByteRegisters {
 #[derive(Default)]
 #[repr(C)]
 pub struct ByteRegisters {
-    pub f: u8,
+    pub f: Flags,
     pub a: u8,
     pub c: u8,
     pub b: u8,
@@ -53,12 +69,12 @@ impl DerefMut for ByteRegisters {
     }
 }
 
-pub(crate) struct Registers {
+pub struct Registers {
     pub main: ByteRegisters,
-    pub alt: ByteRegisters,
+    pub shadow: ByteRegisters,
     pub ix: u16,
     pub iy: u16,
-    pub sp: u16,
+    pub sp: Stack<u16>,
     pub pc: u16,
     pub i: u8,
     pub r: u8,
@@ -68,10 +84,10 @@ impl Registers {
     pub fn new() -> Registers {
         Registers {
             main: ByteRegisters::default(),
-            alt: ByteRegisters::default(),
+            shadow: ByteRegisters::default(),
             ix: 0,
             iy: 0,
-            sp: 0,
+            sp: Stack::new(),
             pc: 0,
             i: 0,
             r: 0,
@@ -82,10 +98,10 @@ impl Registers {
 impl RegisterOps for Registers {
     fn clear(&mut self) {
         self.main = ByteRegisters::default();
-        self.alt = ByteRegisters::default();
+        self.shadow = ByteRegisters::default();
         self.ix = 0;
         self.iy = 0;
-        self.sp = 0;
+        self.sp = Stack::new();
         self.pc = 0;
         self.i = 0;
         self.r = 0;
@@ -93,21 +109,21 @@ impl RegisterOps for Registers {
     fn set_8(&mut self, register: &str, value: u8) {
         match register {
             "a" => self.main.a = value,
-            "f" => self.main.f = value,
+            "f" => self.main.f = value.into(),
             "b" => self.main.b = value,
             "c" => self.main.c = value,
             "d" => self.main.d = value,
             "e" => self.main.e = value,
             "h" => self.main.h = value,
             "l" => self.main.l = value,
-            "a'" => self.alt.a = value,
-            "f'" => self.alt.f = value,
-            "b'" => self.alt.b = value,
-            "c'" => self.alt.c = value,
-            "d'" => self.alt.d = value,
-            "e'" => self.alt.e = value,
-            "h'" => self.alt.h = value,
-            "l'" => self.alt.l = value,
+            "a'" => self.shadow.a = value,
+            "f'" => self.shadow.f = value.into(),
+            "b'" => self.shadow.b = value,
+            "c'" => self.shadow.c = value,
+            "d'" => self.shadow.d = value,
+            "e'" => self.shadow.e = value,
+            "h'" => self.shadow.h = value,
+            "l'" => self.shadow.l = value,
             "i" => self.i = value,
             "r" => self.r = value,
             _ => panic!("Invalid register"),
@@ -120,13 +136,12 @@ impl RegisterOps for Registers {
             "bc" => self.main.bc = value,
             "de" => self.main.de = value,
             "hl" => self.main.hl = value,
-            "af'" => self.alt.af = value,
-            "bc'" => self.alt.bc = value,
-            "de'" => self.alt.de = value,
-            "hl'" => self.alt.hl = value,
+            "af'" => self.shadow.af = value,
+            "bc'" => self.shadow.bc = value,
+            "de'" => self.shadow.de = value,
+            "hl'" => self.shadow.hl = value,
             "ix" => self.ix = value,
             "iy" => self.iy = value,
-            "sp" => self.sp = value,
             "pc" => self.pc = value,
             _ => panic!("Invalid register"),
         }
@@ -139,7 +154,7 @@ impl RegisterOps for Registers {
         map.insert("de", SingleRegister::Bit16(self.main.de));
         map.insert("hl", SingleRegister::Bit16(self.main.hl));
         map.insert("a", SingleRegister::Bit8(self.main.a));
-        map.insert("f", SingleRegister::Bit8(self.main.f));
+        map.insert("f", SingleRegister::Bit8(self.main.f.into()));
         map.insert("b", SingleRegister::Bit8(self.main.b));
         map.insert("c", SingleRegister::Bit8(self.main.c));
         map.insert("d", SingleRegister::Bit8(self.main.d));
@@ -147,23 +162,21 @@ impl RegisterOps for Registers {
         map.insert("h", SingleRegister::Bit8(self.main.h));
         map.insert("l", SingleRegister::Bit8(self.main.l));
 
-        map.insert("af'", SingleRegister::Bit16(self.alt.af));
-        map.insert("bc'", SingleRegister::Bit16(self.alt.bc));
-        map.insert("de'", SingleRegister::Bit16(self.alt.de));
-        map.insert("hl'", SingleRegister::Bit16(self.alt.hl));
-        map.insert("a'", SingleRegister::Bit8(self.alt.a));
-        map.insert("f'", SingleRegister::Bit8(self.alt.f));
-        map.insert("b'", SingleRegister::Bit8(self.alt.b));
-        map.insert("c'", SingleRegister::Bit8(self.alt.c));
-        map.insert("d'", SingleRegister::Bit8(self.alt.d));
-        map.insert("e'", SingleRegister::Bit8(self.alt.e));
-        map.insert("h'", SingleRegister::Bit8(self.alt.h));
-        map.insert("l'", SingleRegister::Bit8(self.alt.l));
+        map.insert("af'", SingleRegister::Bit16(self.shadow.af));
+        map.insert("bc'", SingleRegister::Bit16(self.shadow.bc));
+        map.insert("de'", SingleRegister::Bit16(self.shadow.de));
+        map.insert("hl'", SingleRegister::Bit16(self.shadow.hl));
+        map.insert("a'", SingleRegister::Bit8(self.shadow.a));
+        map.insert("f'", SingleRegister::Bit8(self.shadow.f.into()));
+        map.insert("b'", SingleRegister::Bit8(self.shadow.b));
+        map.insert("c'", SingleRegister::Bit8(self.shadow.c));
+        map.insert("d'", SingleRegister::Bit8(self.shadow.d));
+        map.insert("e'", SingleRegister::Bit8(self.shadow.e));
+        map.insert("h'", SingleRegister::Bit8(self.shadow.h));
+        map.insert("l'", SingleRegister::Bit8(self.shadow.l));
 
         map.insert("ix", SingleRegister::Bit16(self.ix));
         map.insert("iy", SingleRegister::Bit16(self.iy));
-        map.insert("sp", SingleRegister::Bit16(self.sp));
-        map.insert("pc", SingleRegister::Bit16(self.pc));
         map.insert("i", SingleRegister::Bit8(self.i));
         map.insert("r", SingleRegister::Bit8(self.r));
         map
@@ -171,5 +184,8 @@ impl RegisterOps for Registers {
 
     fn pc(&mut self) -> &mut u16 {
         &mut self.pc
+    }
+    fn sp(&mut self) -> &mut Stack<u16> {
+        &mut self.sp
     }
 }

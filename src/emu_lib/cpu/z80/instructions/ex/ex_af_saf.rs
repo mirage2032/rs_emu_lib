@@ -3,41 +3,41 @@ use std::fmt::Display;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::{Memory, ReadableMemory};
+use crate::emu_lib::memory::Memory;
 
-pub struct LD_BC_NN {
+pub struct EX_AF_SAF {
     common: InstructionCommon,
-    nn: u16,
 }
 
-impl LD_BC_NN {
-    pub fn new(memory: &Memory, pos: u16) -> Result<LD_BC_NN, String> {
-        Ok(LD_BC_NN {
+impl EX_AF_SAF {
+    pub fn new() -> EX_AF_SAF {
+        EX_AF_SAF {
             common: InstructionCommon {
-                length: 3,
-                cycles: 10,
+                length: 1,
+                cycles: 4,
                 increment_pc: true,
             },
-            nn: memory.read(pos + 1)?,
-        })
+        }
     }
 }
 
-impl Display for LD_BC_NN {
+impl Display for EX_AF_SAF {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld bc, {:x}", self.nn)
+        write!(f, "ex af, af'")
     }
 }
 
-impl BaseInstruction for LD_BC_NN {
+impl BaseInstruction for EX_AF_SAF {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_BC_NN {
+impl ExecutableInstruction<Z80> for EX_AF_SAF {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
-        cpu.registers.main.bc = self.nn;
+        let af = cpu.registers.main.af;
+        cpu.registers.main.af = cpu.registers.shadow.af;
+        cpu.registers.shadow.af = af;
         Ok(())
     }
 }

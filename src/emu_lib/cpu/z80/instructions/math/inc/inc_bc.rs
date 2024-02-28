@@ -3,40 +3,39 @@ use std::fmt::Display;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::{Memory, WritableMemory};
+use crate::emu_lib::memory::Memory;
 
-pub struct LD_PBC_A {
+pub struct INC_BC {
     common: InstructionCommon,
 }
 
-impl LD_PBC_A {
-    pub fn new() -> LD_PBC_A {
-        LD_PBC_A {
+impl INC_BC {
+    pub fn new() -> INC_BC {
+        INC_BC {
             common: InstructionCommon {
                 length: 1,
-                cycles: 7,
+                cycles: 6,
                 increment_pc: true,
             },
         }
     }
 }
 
-impl Display for LD_PBC_A {
+impl Display for INC_BC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld (bc), a")
+        write!(f, "inc bc")
     }
 }
 
-impl BaseInstruction for LD_PBC_A {
+impl BaseInstruction for INC_BC {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_PBC_A {
-    fn runner(&self, memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
-        let location = cpu.registers.main.bc;
-        memory.write(location, cpu.registers.main.a)?;
+impl ExecutableInstruction<Z80> for INC_BC {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+        cpu.registers.main.bc = cpu.registers.main.bc.wrapping_add(1);
         Ok(())
     }
 }
