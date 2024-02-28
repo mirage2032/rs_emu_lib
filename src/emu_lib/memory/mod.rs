@@ -2,12 +2,14 @@ use std::fs::File;
 use std::io;
 use std::io::{BufReader, Read, Write};
 use std::ops::Index;
+
 mod memdevice;
 
 pub struct Memory {
     data: Vec<Box<dyn memdevice::MemDevice>>,
 }
 
+#[derive(Debug)]
 pub enum MemoryError {
     OpenFile,
     ReadError,
@@ -50,7 +52,8 @@ impl Memory {
     fn get_elem_idx(&self, addr: u16) -> Result<(usize, u16), &str> {
         let mut offset = 0u16;
         for (index, device) in self.data.iter().enumerate() {
-            if addr >= offset && addr < offset + device.size() {
+            let device_end= offset + (device.size() - 1);
+            if addr >= offset && addr < device_end {
                 return Ok((index, addr - offset)); // Return the index and the offset
             }
             offset += device.size();

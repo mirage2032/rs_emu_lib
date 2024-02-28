@@ -1,3 +1,3 @@
-mod cpu;
-mod memory;
-mod emulator;
+pub mod cpu;
+pub mod memory;
+pub mod emulator;

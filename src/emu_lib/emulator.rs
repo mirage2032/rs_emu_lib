@@ -1,22 +1,22 @@
 use std::time::{Duration, SystemTime};
 
-use super::cpu::{Cpu, CPUType, i8080::I8080, z80::Z80};
+use super::cpu::{BaseInstruction, Cpu, CPUType, i8080::I8080, z80::Z80};
 use super::memory::Memory;
 
-enum StopReason {
+pub enum StopReason {
     Breakpoint,
     Halt,
     Error(String),
 }
 
-struct Emulator {
+pub struct Emulator {
     pub memory: Memory,
     pub cpu: Box<dyn Cpu>,
     pub breakpoints: Vec<u16>,
 }
 
 impl Emulator {
-    fn new(cpu_type: CPUType) -> Emulator {
+    pub fn new(cpu_type: CPUType) -> Emulator {
         let cpu: Box<dyn Cpu> = match cpu_type {
             CPUType::Z80 => Box::new(Z80::new()),
             CPUType::I8080 => Box::new(I8080::new())
@@ -28,28 +28,29 @@ impl Emulator {
         }
     }
 
-    fn step(&mut self) -> Result<u16, String> {
+    pub fn step(&mut self) -> Result<Box<dyn BaseInstruction>, String> {
         if self.cpu.halted() {
-            return Ok(0);
+            return Err("CPU is halted".to_string());
         }
         self.cpu.step(&mut self.memory)
     }
 
-    fn run(&mut self, frequency: f32, callback: Option<impl Fn(&mut Emulator)>) -> StopReason {
+    pub fn run_w_cb<T: Fn(&mut Self, &Box<dyn BaseInstruction>)>(&mut self, frequency: f32, callback: Option<T>) -> StopReason
+    {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
         let mut last_tick_time = SystemTime::now();
 
         loop {
             let current_time = SystemTime::now();
             let elapsed_time = current_time.duration_since(last_tick_time).unwrap();
-            let cycles = match self.step() {
-                Ok(cycles) => { cycles }
+            let instruction = match self.step() {
+                Ok(instructions) => { instructions }
                 Err(e) => return StopReason::Error(e),
             };
             if let Some(cb) = &callback {
-                cb(self);
+                cb(self, &instruction);
             }
-            let instruction_time = tick_duration * cycles as u32;
+            let instruction_time = tick_duration * instruction.common().get_cycles() as u32;
 
             if self.cpu.halted() {
                 return StopReason::Halt;
@@ -71,6 +72,10 @@ impl Emulator {
                 std::thread::sleep(remaining_time);
             }
         }
+    }
+
+    pub fn run(&mut self, frequency: f32) -> StopReason {
+        self.run_w_cb(frequency, None::<fn(&mut Self, &Box<dyn BaseInstruction>)>)
     }
 
     pub fn set_cpu_type(&mut self, cpu_type: CPUType) {

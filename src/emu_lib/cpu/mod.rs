@@ -29,8 +29,8 @@ pub trait RegisterOps {
 }
 
 pub trait Cpu {
-    fn step(&mut self, memory: &mut Memory) -> Result<u16, String>;
-    fn decode(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>,String>;
+    fn step(&mut self, memory: &mut Memory) -> Result<Box<(dyn BaseInstruction)>, String>;
+    fn decode(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn type_of(&self) -> CPUType;
     fn registers(&mut self) -> &mut dyn RegisterOps;
     fn halted(&self) -> bool;
@@ -41,6 +41,18 @@ pub struct InstructionCommon {
     length: u16,
     cycles: u16,
     increment_pc: bool,
+}
+
+impl InstructionCommon {
+    pub fn get_length(&self) -> u16 {
+        self.length
+    }
+    pub fn get_cycles(&self) -> u16 {
+        self.cycles
+    }
+    pub fn get_increment_pc(&self) -> bool {
+        self.increment_pc
+    }
 }
 
 pub trait BaseInstruction: Display {
