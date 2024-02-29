@@ -1,3 +1,5 @@
+#![feature(slice_index_methods)]
+
 use emu_lib::emulator::Emulator;
 
 use crate::emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
@@ -27,6 +29,6 @@ fn main() {
         print_registers(emu.cpu.registers());
     }
     ));
-    let mem: Result<u8, String> = emulator.memory.read(0xAABB);
+    let mem = emulator.memory.read_8(0xAABB);
     println!("Mem 0xAABB: {:02X}", mem.unwrap());
 }

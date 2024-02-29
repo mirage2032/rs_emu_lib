@@ -17,10 +17,10 @@ pub struct LD_B_N {
 }
 
 impl LD_B_N {
-    pub fn new(memory: &Memory, pos: u16) -> Result<LD_B_N, String> {
+    pub fn new<T: ReadableMemory>(memory: &T, pos: u16) -> Result<LD_B_N, String> {
         Ok(LD_B_N {
             common: COMMON,
-            n: memory.read(pos + 1)?,
+            n: *memory.read_8(pos + 1)?,
         })
     }
 

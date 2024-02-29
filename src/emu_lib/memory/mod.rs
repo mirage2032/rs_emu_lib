@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io;
-use std::io::{BufReader, Read, Write};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::ops::Index;
 
 mod memdevice;
@@ -13,16 +13,46 @@ pub struct Memory {
 pub enum MemoryError {
     OpenFile,
     ReadError,
-    ReadOnly(usize, u16),
-    NotMapped(u16),
+    ReadOnly(usize, u32),
+    UnmappedAddress(u32),
 }
 
-pub trait ReadableMemory<T> {
-    fn read(&self, addr: u16) -> Result<T, String>;
+pub trait ReadableMemory {
+    fn read_8(&self, addr: u16) -> Result<&u8, String>;
+    fn read_16(&self, addr: u16) -> Result<u16, String>;
 }
 
-pub trait WritableMemory<T> {
-    fn write(&mut self, addr: u16, data: T) -> Result<(), String>;
+pub trait WritableMemory {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), String>;
+    fn write_16(&mut self, addr: u16, data: u16) -> Result<(), String>;
+}
+
+impl ReadableMemory for Vec<u8> {
+    fn read_8(&self, addr: u16) -> Result<&u8, String> {
+        Ok(&self[addr as usize])
+    }
+
+    fn read_16(&self, addr: u16) -> Result<u16, String> {
+        let lsb = self[addr as usize];
+        let msb = self[(addr + 1) as usize];
+        Ok(u16::from_le_bytes([lsb, msb]))
+    }
+}
+
+impl WritableMemory for Vec<u8> {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), String> {
+        self[addr as usize] = data;
+        Ok(())
+    }
+    fn write_16(&mut self, addr: u16, data: u16) -> Result<(), String> {
+        let bytes = data.to_le_bytes();
+        if addr + 1 >= self.len() as u16 {
+            return Err("Address out of bounds".to_string());
+        }
+        self[addr as usize] = bytes[0];
+        self[(addr + 1) as usize] = bytes[1];
+        Ok(())
+    }
 }
 
 impl Memory {
@@ -52,7 +82,7 @@ impl Memory {
     fn get_elem_idx(&self, addr: u16) -> Result<(usize, u16), &str> {
         let mut offset = 0u16;
         for (index, device) in self.data.iter().enumerate() {
-            let device_end= offset + (device.size() - 1);
+            let device_end = offset + (device.size() - 1);
             if addr >= offset && addr < device_end {
                 return Ok((index, addr - offset)); // Return the index and the offset
             }
@@ -74,18 +104,20 @@ impl Memory {
     pub fn load(&mut self, filename: &str) -> Result<(), Vec<MemoryError>> {
         match File::open(filename) {
             Ok(file) => {
+                let filesize = file.metadata().unwrap().len();
                 let mut result = vec![];
                 let mut reader = BufReader::new(file);
-                let mut index: u16 = 0;
+                let mut index: u32 = 0;
                 for device in &mut self.data {
                     if device.is_read_only() {
-                        result.push(MemoryError::ReadOnly(index as usize, device.size()));
+                        result.push(MemoryError::ReadOnly(index as usize, device.size() as u32));
                     } else {
                         match reader.read_exact(device.data_mut()) {
                             Ok(_) => {
-                                index += device.size();
+                                index += device.size() as u32;
                             }
                             Err(ref err) if err.kind() == io::ErrorKind::UnexpectedEof => {
+                                index+= device.size() as u32;
                                 break;
                             }
                             Err(_) => {
@@ -95,6 +127,10 @@ impl Memory {
                         }
                     }
                 }
+                if filesize >= index as u64 {
+                    result.push(MemoryError::UnmappedAddress(index));
+                }
+                
                 if result.is_empty() {
                     Ok(())
                 } else {
@@ -106,31 +142,27 @@ impl Memory {
     }
 }
 
-impl ReadableMemory<u8> for Memory {
-    fn read(&self, addr: u16) -> Result<u8, String> {
+impl ReadableMemory for Memory {
+    fn read_8(&self, addr: u16) -> Result<&u8, String> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
-        Ok(*self.data[device_idx].read(offset))
+        Ok(self.data[device_idx].read(offset))
+    }
+
+    fn read_16(&self, addr: u16) -> Result<u16, String> {
+        let (device_idx, offset) = self.get_elem_idx(addr)?;
+        let lsb = *self.data[device_idx].read(offset);
+        let msb = *self.data[device_idx].read(offset + 1);
+        Ok(u16::from_le_bytes([lsb, msb]))
     }
 }
 
-impl ReadableMemory<u16> for Memory {
-    fn read(&self, addr: u16) -> Result<u16, String> {
-        let low: u8 = self.read(addr)?;
-        let high: u8 = self.read(addr + 1)?;
-        Ok(u16::from_le_bytes([low, high]))
-    }
-}
-
-impl WritableMemory<u8> for Memory {
-    fn write(&mut self, addr: u16, data: u8) -> Result<(), String> {
+impl WritableMemory for Memory {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), String> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].write(offset, data)?;
         Ok(())
     }
-}
-
-impl WritableMemory<u16> for Memory {
-    fn write(&mut self, addr: u16, data: u16) -> Result<(), String> {
+    fn write_16(&mut self, addr: u16, data: u16) -> Result<(), String> {
         let bytes = data.to_le_bytes();
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].write(offset, bytes[0])?;

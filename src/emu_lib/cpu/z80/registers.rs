@@ -20,7 +20,7 @@ pub struct Flags {
 }
 
 #[cfg(target_endian = "big")]
-#[derive(Default,Debug)]
+#[derive(Default, Debug)]
 #[repr(C)]
 pub struct ByteRegisters {
     pub a: u8,
@@ -130,8 +130,7 @@ impl RegisterOps for Registers {
             _ => panic!("Invalid register"),
         }
     }
-    
-    
+
 
     fn set_16(&mut self, register: &str, value: u16) {
         match register {
@@ -184,7 +183,7 @@ impl RegisterOps for Registers {
         map.insert("r", SingleRegister::Bit8(self.r));
         map
     }
-    
+
     fn pc(&self) -> &u16 {
         &self.pc
     }

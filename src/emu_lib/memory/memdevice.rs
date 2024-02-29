@@ -54,7 +54,7 @@ impl MemDevice for MemBank {
     fn read(&self, addr: u16) -> &u8 {
         &self.data[addr as usize]
     }
-    
+
     fn data_mut(&mut self) -> &mut Vec<u8> {
         &mut self.data
     }

@@ -10,16 +10,17 @@ const COMMON: InstructionCommon = InstructionCommon {
     cycles: 8,
     increment_pc: true,
 };
+
 pub struct LD_C_N {
     common: InstructionCommon,
     n: u8,
 }
 
 impl LD_C_N {
-    pub fn new(memory: &Memory, pos: u16) -> Result<LD_C_N, String>{
+    pub fn new<T: ReadableMemory>(memory: &T, pos: u16) -> Result<LD_C_N, String> {
         Ok(LD_C_N {
             common: COMMON,
-            n: memory.read(pos + 1)?,
+            n: *memory.read_8(pos + 1)?,
         })
     }
     pub fn new_with_value(n: u8) -> LD_C_N {

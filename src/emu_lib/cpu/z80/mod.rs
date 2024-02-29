@@ -1,12 +1,13 @@
 use registers::Registers;
 
-use crate::emu_lib::cpu::{BaseInstruction, Cpu, ExecutableInstruction};
-use crate::emu_lib::cpu::z80::instructions::decode;
+use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, InstructionDecoder, InstructionEncoder, RegisterOps};
 
 use super::super::memory::Memory;
 
 mod registers;
 mod instructions;
+mod encoder;
+mod decoder;
 
 pub struct Z80 {
     registers: Registers,
@@ -24,19 +25,26 @@ impl Z80 {
 
 impl Cpu for Z80 {
     fn step(&mut self, memory: &mut Memory) -> Result<Box<(dyn BaseInstruction)>, String> {
-        let instruction = decode(memory, self.registers.pc)?;
+        let instruction = Self::decode(memory, self.registers.pc)?;
         instruction.execute(memory, self)?;
         Ok(instruction)
     }
 
+    fn encode(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String> {
+        <Self as InstructionEncoder>::encode(instruction).map(|i| i as Box<(dyn BaseInstruction)>)
+    }
 
-    fn decode(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String> {
-        decode(memory, pos).map(|i| i as Box<(dyn BaseInstruction)>)
+    fn decode_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String> {
+        Self::decode(memory, pos).map(|i| i as Box<(dyn BaseInstruction)>)
     }
-    fn type_of(&self) -> super::super::cpu::CPUType {
-        super::super::cpu::CPUType::Z80
+
+    fn decode_vec(&self, vec: &Vec<u8>) -> Result<Box<(dyn BaseInstruction)>, String> {
+        Self::decode(vec, 0).map(|i| i as Box<(dyn BaseInstruction)>)
     }
-    fn registers(&mut self) -> &mut dyn super::super::cpu::RegisterOps {
+    fn type_of(&self) -> CPUType {
+        CPUType::Z80
+    }
+    fn registers(&mut self) -> &mut dyn RegisterOps {
         &mut self.registers
     }
     fn halted(&self) -> bool {

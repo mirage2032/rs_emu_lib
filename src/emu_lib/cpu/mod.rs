@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 
-use crate::emu_lib::memory::Memory;
+use crate::emu_lib::memory::{Memory, ReadableMemory};
 
 pub mod z80;
 pub mod i8080;
@@ -30,12 +30,25 @@ pub trait RegisterOps: Debug {
     fn sp_mut_ref(&mut self) -> &mut Stack<u16>;
 }
 
+pub trait InstructionDecoder {
+    fn decode(memory: &impl ReadableMemory, pos: u16) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
+}
+
+pub trait InstructionEncoder {
+    fn encode(instruction: String) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
+}
+
 pub trait Cpu {
     fn step(&mut self, memory: &mut Memory) -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn decode(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
+    fn encode(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String>;
+    fn decode_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
+    fn decode_vec(&self, vec: &Vec<u8>) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn type_of(&self) -> CPUType;
+
     fn registers(&mut self) -> &mut dyn RegisterOps;
+
     fn halted(&self) -> bool;
+
     fn set_halted(&mut self, halted: bool);
 }
 
@@ -62,7 +75,7 @@ pub trait BaseInstruction: Display {
     fn to_bytes(&self) -> Vec<u8>;
 }
 
-trait ExecutableInstruction<T: Cpu>: BaseInstruction {
+pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
     fn runner(&self, memory: &mut Memory, cpu: &mut T) -> Result<(), String>;
     fn execute(&self, memory: &mut Memory, cpu: &mut T) -> Result<(), String> {
         self.runner(memory, cpu)?;

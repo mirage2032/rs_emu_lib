@@ -23,7 +23,7 @@ impl LD_A_PBC {
 
 impl Display for LD_A_PBC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld a, (bc)",)
+        write!(f, "ld a, (bc)", )
     }
 }
 
@@ -38,7 +38,7 @@ impl BaseInstruction for LD_A_PBC {
 
 impl ExecutableInstruction<Z80> for LD_A_PBC {
     fn runner(&self, memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
-        cpu.registers.main.a = memory.read(cpu.registers.main.bc)?;
+        cpu.registers.main.a = *memory.read_8(cpu.registers.main.bc)?;
         Ok(())
     }
 }
