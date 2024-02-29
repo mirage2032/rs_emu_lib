@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io;
-use std::io::{BufReader, Read, Write};
+use std::io::{BufRead, BufReader, Read, Write};
 use std::ops::Index;
 
 mod memdevice;
@@ -13,7 +13,7 @@ pub struct Memory {
 pub enum MemoryError {
     OpenFile,
     ReadError,
-    ReadOnly(usize, u32),
+    ReadOnly(usize, usize),
     UnmappedAddress(u32),
 }
 
@@ -64,8 +64,8 @@ impl Memory {
 
     pub fn new() -> Memory {
         Memory {
-            data: vec![Box::new(memdevice::MemBank::new(0x4000)),
-                       Box::new(memdevice::MemBank::new(0xC000))],
+            data: vec![Box::new(memdevice::MemBank::new(0x4000,false)),
+                       Box::new(memdevice::MemBank::new(0xC000,false))], // TODO: Why it doesn't execute all instructions when this is true??????
         }
     }
 
@@ -110,14 +110,16 @@ impl Memory {
                 let mut index: u32 = 0;
                 for device in &mut self.data {
                     if device.is_read_only() {
-                        result.push(MemoryError::ReadOnly(index as usize, device.size() as u32));
+                        let dev_size = device.size() as usize;
+                        reader.consume(dev_size);
+                        index += device.size() as u32;
+                        result.push(MemoryError::ReadOnly(index as usize, device.size() as usize));
                     } else {
                         match reader.read_exact(device.data_mut()) {
                             Ok(_) => {
                                 index += device.size() as u32;
                             }
                             Err(ref err) if err.kind() == io::ErrorKind::UnexpectedEof => {
-                                index+= device.size() as u32;
                                 break;
                             }
                             Err(_) => {

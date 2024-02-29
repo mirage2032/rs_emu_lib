@@ -31,10 +31,10 @@ pub struct MemBank {
 }
 
 impl MemBank {
-    pub fn new(size: usize) -> MemBank {
+    pub fn new(size: usize, ro: bool) -> MemBank {
         MemBank {
             data: vec![0; size],
-            read_only: false,
+            read_only: ro,
         }
     }
 }
