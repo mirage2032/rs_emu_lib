@@ -31,6 +31,9 @@ impl BaseInstruction for EX_AF_SAF {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
+    fn to_bytes(&self) -> Vec<u8> {
+        vec![0x08]
+    }
 }
 
 impl ExecutableInstruction<Z80> for EX_AF_SAF {

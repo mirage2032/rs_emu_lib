@@ -31,6 +31,9 @@ impl BaseInstruction for LD_A_PBC {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
+    fn to_bytes(&self) -> Vec<u8> {
+        vec![0x0a]
+    }
 }
 
 impl ExecutableInstruction<Z80> for LD_A_PBC {

@@ -77,7 +77,7 @@ impl Emulator {
     pub fn run(&mut self, frequency: f32) -> StopReason {
         self.run_w_cb(frequency, None::<fn(&mut Self, &dyn BaseInstruction)>)
     }
-    
+
     pub fn decode(&self, pos: u16) -> Result<Box<dyn BaseInstruction>, String> {
         self.cpu.decode(&self.memory, pos)
     }

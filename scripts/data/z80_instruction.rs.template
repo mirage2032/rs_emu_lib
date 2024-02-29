@@ -32,6 +32,10 @@ impl BaseInstruction for %INSTRUCTION% {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
+    fn to_bytes(&self) -> Vec<u8> {
+            let nn_lsb = self.nn.to_le_bytes();
+            vec![0x01, nn_lsb[0], nn_lsb[1]]
+        }
 }
 
 impl ExecutableInstruction<Z80> for %INSTRUCTION% {

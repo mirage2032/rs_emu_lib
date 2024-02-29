@@ -32,6 +32,9 @@ impl BaseInstruction for INC_B {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
+    fn to_bytes(&self) -> Vec<u8> {
+        vec![0x04]
+    }
 }
 
 impl ExecutableInstruction<Z80> for INC_B {

@@ -2,9 +2,14 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::emu_lib::cpu::z80::registers::Flags;
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::{Memory, ReadableMemory};
+
+const COMMON: InstructionCommon = InstructionCommon {
+    length: 2,
+    cycles: 8,
+    increment_pc: true,
+};
 
 pub struct LD_B_N {
     common: InstructionCommon,
@@ -12,15 +17,18 @@ pub struct LD_B_N {
 }
 
 impl LD_B_N {
-    pub fn new(memory: &Memory, pos: u16) -> Result<LD_B_N,String> {
+    pub fn new(memory: &Memory, pos: u16) -> Result<LD_B_N, String> {
         Ok(LD_B_N {
-            common: InstructionCommon {
-                length: 2,
-                cycles: 7,
-                increment_pc: true,
-            },
+            common: COMMON,
             n: memory.read(pos + 1)?,
         })
+    }
+
+    pub fn new_with_value(n: u8) -> LD_B_N {
+        LD_B_N {
+            common: COMMON,
+            n,
+        }
     }
 }
 
@@ -33,6 +41,9 @@ impl Display for LD_B_N {
 impl BaseInstruction for LD_B_N {
     fn common(&self) -> &InstructionCommon {
         &self.common
+    }
+    fn to_bytes(&self) -> Vec<u8> {
+        vec![0x06, self.n]
     }
 }
 

@@ -5,6 +5,11 @@ use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCom
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::{Memory, ReadableMemory};
 
+const COMMON: InstructionCommon = InstructionCommon {
+    length: 3,
+    cycles: 10,
+    increment_pc: true,
+};
 pub struct LD_BC_NN {
     common: InstructionCommon,
     nn: u16,
@@ -13,13 +18,16 @@ pub struct LD_BC_NN {
 impl LD_BC_NN {
     pub fn new(memory: &Memory, pos: u16) -> Result<LD_BC_NN, String> {
         Ok(LD_BC_NN {
-            common: InstructionCommon {
-                length: 3,
-                cycles: 10,
-                increment_pc: true,
-            },
+            common: COMMON,
             nn: memory.read(pos + 1)?,
         })
+    }
+    
+    pub fn new_with_value(nn: u16) -> LD_BC_NN {
+        LD_BC_NN {
+            common: COMMON,
+            nn,
+        }
     }
 }
 
@@ -32,6 +40,10 @@ impl Display for LD_BC_NN {
 impl BaseInstruction for LD_BC_NN {
     fn common(&self) -> &InstructionCommon {
         &self.common
+    }
+    fn to_bytes(&self) -> Vec<u8> {
+        let nn_lsb = self.nn.to_le_bytes();
+        vec![0x01, nn_lsb[0], nn_lsb[1]]
     }
 }
 

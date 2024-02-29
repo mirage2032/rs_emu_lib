@@ -31,6 +31,9 @@ impl BaseInstruction for RLCA {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
+    fn to_bytes(&self) -> Vec<u8> {
+        vec![0x07]
+    }
 }
 
 impl ExecutableInstruction<Z80> for RLCA {

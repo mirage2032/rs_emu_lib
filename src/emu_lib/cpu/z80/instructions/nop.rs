@@ -31,6 +31,9 @@ impl BaseInstruction for NOP {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
+    fn to_bytes(&self) -> Vec<u8> {
+        vec![0x00]
+    }
 }
 
 impl ExecutableInstruction<Z80> for NOP {

@@ -59,6 +59,7 @@ impl InstructionCommon {
 
 pub trait BaseInstruction: Display {
     fn common(&self) -> &InstructionCommon;
+    fn to_bytes(&self) -> Vec<u8>;
 }
 
 trait ExecutableInstruction<T: Cpu>: BaseInstruction {

@@ -31,6 +31,9 @@ impl BaseInstruction for DEC_BC {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
+    fn to_bytes(&self) -> Vec<u8> {
+        vec![0x0b]
+    }
 }
 
 impl ExecutableInstruction<Z80> for DEC_BC {
