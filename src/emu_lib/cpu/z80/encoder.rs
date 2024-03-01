@@ -65,22 +65,22 @@ impl InstructionEncoder for Z80 {
                             "c" => Box::new(ld::ld_c_n::LD_C_N::new_with_value(val)),
                             _ => return Err(format!("Invalid \"ld {0}, {1}\" destination register {0}", destination, source))
                         },
-                    (Err(_), Ok(ImmediateValue::Ptr(Number::U16(val)))) =>
+                    (Err(_), Ok(ImmediateValue::Ptr(Number::U16(_)))) =>
                         match destination {
                             _ => return Err(format!("Invalid \"ld {0}, {1}\" destination register {0}", destination, source))
                         },
-                    (Err(_), Ok(ImmediateValue::Ptr(Number::U8(val)))) =>
+                    (Err(_), Ok(ImmediateValue::Ptr(Number::U8(_)))) =>
                         match destination {
                             _ => return Err(format!("Invalid \"ld {0}, {1}\" destination register {0}", destination, source))
                         },
 
                     (Ok(ImmediateValue::Val(_)), Err(_)) =>
                         return Err(format!("Invalid \"ld {0}, {1}\" source register {1}", destination, source)),
-                    (Ok(ImmediateValue::Ptr(Number::U16(val))), Err(_)) =>
+                    (Ok(ImmediateValue::Ptr(Number::U16(_))), Err(_)) =>
                         match source {
                             _ => return Err(format!("Invalid \"ld {0}, {1}\" source register {1}", destination, source))
                         },
-                    (Ok(ImmediateValue::Ptr(Number::U8(val))), Err(_)) =>
+                    (Ok(ImmediateValue::Ptr(Number::U8(_))), Err(_)) =>
                         match source {
                             _ => return Err(format!("Invalid \"ld {0}, {1}\" source register {1}", destination, source))
                         },

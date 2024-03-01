@@ -63,10 +63,10 @@ impl Memory {
     }
 
     pub fn new() -> Memory {
-        Memory {
-            data: vec![Box::new(memdevice::MemBank::new(0x4000,false)),
-                       Box::new(memdevice::MemBank::new(0xC000,false))], // TODO: Why it doesn't execute all instructions when this is true??????
-        }
+        let mut mem = Self::new_empty();
+        mem.add_device(Box::new(memdevice::MemBank::new(0x4000, false)));
+        mem.add_device(Box::new(memdevice::MemBank::new(0xC000, true)));
+        mem
     }
 
     pub fn clear(&mut self) {
@@ -132,7 +132,7 @@ impl Memory {
                 if filesize >= index as u64 {
                     result.push(MemoryError::UnmappedAddress(index));
                 }
-                
+
                 if result.is_empty() {
                     Ok(())
                 } else {
