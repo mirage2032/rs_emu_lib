@@ -6,7 +6,7 @@ use crate::emu_lib::memory::{Memory, ReadableMemory};
 pub mod z80;
 pub mod i8080;
 
-#[derive(PartialEq)]
+#[derive(PartialEq,Copy,Clone)]
 pub enum CPUType {
     Z80,
     I8080,
@@ -17,7 +17,7 @@ pub enum SingleRegister {
     Bit16(u16),
 }
 
-type Stack<T> = Vec<T>;
+pub type Stack<T> = Vec<T>;
 
 pub trait RegisterOps: Debug {
     fn clear(&mut self);
@@ -38,7 +38,7 @@ pub trait InstructionEncoder {
     fn encode(instruction: String) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
 }
 
-pub trait Cpu {
+pub trait Cpu: Send + Sync {
     fn step(&mut self, memory: &mut Memory) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn encode(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn decode_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;

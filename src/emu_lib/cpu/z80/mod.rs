@@ -5,7 +5,7 @@ use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, InstructionDecoder, Ins
 use super::super::memory::Memory;
 
 mod registers;
-mod instructions;
+pub mod instructions;
 mod encoder;
 mod decoder;
 

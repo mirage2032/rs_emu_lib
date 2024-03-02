@@ -1,8 +1,5 @@
+use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
 use emu_lib::emulator::Emulator;
-
-use crate::emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
-
-mod emu_lib;
 
 fn print_registers(registers: &dyn RegisterOps) {
     let register_map = registers.get_all();

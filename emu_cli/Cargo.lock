@@ -23,6 +23,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "emu_cli"
+version = "0.1.0"
+dependencies = [
+ "emu_lib",
+]
+
+[[package]]
 name = "emu_lib"
 version = "0.1.0"
 dependencies = [

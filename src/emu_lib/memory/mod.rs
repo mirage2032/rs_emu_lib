@@ -2,8 +2,8 @@ use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::ops::Index;
-
 mod memdevice;
+pub use memdevice::{MemDevice, MemBank};
 
 pub struct Memory {
     data: Vec<Box<dyn memdevice::MemDevice>>,
@@ -22,7 +22,7 @@ pub trait ReadableMemory {
     fn read_16(&self, addr: u16) -> Result<u16, String>;
 }
 
-pub trait WritableMemory {
+pub trait WriteableMemory {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), String>;
     fn write_16(&mut self, addr: u16, data: u16) -> Result<(), String>;
 }
@@ -39,7 +39,7 @@ impl ReadableMemory for Vec<u8> {
     }
 }
 
-impl WritableMemory for Vec<u8> {
+impl WriteableMemory for Vec<u8> {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), String> {
         self[addr as usize] = data;
         Ok(())
@@ -158,7 +158,7 @@ impl ReadableMemory for Memory {
     }
 }
 
-impl WritableMemory for Memory {
+impl WriteableMemory for Memory {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), String> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].write(offset, data)?;

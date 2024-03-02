@@ -1,6 +1,6 @@
 use std::ops::Index;
 
-pub trait MemDevice {
+pub trait MemDevice: Send + Sync {
     fn size(&self) -> u16;
     fn read(&self, addr: u16) -> &u8;
     fn data_mut(&mut self) -> &mut Vec<u8>;

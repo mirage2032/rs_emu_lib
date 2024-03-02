@@ -1,7 +1,8 @@
 use std::time::{Duration, SystemTime};
-
-use super::cpu::{BaseInstruction, Cpu, CPUType, i8080::I8080, z80::Z80};
-use super::memory::Memory;
+use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType};
+use crate::emu_lib::cpu::i8080::I8080;
+use crate::emu_lib::cpu::z80::Z80;
+use crate::emu_lib::memory::Memory;
 
 pub enum StopReason {
     Breakpoint,
