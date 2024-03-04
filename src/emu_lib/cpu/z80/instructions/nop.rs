@@ -38,7 +38,6 @@ impl BaseInstruction for NOP {
 
 impl ExecutableInstruction<Z80> for NOP {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
-        cpu.registers.pc += self.common.length;
         Ok(())
     }
 }
