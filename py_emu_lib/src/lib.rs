@@ -1,33 +1,32 @@
+mod memory;
+mod cpu;
+
 use pyo3::prelude::*;
 
-use emu_lib::cpu::CPUType;
+use cpu::*;
+use memory::*;
 use emu_lib::emulator::Emulator;
 
-#[pyclass(name = "Emulator")]
-pub struct PyEmulator {
-    emulator: Emulator,
-}
 
-#[pyclass]
-#[derive(Clone, Copy)]
-pub struct PyCPUType {
-    cpu_type: CPUType,
+#[pyclass(name = "Emulator")]
+struct PyEmulator {
+    emulator: Emulator,
 }
 
 #[pymethods]
 impl PyEmulator {
     #[new]
     fn new(cputype: PyCPUType) -> Self {
-        PyEmulator { emulator: Emulator::new(cputype.cpu_type) }
+        PyEmulator { emulator: Emulator::new(cputype.into()) }
     }
 
     #[setter]
     fn set_cpu_type(&mut self, cputype: PyCPUType) {
-        self.emulator.set_cpu_type(cputype.cpu_type);
+        self.emulator.set_cpu_type(cputype.into());
     }
     #[getter]
     fn get_cpu_type(&self) -> PyCPUType {
-        PyCPUType { cpu_type: self.emulator.cpu.type_of() }
+        self.emulator.cpu.type_of().into()
     }
 
     fn step(&mut self) -> PyResult<()> {
@@ -39,7 +38,9 @@ impl PyEmulator {
 }
 
 #[pymodule]
-fn py_emu_lib(_py: Python, m: &PyModule) -> PyResult<()> {
+fn py_emu_lib(py: Python<'_>, m: &PyModule) -> PyResult<()> {
+    register_cpu_module(py, m)?;
+    register_memory_module(py, m)?;
     m.add_class::<PyEmulator>()?;
     Ok(())
 }

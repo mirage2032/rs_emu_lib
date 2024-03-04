@@ -136,7 +136,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "py_emu_lib"
+name = "py-emu-lib"
 version = "0.1.0"
 dependencies = [
  "emu_lib",

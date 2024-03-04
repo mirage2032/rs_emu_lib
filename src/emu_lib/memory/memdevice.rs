@@ -1,9 +1,9 @@
 use std::ops::Index;
 
+
 pub trait MemDevice: Send + Sync {
     fn size(&self) -> u16;
-    fn read(&self, addr: u16) -> &u8;
-    fn data_mut(&mut self) -> &mut Vec<u8>;
+    fn read(&self, addr: u16) -> u8;
     fn write(&mut self, addr: u16, data: u8) -> Result<(), &str>;
     fn is_read_only(&self) -> bool;
     fn clear(&mut self) -> Result<(), &str> {
@@ -14,14 +14,6 @@ pub trait MemDevice: Send + Sync {
             self.write(i, 0).unwrap();
         }
         Ok(())
-    }
-}
-
-impl Index<u16> for dyn MemDevice {
-    type Output = u8;
-
-    fn index(&self, index: u16) -> &u8 {
-        self.read(index)
     }
 }
 
@@ -39,25 +31,14 @@ impl MemBank {
     }
 }
 
-impl Index<u8> for MemBank {
-    type Output = u8;
-
-    fn index(&self, index: u8) -> &u8 {
-        &self.data[index as usize]
-    }
-}
-
 impl MemDevice for MemBank {
     fn size(&self) -> u16 {
         self.data.len() as u16
     }
-    fn read(&self, addr: u16) -> &u8 {
-        &self.data[addr as usize]
+    fn read(&self, addr: u16) -> u8 {
+        self.data[addr as usize]
     }
 
-    fn data_mut(&mut self) -> &mut Vec<u8> {
-        &mut self.data
-    }
     fn write(&mut self, addr: u16, data: u8) -> Result<(), &str> {
         if self.read_only {
             return Err("Write to read-only memory");
