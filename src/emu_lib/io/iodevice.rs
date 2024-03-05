@@ -11,9 +11,8 @@ pub trait IODevice {
     fn read(&self, pin: u8) -> Result<u8, &str>;
     fn write(&mut self, pin: u8, data: u8) -> Result<(), &str>;
     fn step(&mut self);
-    fn will_interrupt(&self) -> Option<InterruptType> { // Return Interrupt vector
-        None
-    }
+    fn will_interrupt(&self) -> Option<InterruptType>;
+    fn ack_int(&mut self) -> Result<(), &str>;
 }
 
 pub struct IORegister {
@@ -47,6 +46,9 @@ impl IODevice for IORegister {
     fn step(&mut self) {}
     fn will_interrupt(&self) -> Option<InterruptType> {
         None
+    }
+    fn ack_int(&mut self) -> Result<(), &str> {
+        Ok(())
     }
 }
 

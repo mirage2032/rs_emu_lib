@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use iodevice::IODevice;
 use iodevice::IORegister;
+
 use crate::io::iodevice::InterruptType;
 
 pub mod iodevice;
@@ -9,6 +10,8 @@ pub mod iodevice;
 pub struct IO {
     pub io_devices: Vec<Box<dyn IODevice>>,
     pub port_map: HashMap<u8, u8>,
+    iff1: bool,
+    iff2: bool,
 }
 
 impl Default for IO {
@@ -21,6 +24,8 @@ impl Default for IO {
         IO {
             io_devices: vec![Box::new(registers)],
             port_map,
+            iff1: false,
+            iff2: false,
         }
     }
 }
@@ -55,13 +60,34 @@ impl IO {
         self.io_devices.push(device);
     }
 
-    pub fn will_interrupt(&self) -> Option<InterruptType> {
-        for device in self.io_devices.iter() {
+    pub fn get_interrupt(&self) -> Option<(InterruptType, usize)> {
+        if !self.int_enabled() {
+            return None;
+        }
+        for (i, device) in self.io_devices.iter().enumerate() {
             match device.will_interrupt() {
                 None => continue,
-                val => { return val; }
+                Some(val) => { return Some((val, i)); }
             }
         }
         None
+    }
+
+    pub fn ack_int(&mut self, device_id: usize) -> Result<(), &str> {
+        let s = self.io_devices.get_mut(device_id).ok_or("Attempting to acknowledge interrupt from non existent device")?;
+        s.ack_int()
+    }
+
+    pub fn int_enabled(&self) -> bool {
+        self.iff1
+    }
+    pub fn enable_int(&mut self) {
+        self.iff1 = true;
+    }
+    pub fn start_int(&mut self) {
+        self.iff2 = self.iff1;
+    }
+    pub fn disable_int(&mut self) {
+        self.iff1 = self.iff2;
     }
 }

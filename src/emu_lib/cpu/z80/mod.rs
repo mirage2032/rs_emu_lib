@@ -25,13 +25,14 @@ impl Z80 {
     }
 
     fn handle_interrupt(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Option<Box<dyn ExecutableInstruction<Z80>>>, String> {
-        match io.will_interrupt() {
-            Some(int_vector) => {
+        match io.get_interrupt() {
+            Some((int_vector, id)) => {
+                let mut ret_instr: Option<Box<dyn ExecutableInstruction<Z80>>> = None;
                 match int_vector {
                     InterruptType::IM0(instruction) => {
                         let instruction = Self::decode(&vec![instruction], 0)?;
                         instruction.execute(memory, self, io)?;
-                        return Ok(Some(instruction));
+                        ret_instr = Some(instruction);
                     }
                     _ => {
                         memory.write_16(self.registers.sp - 2, self.registers.pc + 1).or_else(|_| Err("Error pushing SP to stack durring interrupt".to_string()))?;
@@ -45,9 +46,10 @@ impl Z80 {
                             }
                             _ => unreachable!("IM0 should have been handled")
                         }
-                        return Ok(None);
                     }
                 }
+                io.ack_int(id)?;
+                return Ok(ret_instr);
             }
             None => { Ok(None) }
         }
