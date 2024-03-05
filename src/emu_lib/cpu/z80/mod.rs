@@ -1,8 +1,10 @@
 use registers::Registers;
 
+use crate::cpu::ExecutableInstruction;
 use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, InstructionDecoder, InstructionEncoder, RegisterOps};
+use crate::io::{IO, iodevice::InterruptType};
 
-use super::super::memory::Memory;
+use super::super::memory::{Memory, WriteableMemory};
 
 mod registers;
 pub mod instructions;
@@ -21,12 +23,45 @@ impl Z80 {
             halted: false,
         }
     }
+
+    fn handle_interrupt(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Option<Box<dyn ExecutableInstruction<Z80>>>, String> {
+        match io.will_interrupt() {
+            Some(int_vector) => {
+                match int_vector {
+                    InterruptType::IM0(instruction) => {
+                        let instruction = Self::decode(&vec![instruction], 0)?;
+                        instruction.execute(memory, self, io)?;
+                        return Ok(Some(instruction));
+                    }
+                    _ => {
+                        memory.write_16(self.registers.sp - 2, self.registers.pc + 1).or_else(|_| Err("Error pushing SP to stack durring interrupt".to_string()))?;
+                        self.registers.sp -= 2;
+                        match int_vector {
+                            InterruptType::IM1 => {
+                                self.registers.pc = 0x38;
+                            }
+                            InterruptType::IM2(int_vector) => {
+                                self.registers.pc = u16::from_le_bytes([int_vector, self.registers.i]);
+                            }
+                            _ => unreachable!("IM0 should have been handled")
+                        }
+                        return Ok(None);
+                    }
+                }
+            }
+            None => { Ok(None) }
+        }
+    }
 }
 
 impl Cpu for Z80 {
-    fn step(&mut self, memory: &mut Memory) -> Result<Box<(dyn BaseInstruction)>, String> {
-        let instruction = Self::decode(memory, self.registers.pc)?;
-        instruction.execute(memory, self)?;
+    fn step(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Box<(dyn BaseInstruction)>, String> {
+        let res = self.handle_interrupt(memory, io)?; // If IM1 interrupt it will be returned and executed
+        let instruction = match res {
+            Some(instruction) => instruction,
+            None => Self::decode(memory, self.registers.pc)?
+        };
+        instruction.execute(memory, self, io)?;
         Ok(instruction)
     }
 

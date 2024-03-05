@@ -1,5 +1,3 @@
-use std::ops::Index;
-
 
 pub trait MemDevice: Send + Sync {
     fn size(&self) -> u16;

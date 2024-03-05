@@ -1,5 +1,6 @@
 use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, ExecutableInstruction, InstructionDecoder, InstructionEncoder, RegisterOps};
 use crate::emu_lib::memory::ReadableMemory;
+use crate::io::IO;
 
 use super::super::memory::Memory;
 
@@ -26,7 +27,7 @@ impl InstructionEncoder for I8080 {
 }
 
 impl Cpu for I8080 {
-    fn step(&mut self, _: &mut Memory) -> Result<Box<dyn BaseInstruction>, String> {
+    fn step(&mut self, _: &mut Memory, _: &mut IO) -> Result<Box<dyn BaseInstruction>, String> {
         unimplemented!()
     }
 

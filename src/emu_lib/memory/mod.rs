@@ -1,10 +1,10 @@
 use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, Read, Write};
-use std::ops::Index;
+
+pub use memdevice::{MemBank, MemDevice};
+
 mod memdevice;
-pub use memdevice::{MemDevice, MemBank};
-use std::sync::Mutex;
 
 #[derive(Default)]
 pub struct Memory {
@@ -62,7 +62,6 @@ impl WriteableMemory for Vec<u8> {
 }
 
 impl Memory {
-
     pub fn new() -> Memory {
         let mut mem = Self::default();
         mem.add_device(Box::new(memdevice::MemBank::new(0x4000, false)));
@@ -84,7 +83,7 @@ impl Memory {
         let mut offset = 0u16;
         for (index, device) in self.data.iter().enumerate() {
             let dev_size = device.size();
-            let device_end = offset + dev_size ;
+            let device_end = offset + dev_size;
             if addr >= offset && addr < device_end {
                 return Ok((index, addr - offset)); // Return the index and the offset
             }
@@ -160,9 +159,8 @@ impl ReadableMemory for Memory {
     }
 
     fn read_16(&self, addr: u16) -> Result<u16, String> {
-        let (device_idx, offset) = self.get_elem_idx(addr)?;
-        let lsb = self.data[device_idx].read(offset);
-        let msb = self.data[device_idx].read(offset + 1);
+        let lsb = self.read_8(addr)?;
+        let msb = self.read_8(addr + 1)?;
         Ok(u16::from_le_bytes([lsb, msb]))
     }
 }
@@ -175,9 +173,8 @@ impl WriteableMemory for Memory {
     }
     fn write_16(&mut self, addr: u16, data: u16) -> Result<(), String> {
         let bytes = data.to_le_bytes();
-        let (device_idx, offset) = self.get_elem_idx(addr)?;
-        self.data[device_idx].write(offset, bytes[0])?;
-        self.data[device_idx].write(offset, bytes[1])?;
+        self.write_8(addr, bytes[0])?;
+        self.write_8(addr, bytes[1])?;
         Ok(())
     }
 }

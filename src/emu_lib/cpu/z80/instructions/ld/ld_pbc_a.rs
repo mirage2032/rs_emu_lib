@@ -4,6 +4,7 @@ use std::fmt::Display;
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::{Memory, WriteableMemory};
+use crate::io::IO;
 
 pub struct LD_PBC_A {
     common: InstructionCommon,
@@ -37,7 +38,7 @@ impl BaseInstruction for LD_PBC_A {
 }
 
 impl ExecutableInstruction<Z80> for LD_PBC_A {
-    fn runner(&self, memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+    fn runner(&self, memory: &mut Memory, cpu: &mut Z80,_:&mut IO) -> Result<(), String> {
         let location = cpu.registers.main.bc;
         memory.write_8(location, cpu.registers.main.a)?;
         Ok(())

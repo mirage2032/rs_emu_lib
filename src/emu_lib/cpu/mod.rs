@@ -2,11 +2,12 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 
 use crate::emu_lib::memory::{Memory, ReadableMemory};
+use crate::io::IO;
 
 pub mod z80;
 pub mod i8080;
 
-#[derive(PartialEq,Copy,Clone)]
+#[derive(PartialEq, Copy, Clone)]
 pub enum CPUType {
     Z80,
     I8080,
@@ -17,8 +18,6 @@ pub enum SingleRegister {
     Bit16(u16),
 }
 
-pub type Stack<T> = Vec<T>;
-
 pub trait RegisterOps: Debug {
     fn clear(&mut self);
     fn set_8(&mut self, register: &str, value: u8);
@@ -26,8 +25,6 @@ pub trait RegisterOps: Debug {
     fn get_all(&self) -> HashMap<&str, SingleRegister>;
     fn pc(&self) -> &u16;
     fn pc_mut_ref(&mut self) -> &mut u16;
-    fn sp(&self) -> &Stack<u16>;
-    fn sp_mut_ref(&mut self) -> &mut Stack<u16>;
 }
 
 pub trait InstructionDecoder {
@@ -39,7 +36,7 @@ pub trait InstructionEncoder {
 }
 
 pub trait Cpu: Send + Sync {
-    fn step(&mut self, memory: &mut Memory) -> Result<Box<(dyn BaseInstruction)>, String>;
+    fn step(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn encode(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn decode_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn decode_vec(&self, vec: &Vec<u8>) -> Result<Box<(dyn BaseInstruction)>, String>;
@@ -76,9 +73,9 @@ pub trait BaseInstruction: Display {
 }
 
 pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
-    fn runner(&self, memory: &mut Memory, cpu: &mut T) -> Result<(), String>;
-    fn execute(&self, memory: &mut Memory, cpu: &mut T) -> Result<(), String> {
-        self.runner(memory, cpu)?;
+    fn runner(&self, memory: &mut Memory, cpu: &mut T,io:&mut  IO) -> Result<(), String>;
+    fn execute(&self, memory: &mut Memory, cpu: &mut T, io:&mut  IO) -> Result<(), String> {
+        self.runner(memory, cpu,io)?;
         if self.common().increment_pc {
             *cpu.registers().pc_mut_ref() += self.common().length;
         }

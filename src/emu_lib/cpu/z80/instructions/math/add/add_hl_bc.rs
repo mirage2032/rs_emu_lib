@@ -5,6 +5,7 @@ use crate::add_rr_rr;
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::Memory;
+use crate::io::IO;
 
 pub struct ADD_HL_BC {
     common: InstructionCommon,
@@ -38,7 +39,7 @@ impl BaseInstruction for ADD_HL_BC {
 }
 
 impl ExecutableInstruction<Z80> for ADD_HL_BC {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80,_:&mut  IO) -> Result<(), String> {
         add_rr_rr!(&mut cpu.registers.main.hl, cpu.registers.main.bc, cpu.registers.main.f);
         Ok(())
     }

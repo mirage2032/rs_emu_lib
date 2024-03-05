@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use bitfield_struct::bitfield;
 
-use crate::emu_lib::cpu::{RegisterOps, SingleRegister, Stack};
+use crate::emu_lib::cpu::{RegisterOps, SingleRegister};
 
 #[bitfield(u8)]
 #[derive(PartialEq, Eq)]
@@ -75,7 +75,7 @@ pub struct Registers {
     pub shadow: ByteRegisters,
     pub ix: u16,
     pub iy: u16,
-    pub sp: Stack<u16>,
+    pub sp: u16,
     pub pc: u16,
     pub i: u8,
     pub r: u8,
@@ -88,7 +88,7 @@ impl Registers {
             shadow: ByteRegisters::default(),
             ix: 0,
             iy: 0,
-            sp: Stack::new(),
+            sp: 0xFFFF,
             pc: 0,
             i: 0,
             r: 0,
@@ -102,7 +102,7 @@ impl RegisterOps for Registers {
         self.shadow = ByteRegisters::default();
         self.ix = 0;
         self.iy = 0;
-        self.sp = Stack::new();
+        self.sp = 0;
         self.pc = 0;
         self.i = 0;
         self.r = 0;
@@ -145,6 +145,7 @@ impl RegisterOps for Registers {
             "ix" => self.ix = value,
             "iy" => self.iy = value,
             "pc" => self.pc = value,
+            "sp" => self.sp = value,
             _ => panic!("Invalid register"),
         }
     }
@@ -179,6 +180,8 @@ impl RegisterOps for Registers {
 
         map.insert("ix", SingleRegister::Bit16(self.ix));
         map.insert("iy", SingleRegister::Bit16(self.iy));
+        map.insert("sp", SingleRegister::Bit16(self.sp));
+        map.insert("pc", SingleRegister::Bit16(self.pc));
         map.insert("i", SingleRegister::Bit8(self.i));
         map.insert("r", SingleRegister::Bit8(self.r));
         map
@@ -189,11 +192,5 @@ impl RegisterOps for Registers {
     }
     fn pc_mut_ref(&mut self) -> &mut u16 {
         &mut self.pc
-    }
-    fn sp(&self) -> &Stack<u16> {
-        &self.sp
-    }
-    fn sp_mut_ref(&mut self) -> &mut Stack<u16> {
-        &mut self.sp
     }
 }

@@ -5,6 +5,7 @@ use crate::dec_r;
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::Memory;
+use crate::io::IO;
 
 pub struct DEC_C {
     common: InstructionCommon,
@@ -38,7 +39,7 @@ impl BaseInstruction for DEC_C {
 }
 
 impl ExecutableInstruction<Z80> for DEC_C {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80,_:&mut  IO) -> Result<(), String> {
         dec_r!(&mut cpu.registers.main.c, &mut cpu.registers.main.f);
         Ok(())
     }

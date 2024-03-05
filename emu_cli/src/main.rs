@@ -5,14 +5,13 @@ use emu_lib::memory::MemoryError;
 fn print_registers(registers: &dyn RegisterOps) {
     let register_map = registers.get_all();
     print!("Registers: ");
-    for i in ["af", "bc", "de", "hl", "ix", "iy"].iter() {
+    for i in ["af", "bc", "de", "hl", "ix", "iy", "sp", "pc"].iter() {
         match register_map.get(i).unwrap() {
             SingleRegister::Bit8(v) => { print!("{} {:02X}, ", i, v); }
             SingleRegister::Bit16(v) => { print!("{} {:04X}, ", i, v); }
         }
     };
     print!("pc {:04X}, ", registers.pc());
-    print!("sp {:04X}", registers.sp().last().unwrap_or(&0));
     println!();
 }
 

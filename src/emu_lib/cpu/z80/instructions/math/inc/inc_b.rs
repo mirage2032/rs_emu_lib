@@ -5,6 +5,7 @@ use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCom
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::Memory;
 use crate::inc_r;
+use crate::io::IO;
 
 pub struct INC_B {
     common: InstructionCommon,
@@ -38,7 +39,7 @@ impl BaseInstruction for INC_B {
 }
 
 impl ExecutableInstruction<Z80> for INC_B {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80,_:&mut IO) -> Result<(), String> {
         inc_r!(&mut cpu.registers.main.b, &mut cpu.registers.main.f);
         Ok(())
     }

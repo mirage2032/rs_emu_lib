@@ -4,6 +4,7 @@ use std::fmt::Display;
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::{Memory, ReadableMemory};
+use crate::io::IO;
 
 const COMMON: InstructionCommon = InstructionCommon {
     length: 3,
@@ -50,7 +51,7 @@ impl BaseInstruction for LD_BC_NN {
 }
 
 impl ExecutableInstruction<Z80> for LD_BC_NN {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _:&mut  IO) -> Result<(), String> {
         cpu.registers.main.bc = self.nn;
         Ok(())
     }

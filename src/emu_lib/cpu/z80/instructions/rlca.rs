@@ -4,6 +4,7 @@ use std::fmt::Display;
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::Memory;
+use crate::io::IO;
 
 pub struct RLCA {
     common: InstructionCommon,
@@ -37,7 +38,7 @@ impl BaseInstruction for RLCA {
 }
 
 impl ExecutableInstruction<Z80> for RLCA {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80,_: &mut IO) -> Result<(), String> {
         let carry = cpu.registers.main.a >> 7;
         cpu.registers.main.f.set_carry(carry != 0);
         let a = (cpu.registers.main.a << 1) | carry;

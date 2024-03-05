@@ -1,7 +1,9 @@
 use std::time::{Duration, SystemTime};
+
 use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType};
 use crate::emu_lib::cpu::i8080::I8080;
 use crate::emu_lib::cpu::z80::Z80;
+use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 
 pub enum StopReason {
@@ -14,6 +16,7 @@ pub struct Emulator {
     pub memory: Memory,
     pub cpu: Box<dyn Cpu>,
     pub breakpoints: Vec<u16>,
+    pub io: IO,
 }
 
 impl Emulator {
@@ -26,6 +29,7 @@ impl Emulator {
             memory: Memory::new(),
             cpu,
             breakpoints: Vec::new(),
+            io: IO::default(),
         }
     }
 
@@ -33,7 +37,7 @@ impl Emulator {
         if self.cpu.halted() {
             return Err("CPU is halted".to_string());
         }
-        self.cpu.step(&mut self.memory)
+        self.cpu.step(&mut self.memory, &mut self.io)
     }
 
     pub fn run_w_cb<T: Fn(&mut Self, &dyn BaseInstruction)>(&mut self, frequency: f32, callback: Option<T>) -> StopReason
