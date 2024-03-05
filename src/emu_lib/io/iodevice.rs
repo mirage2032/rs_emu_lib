@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 pub enum InterruptType { // disable itnerrupts when it happens
+    NMI,     // non-maskable interrupt
     IM0(u8), // instruction to exec, usually RST xx, no save of PC by default
     IM1,     // jump to 0x0038 after pushing PC to stack
     IM2(u8), // jump to I + this after pushing PC to stack

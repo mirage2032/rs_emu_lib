@@ -27,29 +27,33 @@ impl Z80 {
     fn handle_interrupt(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Option<Box<dyn ExecutableInstruction<Z80>>>, String> {
         match io.get_interrupt() {
             Some((int_vector, id)) => {
-                let mut ret_instr: Option<Box<dyn ExecutableInstruction<Z80>>> = None;
-                match int_vector {
+                let ret_instr: Option<Box<dyn ExecutableInstruction<Z80>>> = match int_vector {
+                    InterruptType::NMI => {
+                        self.registers.pc = 0x66;
+                        None
+                    }
                     InterruptType::IM0(instruction) => {
                         let instruction = Self::decode(&vec![instruction], 0)?;
                         instruction.execute(memory, self, io)?;
-                        ret_instr = Some(instruction);
+                        Some(instruction)
                     }
-                    _ => {
+                    remaining => {
                         memory.write_16(self.registers.sp - 2, self.registers.pc + 1).or_else(|_| Err("Error pushing SP to stack durring interrupt".to_string()))?;
                         self.registers.sp -= 2;
-                        match int_vector {
+                        match remaining {
                             InterruptType::IM1 => {
                                 self.registers.pc = 0x38;
                             }
                             InterruptType::IM2(int_vector) => {
                                 self.registers.pc = u16::from_le_bytes([int_vector, self.registers.i]);
                             }
-                            _ => unreachable!("IM0 should have been handled")
+                            _ => unreachable!("IM0/NMI should have been handled")
                         }
+                        None
                     }
-                }
+                };
                 io.ack_int(id)?;
-                return Ok(ret_instr);
+                Ok(ret_instr)
             }
             None => { Ok(None) }
         }

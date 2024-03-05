@@ -61,13 +61,11 @@ impl IO {
     }
 
     pub fn get_interrupt(&self) -> Option<(InterruptType, usize)> {
-        if !self.int_enabled() {
-            return None;
-        }
         for (i, device) in self.io_devices.iter().enumerate() {
             match device.will_interrupt() {
-                None => continue,
-                Some(val) => { return Some((val, i)); }
+                Some(InterruptType::NMI) => { return Some((InterruptType::NMI, i)); }
+                Some(val) if self.int_enabled() => { return Some((val, i)); }
+                _ => {}
             }
         }
         None
