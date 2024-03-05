@@ -40,6 +40,7 @@ impl Z80 {
                     remaining => {
                         memory.write_16(self.registers.sp - 2, self.registers.pc + 1).or_else(|_| Err("Error pushing SP to stack durring interrupt".to_string()))?;
                         self.registers.sp -= 2;
+                        self.registers.swap();
                         match remaining {
                             InterruptType::IM1 => {
                                 self.registers.pc = 0x38;

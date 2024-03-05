@@ -94,6 +94,9 @@ impl Registers {
             r: 0,
         }
     }
+    pub fn swap(&mut self) {
+        std::mem::swap(&mut self.main, &mut self.shadow);
+    }
 }
 
 impl RegisterOps for Registers {
@@ -107,6 +110,7 @@ impl RegisterOps for Registers {
         self.i = 0;
         self.r = 0;
     }
+
     fn set_8(&mut self, register: &str, value: u8) {
         match register {
             "a" => self.main.a = value,
@@ -146,6 +150,48 @@ impl RegisterOps for Registers {
             "iy" => self.iy = value,
             "pc" => self.pc = value,
             "sp" => self.sp = value,
+            _ => panic!("Invalid register"),
+        }
+    }
+    
+    fn get_8(&self, register: &str) -> u8 {
+        match register {
+            "a" => self.main.a,
+            "f" => self.main.f.into(),
+            "b" => self.main.b,
+            "c" => self.main.c,
+            "d" => self.main.d,
+            "e" => self.main.e,
+            "h" => self.main.h,
+            "l" => self.main.l,
+            "a'" => self.shadow.a,
+            "f'" => self.shadow.f.into(),
+            "b'" => self.shadow.b,
+            "c'" => self.shadow.c,
+            "d'" => self.shadow.d,
+            "e'" => self.shadow.e,
+            "h'" => self.shadow.h,
+            "l'" => self.shadow.l,
+            "i" => self.i,
+            "r" => self.r,
+            _ => panic!("Invalid register"),
+        }
+    }
+    
+    fn get_16(&self, register: &str) -> u16 {
+        match register {
+            "af" => self.main.af,
+            "bc" => self.main.bc,
+            "de" => self.main.de,
+            "hl" => self.main.hl,
+            "af'" => self.shadow.af,
+            "bc'" => self.shadow.bc,
+            "de'" => self.shadow.de,
+            "hl'" => self.shadow.hl,
+            "ix" => self.ix,
+            "iy" => self.iy,
+            "pc" => self.pc,
+            "sp" => self.sp,
             _ => panic!("Invalid register"),
         }
     }
@@ -190,7 +236,7 @@ impl RegisterOps for Registers {
     fn pc(&self) -> &u16 {
         &self.pc
     }
-    fn pc_mut_ref(&mut self) -> &mut u16 {
+    fn pc_mut(&mut self) -> &mut u16 {
         &mut self.pc
     }
 }

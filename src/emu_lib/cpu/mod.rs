@@ -22,9 +22,11 @@ pub trait RegisterOps: Debug {
     fn clear(&mut self);
     fn set_8(&mut self, register: &str, value: u8);
     fn set_16(&mut self, register: &str, value: u16);
+    fn get_8(&self, register: &str) -> u8;
+    fn get_16(&self, register: &str) -> u16;
     fn get_all(&self) -> HashMap<&str, SingleRegister>;
     fn pc(&self) -> &u16;
-    fn pc_mut_ref(&mut self) -> &mut u16;
+    fn pc_mut(&mut self) -> &mut u16;
 }
 
 pub trait InstructionDecoder {
@@ -73,11 +75,14 @@ pub trait BaseInstruction: Display {
 }
 
 pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
-    fn runner(&self, memory: &mut Memory, cpu: &mut T,io:&mut  IO) -> Result<(), String>;
-    fn execute(&self, memory: &mut Memory, cpu: &mut T, io:&mut  IO) -> Result<(), String> {
-        self.runner(memory, cpu,io)?;
+    fn runner(&self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String>;
+    fn execute(&self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String> {
+        self.runner(memory, cpu, io)?;
         if self.common().increment_pc {
-            *cpu.registers().pc_mut_ref() += self.common().length;
+            let inst_length = self.common().length;
+            *cpu.registers().pc_mut() += inst_length;
+            let new_r = cpu.registers().get_8("r").wrapping_add(inst_length as u8);
+            cpu.registers().set_8("r", new_r);
         }
         Ok(())
     }
