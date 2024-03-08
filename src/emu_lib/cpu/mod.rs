@@ -37,7 +37,7 @@ pub trait InstructionEncoder {
     fn encode(instruction: String) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
 }
 
-pub trait Cpu: Send + Sync {
+pub trait Cpu: Send {
     fn step(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn encode(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn decode_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;

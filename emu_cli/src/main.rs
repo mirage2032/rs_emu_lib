@@ -1,3 +1,4 @@
+
 use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
 use emu_lib::emulator::Emulator;
 use emu_lib::memory::MemoryError;

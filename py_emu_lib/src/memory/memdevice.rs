@@ -76,7 +76,7 @@ impl PyMemDevice {
     fn clear(&mut self) -> PyResult<()> {
         let res = (self as &mut dyn MemDevice).clear();
         res.map_err(|e| PyErr::new::<pyo3::exceptions::PyException, _>(e.to_string()))
-    }3
+    }
     
     fn set_cb_clear(&mut self, clear: PyObject) {
         self.clear = Some(clear);
