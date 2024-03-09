@@ -1,4 +1,3 @@
-use std::ops::Mul;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -17,7 +16,6 @@ pub struct MemViz {
 
 impl MemViz {
     pub fn new(size: usize, width: usize) -> MemViz {
-        let height = size.div_ceil(width);
         let buffer = Arc::new(Mutex::new(vec![0; size]));
         MemViz {
             buffer,
