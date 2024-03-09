@@ -1,7 +1,12 @@
+use std::thread;
+use std::time::Duration;
 
 use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::MemoryError;
+use emu_lib::memory::{MemDevice, MemoryError, ReadableMemory, WriteableMemory};
+use memdsp::MemViz;
+
+mod memdsp;
 
 fn print_registers(registers: &dyn RegisterOps) {
     let register_map = registers.get_all();
@@ -17,8 +22,12 @@ fn print_registers(registers: &dyn RegisterOps) {
 }
 
 fn main() {
+    let mut dsp = MemViz::new(256 * 256, 256);
+    dsp.start_thread(4);
     println!("Creating emulator");
-    let mut emulator = Emulator::new(emu_lib::cpu::CPUType::Z80);
+    let mut memory = emu_lib::memory::Memory::new();
+    memory.add_device(Box::new(dsp));
+    let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
     let rom_path = "roms/rom.z80.bin";
     println!("Loading rom: {}", rom_path);
     match emulator.memory.load(rom_path) {
@@ -39,6 +48,7 @@ fn main() {
             }
         }
     };
+    thread::sleep(Duration::from_secs(400));
     println!("Running emulator");
     print_registers(emulator.cpu.registers());
     let err = emulator.run_w_cb(2.0, Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
@@ -52,7 +62,7 @@ fn main() {
         emu_lib::emulator::StopReason::Halt => println!("Halted"),
         emu_lib::emulator::StopReason::Error(e) => {
             let pc = *emulator.cpu.registers().pc();
-            let instruction = emulator.cpu.decode_mem(&emulator.memory, pc).unwrap();
+            let instruction = emulator.cpu.decode_mem(&emulator.memory, pc).expect("Error decoding instruction");
             println!("Error: {} while executing \"{}\"", e, instruction)
         }
     }

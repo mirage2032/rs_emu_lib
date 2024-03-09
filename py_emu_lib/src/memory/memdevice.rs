@@ -41,7 +41,7 @@ impl PyMemDevice {
             clear: None,
         }
     }
-    fn size(&self) -> u16 {
+    fn size(&self) -> usize {
         (self as &dyn MemDevice).size()
     }
     fn set_cb_size(&mut self, size: PyObject) {
@@ -84,10 +84,10 @@ impl PyMemDevice {
 }
 
 impl MemDevice for PyMemDevice {
-    fn size(&self) -> u16 {
-        let mut result: u16 = 0;
+    fn size(&self) -> usize {
+        let mut result: usize = 0;
         let _ = Python::with_gil(|py| {
-            result = self.size.as_ref().unwrap().call0(py).unwrap().extract::<u16>(py).unwrap();
+            result = self.size.as_ref().unwrap().call0(py).unwrap().extract::<usize>(py).unwrap();
         });
         return result;
     }

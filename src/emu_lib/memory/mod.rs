@@ -6,7 +6,6 @@ pub use memdevice::{MemBank, MemDevice};
 
 mod memdevice;
 
-#[derive(Default)]
 pub struct Memory {
     data: Vec<Box<dyn memdevice::MemDevice>>,
 }
@@ -16,11 +15,11 @@ pub enum MemoryError {
     OpenFile,
     ReadError,
     ReadOnly(usize, usize),
-    UnmappedAddress(u32),
+    UnmappedAddress(usize),
 }
 
 pub trait ReadableMemory {
-    fn len(&self) -> u16;
+    fn len(&self) -> usize;
     fn read_8(&self, addr: u16) -> Result<u8, String>;
     fn read_16(&self, addr: u16) -> Result<u16, String>;
 }
@@ -31,8 +30,8 @@ pub trait WriteableMemory {
 }
 
 impl ReadableMemory for Vec<u8> {
-    fn len(&self) -> u16 {
-        self.len() as u16
+    fn len(&self) -> usize {
+        self.len()
     }
     fn read_8(&self, addr: u16) -> Result<u8, String> {
         Ok(self[addr as usize])
@@ -63,10 +62,7 @@ impl WriteableMemory for Vec<u8> {
 
 impl Memory {
     pub fn new() -> Memory {
-        let mut mem = Self::default();
-        mem.add_device(Box::new(memdevice::MemBank::new(0x4000, false)));
-        mem.add_device(Box::new(memdevice::MemBank::new(0xC000, true)));
-        mem
+        Memory { data: Vec::new() }
     }
 
     pub fn clear(&mut self) {
@@ -79,13 +75,13 @@ impl Memory {
         self.data.push(device);
     }
 
-    fn get_elem_idx(&self, addr: u16) -> Result<(usize, u16), &str> {
-        let mut offset = 0u16;
+    fn get_elem_idx(&self, addr: u16) -> Result<(usize, usize), &str> {
+        let mut offset = 0;
         for (index, device) in self.data.iter().enumerate() {
             let dev_size = device.size();
             let device_end = offset + dev_size;
-            if addr >= offset && addr < device_end {
-                return Ok((index, addr - offset)); // Return the index and the offset
+            if addr as usize >= offset && (addr as usize) < device_end {
+                return Ok((index, addr as usize - offset)); // Return the index and the offset
             }
             offset += dev_size;
         }
@@ -96,7 +92,7 @@ impl Memory {
         let mut file = File::create(filename).map_err(|_| "Error creating file")?;
         for device in &self.data {
             for byte in 0..device.size() {
-                file.write_all(&[device.read(byte)]).map_err(|_| "Error writing to file")?;
+                file.write_all(&[device.read(byte as u16)]).map_err(|_| "Error writing to file")?;
             }
         }
         Ok(())
@@ -108,24 +104,27 @@ impl Memory {
                 let filesize = file.metadata().unwrap().len();
                 let mut result = vec![];
                 let mut reader = BufReader::new(file);
-                let mut index: u32 = 0;
+                let mut index: usize = 0;
                 for device in &mut self.data {
                     if device.is_read_only() {
-                        let dev_size = device.size() as usize;
+                        let dev_size = device.size();
                         reader.consume(dev_size);
-                        index += device.size() as u32;
-                        result.push(MemoryError::ReadOnly(index as usize, device.size() as usize));
+                        index += device.size();
+                        result.push(MemoryError::ReadOnly(index, device.size()));
                     } else {
-                        let mut buffer = vec![0; device.size() as usize];
+                        let mut buffer = vec![0; device.size()];
                         match reader.read_exact(&mut buffer) {
                             Ok(_) => {
                                 for (i, byte) in buffer.iter().enumerate() {
                                     device.write(i as u16, *byte).unwrap();
                                 }
-                                index += device.size() as u32;
+                                index += device.size();
                             }
                             Err(ref err) if err.kind() == io::ErrorKind::UnexpectedEof => {
-                                break;
+                                for (i, byte) in buffer.iter().enumerate() {
+                                    device.write(i as u16, *byte).unwrap();
+                                }
+                                index += device.size();
                             }
                             Err(_) => {
                                 result.push(MemoryError::ReadError);
@@ -149,13 +148,22 @@ impl Memory {
     }
 }
 
+impl Default for Memory {
+    fn default() -> Self {
+        let mut mem = Self::new();
+        mem.add_device(Box::new(memdevice::MemBank::new(0x4000, false)));
+        mem.add_device(Box::new(memdevice::MemBank::new(0xC000, true)));
+        mem
+    }
+}
+
 impl ReadableMemory for Memory {
-    fn len(&self) -> u16 {
+    fn len(&self) -> usize {
         self.data.iter().map(|d| d.size()).sum()
     }
     fn read_8(&self, addr: u16) -> Result<u8, String> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
-        Ok(self.data[device_idx].read(offset))
+        Ok(self.data[device_idx].read(offset as u16))
     }
 
     fn read_16(&self, addr: u16) -> Result<u16, String> {
@@ -168,7 +176,7 @@ impl ReadableMemory for Memory {
 impl WriteableMemory for Memory {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), String> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
-        self.data[device_idx].write(offset, data)?;
+        self.data[device_idx].write(offset as u16, data)?;
         Ok(())
     }
     fn write_16(&mut self, addr: u16, data: u16) -> Result<(), String> {

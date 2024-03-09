@@ -26,13 +26,24 @@ impl Emulator {
             CPUType::I8080 => Box::new(I8080::new())
         };
         Emulator {
-            memory: Memory::new(),
+            memory: Memory::default(),
             cpu,
             breakpoints: Vec::new(),
             io: IO::default(),
         }
     }
-
+    pub fn new_w_mem(cpu_type: CPUType, memory: Memory) -> Emulator {
+        let cpu: Box<dyn Cpu> = match cpu_type {
+            CPUType::Z80 => Box::new(Z80::new()),
+            CPUType::I8080 => Box::new(I8080::new())
+        };
+        Emulator {
+            memory,
+            cpu,
+            breakpoints: Vec::new(),
+            io: IO::default(),
+        }
+    }
     pub fn step(&mut self) -> Result<Box<dyn BaseInstruction>, String> {
         if self.cpu.halted() {
             return Err("CPU is halted".to_string());

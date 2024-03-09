@@ -51,7 +51,7 @@ impl PyMemory {
         }
     }
     
-    fn len(&self) -> u16 {
+    fn len(&self) -> usize {
         self.memory.len()
     }
     
