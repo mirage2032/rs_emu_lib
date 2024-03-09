@@ -4,7 +4,7 @@ use std::fmt::Display;
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::{Memory, ReadableMemory};
-use crate::io::IO;
+use crate::emu_lib::io::IO;
 
 pub struct LD_A_PBC {
     common: InstructionCommon,

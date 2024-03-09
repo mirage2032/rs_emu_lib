@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 
 use crate::emu_lib::memory::{Memory, ReadableMemory};
-use crate::io::IO;
+use crate::emu_lib::io::IO;
 
 pub mod z80;
 pub mod i8080;

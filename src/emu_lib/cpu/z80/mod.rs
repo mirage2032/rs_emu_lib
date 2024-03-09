@@ -1,8 +1,8 @@
 use registers::Registers;
 
-use crate::cpu::ExecutableInstruction;
+use crate::emu_lib::cpu::ExecutableInstruction;
 use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, InstructionDecoder, InstructionEncoder, RegisterOps};
-use crate::io::{IO, iodevice::InterruptType};
+use crate::emu_lib::io::{IO, iodevice::InterruptType};
 
 use super::super::memory::{Memory, WriteableMemory};
 

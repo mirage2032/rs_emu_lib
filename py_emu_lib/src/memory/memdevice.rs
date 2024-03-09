@@ -32,7 +32,7 @@ impl ToPyObject for PyMemDevice {
 #[pymethods]
 impl PyMemDevice {
     #[new]
-    fn new(args: &PyAny, kwargs: Option<&PyAny>) -> Self {
+    fn new(_args: &PyAny, _kwargs: Option<&PyAny>) -> Self {
         PyMemDevice {
             size: None,
             read: None,

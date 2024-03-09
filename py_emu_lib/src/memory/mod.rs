@@ -1,22 +1,22 @@
 use pyo3::*;
 use pyo3::prelude::*;
 
-use emu_lib::memory::*;
 use memdevice::*;
 
 mod memdevice;
+use emu_lib::memory::*;
 
 #[pyclass(name = "Memory")]
 struct PyMemory {
-    memory: emu_lib::memory::Memory,
+    memory: Memory,
 }
 
 
 #[pymethods]
 impl PyMemory {
     #[new]
-    #[pyo3(signature = (*args, **kwargs))]
-    fn new(args: &PyAny, kwargs: Option<&PyAny>) -> Self {
+    #[pyo3(signature = (*_args, **_kwargs))]
+    fn new(_args: &PyAny, _kwargs: Option<&PyAny>) -> Self {
         PyMemory { memory: emu_lib::memory::Memory::new() }
     }
     #[staticmethod]

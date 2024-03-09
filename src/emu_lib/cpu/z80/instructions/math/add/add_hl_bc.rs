@@ -5,7 +5,7 @@ use crate::add_rr_rr;
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::Memory;
-use crate::io::IO;
+use crate::emu_lib::io::IO;
 
 pub struct ADD_HL_BC {
     common: InstructionCommon,

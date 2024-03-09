@@ -1,6 +1,6 @@
 use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, ExecutableInstruction, InstructionDecoder, InstructionEncoder, RegisterOps};
 use crate::emu_lib::memory::ReadableMemory;
-use crate::io::IO;
+use crate::emu_lib::io::IO;
 
 use super::super::memory::Memory;
 

@@ -5,7 +5,7 @@ use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCom
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::memory::Memory;
 use crate::inc_r;
-use crate::io::IO;
+use crate::emu_lib::io::IO;
 
 pub struct INC_B {
     common: InstructionCommon,

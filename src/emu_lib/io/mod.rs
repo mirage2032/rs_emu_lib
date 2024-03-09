@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use iodevice::IODevice;
 use iodevice::IORegister;
 
-use crate::io::iodevice::InterruptType;
+use crate::emu_lib::io::iodevice::InterruptType;
 
 pub mod iodevice;
 
