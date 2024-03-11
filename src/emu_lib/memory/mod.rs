@@ -19,7 +19,7 @@ pub enum MemoryError {
 }
 
 pub trait ReadableMemory {
-    fn len(&self) -> usize;
+    fn size(&self) -> usize;
     fn read_8(&self, addr: u16) -> Result<u8, String>;
     fn read_16(&self, addr: u16) -> Result<u16, String>;
 }
@@ -30,7 +30,7 @@ pub trait WriteableMemory {
 }
 
 impl ReadableMemory for Vec<u8> {
-    fn len(&self) -> usize {
+    fn size(&self) -> usize {
         self.len()
     }
     fn read_8(&self, addr: u16) -> Result<u8, String> {
@@ -158,7 +158,7 @@ impl Default for Memory {
 }
 
 impl ReadableMemory for Memory {
-    fn len(&self) -> usize {
+    fn size(&self) -> usize {
         self.data.iter().map(|d| d.size()).sum()
     }
     fn read_8(&self, addr: u16) -> Result<u8, String> {

@@ -54,11 +54,9 @@ impl Emulator {
     pub fn run_w_cb<T: Fn(&mut Self, &dyn BaseInstruction)>(&mut self, frequency: f32, callback: Option<T>) -> StopReason
     {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
-        let mut last_tick_time = SystemTime::now();
 
         loop {
-            let current_time = SystemTime::now();
-            let elapsed_time = current_time.duration_since(last_tick_time).unwrap();
+            let time_before = SystemTime::now();
             let instruction = match self.step() {
                 Ok(instructions) => { instructions }
                 Err(e) => return StopReason::Error(e),
@@ -66,7 +64,6 @@ impl Emulator {
             if let Some(cb) = &callback {
                 cb(self, instruction.as_ref());
             }
-            let instruction_time = tick_duration * instruction.common().get_cycles() as u32;
 
             if self.cpu.halted() {
                 return StopReason::Halt;
@@ -75,17 +72,11 @@ impl Emulator {
             if self.breakpoints.contains(self.cpu.registers().pc()) {
                 return StopReason::Breakpoint;
             }
-
-            // Calculate remaining time to sleep
-            let remaining_time = if elapsed_time < tick_duration {
-                tick_duration - elapsed_time
-            } else {
-                Duration::from_secs(0)
-            };
-            last_tick_time = SystemTime::now();
-            // Sleep only if there's remaining time and execution time is less than tick duration
-            if instruction_time < tick_duration {
-                std::thread::sleep(remaining_time);
+            let exec_duration = tick_duration * instruction.common().get_cycles() as u32;
+            let expected_finish = time_before + exec_duration;
+            let time_after = SystemTime::now();
+            if let Ok(difference) = expected_finish.duration_since(time_after) {
+                std::thread::sleep(difference)
             }
         }
     }

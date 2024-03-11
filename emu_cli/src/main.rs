@@ -1,10 +1,11 @@
-use std::thread;
+use std::process::exit;
 use std::time::Duration;
-
 use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::{MemoryError};
+use emu_lib::memory::{Memory, MemDevice, MemoryError, MemBank, WriteableMemory};
 use memdsp::MemViz;
+use emu_lib::memory::ReadableMemory;
+use rand::Rng;
 
 mod memdsp;
 
@@ -22,10 +23,12 @@ fn print_registers(registers: &dyn RegisterOps) {
 }
 
 fn main() {
-    let mut dsp = MemViz::new(256 * 256, 256);
-    dsp.start_thread(4);
+    let mut dsp = MemViz::new(64 * 64, 64);
+    dsp.start_thread(12.0);
     println!("Creating emulator");
-    let mut memory = emu_lib::memory::Memory::new();
+    let mut memory = Memory::new();
+    let bank = MemBank::new(0x2000,false);
+    memory.add_device(Box::new(bank));
     memory.add_device(Box::new(dsp));
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
     let rom_path = "roms/rom.z80.bin";
@@ -36,7 +39,7 @@ fn main() {
             for err in e {
                 match err {
                     MemoryError::OpenFile | MemoryError::ReadError => {
-                        panic!("Can't open or read the file");
+                        panic!("Can't open or read the rom file");
                     }
                     MemoryError::UnmappedAddress(location) => {
                         println!("Mapped memory ends at {}, skipping", location);
@@ -48,10 +51,9 @@ fn main() {
             }
         }
     };
-    thread::sleep(Duration::from_secs(400));
     println!("Running emulator");
     print_registers(emulator.cpu.registers());
-    let err = emulator.run_w_cb(2.0, Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
+    let err = emulator.run_w_cb(10.0, Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
         println!("{}", instruction);
         print_registers(emu.cpu.registers());
     }
@@ -66,4 +68,5 @@ fn main() {
             println!("Error: {} while executing \"{}\"", e, instruction)
         }
     }
+    std::thread::sleep(Duration::from_millis(10000));
 }

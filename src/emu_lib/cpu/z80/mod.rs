@@ -38,7 +38,7 @@ impl Z80 {
                         Some(instruction)
                     }
                     remaining => {
-                        memory.write_16(self.registers.sp - 2, self.registers.pc + 1).or_else(|_| Err("Error pushing SP to stack durring interrupt".to_string()))?;
+                        memory.write_16(self.registers.sp - 2, self.registers.pc + 1).map_err(|_| "Error pushing SP to stack durring interrupt".to_string())?;
                         self.registers.sp -= 2;
                         self.registers.swap();
                         match remaining {
