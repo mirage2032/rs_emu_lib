@@ -1,11 +1,8 @@
-use std::process::exit;
 use std::time::Duration;
 use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::{Memory, MemDevice, MemoryError, MemBank, WriteableMemory};
+use emu_lib::memory::{Memory, MemoryError, MemBank};
 use memdsp::MemViz;
-use emu_lib::memory::ReadableMemory;
-use rand::Rng;
 
 mod memdsp;
 

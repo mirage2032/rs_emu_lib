@@ -1,4 +1,3 @@
-use std::ops::Div;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -80,7 +79,6 @@ impl MemViz {
                         Event::Exit=>{
                             return;
                         }
-                        _ => {}
                     }
                 }
                 for (i, val) in dsp_buffer.iter_mut().enumerate() {
