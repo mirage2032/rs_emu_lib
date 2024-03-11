@@ -1,7 +1,8 @@
+use std::thread;
 use std::time::Duration;
 use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::{Memory, MemoryError, MemBank};
+use emu_lib::memory::{Memory, MemoryError, RAM};
 use memdsp::MemViz;
 
 mod memdsp;
@@ -22,23 +23,25 @@ fn print_registers(registers: &dyn RegisterOps) {
 fn main() {
     let mut dsp = MemViz::new(64 * 64, 64);
     dsp.start_thread(12.0);
+    dsp.randomize();
+    thread::sleep(Duration::from_millis(10000));
     println!("Creating emulator");
     let mut memory = Memory::new();
-    let bank = MemBank::new(0x2000,false);
+    let bank = RAM::new(0x2000, false);
     memory.add_device(Box::new(bank));
     memory.add_device(Box::new(dsp));
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
-    let rom_path = "roms/rom.z80.bin";
+    let rom_path = "roms/rom.z80.bin".to_string();
     println!("Loading rom: {}", rom_path);
     match emulator.memory.load(rom_path) {
         Ok(_) => {}
         Err(e) => {
             for err in e {
                 match err {
-                    MemoryError::OpenFile | MemoryError::ReadError => {
+                    MemoryError::FileError | MemoryError::ReadError => {
                         panic!("Can't open or read the rom file");
                     }
-                    MemoryError::UnmappedAddress(location) => {
+                    MemoryError::EndOfMem(location) => {
                         println!("Mapped memory ends at {}, skipping", location);
                     }
                     MemoryError::ReadOnly(location, size) => {

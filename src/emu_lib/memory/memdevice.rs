@@ -1,50 +1,71 @@
-pub trait MemDevice: Send {
-    fn size(&self) -> usize;
-    fn read(&self, addr: u16) -> u8;
-    fn write(&mut self, addr: u16, data: u8) -> Result<(), &str>;
-    fn is_read_only(&self) -> bool;
-    fn clear(&mut self) -> Result<(), &str> {
-        if self.is_read_only() {
-            return Err("Can't clear read-only memory");
-        }
-        for i in 0..self.size() {
-            self.write(i as u16, 0).unwrap();
-        }
-        Ok(())
-    }
-}
+use crate::emu_lib::memory::{ReadableMemory, RWMemory, WriteableMemory};
+use crate::emu_lib::utils::Size;
 
-pub struct MemBank {
+pub struct RAM {
     data: Vec<u8>,
-    read_only: bool,
 }
 
-impl MemBank {
-    pub fn new(size: usize, ro: bool) -> MemBank {
-        MemBank {
+impl RAM {
+    pub fn new(size: usize, ro: bool) -> RAM {
+        RAM {
             data: vec![0; size],
-            read_only: ro,
         }
     }
 }
 
-impl MemDevice for MemBank {
+impl Size for RAM {
     fn size(&self) -> usize {
-        self.data.len() 
+        self.data.len()
     }
-    fn read(&self, addr: u16) -> u8 {
-        self.data[addr as usize]
-    }
+}
 
-    fn write(&mut self, addr: u16, data: u8) -> Result<(), &str> {
-        if self.read_only {
-            return Err("Write to read-only memory");
-        }
-        self.data[addr as usize] = data;
+impl ReadableMemory for RAM {
+    fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
+        let val = self.data.get(addr as usize).ok_or("Address out of bounds")?;
+        Ok(*val)
+    }
+}
+
+impl WriteableMemory for RAM {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+        let val = self.data.get_mut(addr as usize).ok_or("Address out of bounds")?;
+        *val = data;
         Ok(())
     }
+}
 
-    fn is_read_only(&self) -> bool {
-        self.read_only
+impl RWMemory for RAM {}
+
+pub struct ROM {
+    data: Vec<u8>,
+}
+
+impl ROM {
+    pub fn new(size: usize, ro: bool) -> ROM {
+        ROM {
+            data: vec![0; size],
+        }
     }
 }
+
+impl Size for ROM {
+    fn size(&self) -> usize {
+        self.data.len()
+    }
+}
+
+impl ReadableMemory for ROM {
+    fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
+        let val = self.data.get(addr as usize).ok_or("Address out of bounds")?;
+        Ok(*val)
+    }
+}
+
+impl WriteableMemory for ROM {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+        Err("ROM is read only")
+    }
+}
+
+impl RWMemory for ROM {}
+

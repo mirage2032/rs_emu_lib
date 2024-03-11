@@ -66,7 +66,7 @@ impl PyMemory {
             Err(vec) => {
                 for e in vec {
                     match e {
-                        MemoryError::OpenFile => return Err(pyo3::exceptions::PyException::new_err("Open file error")),
+                        MemoryError::FileError => return Err(pyo3::exceptions::PyException::new_err("Open file error")),
                         MemoryError::ReadError => return Err(pyo3::exceptions::PyException::new_err("Read error")),
                         _ => {}
                     }
