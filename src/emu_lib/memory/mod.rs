@@ -2,14 +2,14 @@ use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufReader, Read, Write};
 
-pub use memdevice::{RAM};
+pub use memdevice::RAM;
 
 use crate::utils::Size;
 
 mod memdevice;
 
 pub struct Memory {
-    data: Vec<Box<dyn RWMemory>>,
+    data: Vec<Box<dyn MemoryDevice>>,
 }
 
 #[derive(Debug)]
@@ -20,16 +20,13 @@ pub enum MemoryError {
     EndOfMem(usize),
 }
 
-pub trait ReadableMemory: Size {
+pub trait MemoryDevice: Size {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str>;
     fn read_16(&self, addr: u16) -> Result<u16, &'static str> {
         let lsb = self.read_8(addr)?;
         let msb = self.read_8(addr + 1)?;
         Ok(u16::from_le_bytes([lsb, msb]))
     }
-}
-
-pub trait WriteableMemory: Size {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str>;
     fn write_16(&mut self, addr: u16, data: u16) -> Result<(), &'static str> {
         let bytes = data.to_le_bytes();
@@ -45,15 +42,13 @@ pub trait WriteableMemory: Size {
     }
 }
 
-pub trait RWMemory: ReadableMemory + WriteableMemory {}
-
 impl Size for Vec<u8> {
     fn size(&self) -> usize {
         self.len()
     }
 }
 
-impl ReadableMemory for Vec<u8> {
+impl MemoryDevice for Vec<u8> {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         Ok(self[addr as usize])
     }
@@ -62,9 +57,6 @@ impl ReadableMemory for Vec<u8> {
         let msb = self.read_8(addr + 1)?;
         Ok(u16::from_le_bytes([lsb, msb]))
     }
-}
-
-impl WriteableMemory for Vec<u8> {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
         self[addr as usize] = data;
         Ok(())
@@ -76,13 +68,7 @@ impl Memory {
         Memory { data: Vec::new() }
     }
 
-    pub fn clear(&mut self) {
-        for device in &mut self.data {
-            device.clear().unwrap();
-        }
-    }
-
-    pub fn add_device(&mut self, device: Box<dyn RWMemory>) {
+    pub fn add_device(&mut self, device: Box<dyn MemoryDevice>) {
         self.data.push(device);
     }
 
@@ -123,24 +109,24 @@ impl Memory {
                     //     index += device.size();
                     //     result.push(MemoryError::ReadOnly(index, device.size()));
                     // } else {
-                        let mut buffer = vec![0; device.size()];
-                        match reader.read_exact(&mut buffer) {
-                            Ok(_) => {
-                                for (i, byte) in buffer.iter().enumerate() {
-                                    device.write_8(i as u16, *byte).unwrap();
-                                }
-                                index += device.size();
+                    let mut buffer = vec![0; device.size()];
+                    match reader.read_exact(&mut buffer) {
+                        Ok(_) => {
+                            for (i, byte) in buffer.iter().enumerate() {
+                                device.write_8(i as u16, *byte).unwrap();
                             }
-                            Err(ref err) if err.kind() == io::ErrorKind::UnexpectedEof => {
-                                for (i, byte) in buffer.iter().enumerate() {
-                                    device.write_8(i as u16, *byte).unwrap();
-                                }
-                                index += device.size();
+                            index += device.size();
+                        }
+                        Err(ref err) if err.kind() == io::ErrorKind::UnexpectedEof => {
+                            for (i, byte) in buffer.iter().enumerate() {
+                                device.write_8(i as u16, *byte).unwrap();
                             }
-                            Err(_) => {
-                                result.push(MemoryError::ReadError);
-                                break;
-                            }
+                            index += device.size();
+                        }
+                        Err(_) => {
+                            result.push(MemoryError::ReadError);
+                            break;
+                        }
                         // }
                     }
                 }
@@ -162,8 +148,8 @@ impl Memory {
 impl Default for Memory {
     fn default() -> Self {
         let mut mem = Self::new();
-        mem.add_device(Box::new(memdevice::RAM::new(0x4000, false)));
-        mem.add_device(Box::new(memdevice::RAM::new(0xC000, true)));
+        mem.add_device(Box::new(memdevice::RAM::new(0x4000)));
+        mem.add_device(Box::new(memdevice::ROM::new(0xC000)));
         mem
     }
 }
@@ -174,18 +160,13 @@ impl Size for Memory {
     }
 }
 
-impl ReadableMemory for Memory {
+impl MemoryDevice for Memory {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].read_8(offset as u16)
     }
-}
-
-impl WriteableMemory for Memory {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].write_8(offset as u16, data)
     }
 }
-
-impl RWMemory for Memory {}

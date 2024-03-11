@@ -4,7 +4,7 @@ use std::thread;
 use minifb::{Key, Window, WindowOptions};
 use rand::random;
 
-use emu_lib::memory::{ReadableMemory, RWMemory, WriteableMemory};
+use emu_lib::memory::{MemoryDevice};
 use emu_lib::utils::Size;
 
 enum Event {
@@ -128,17 +128,12 @@ impl Size for MemViz {
     }
 }
 
-impl ReadableMemory for MemViz {
+impl MemoryDevice for MemViz {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         Ok(self.buffer.lock().unwrap()[addr as usize])
     }
-}
-
-impl WriteableMemory for MemViz {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
         self.buffer.lock().unwrap()[addr as usize] = data;
         Ok(())
     }
 }
-
-impl RWMemory for MemViz {}

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 
-use crate::emu_lib::memory::{Memory, ReadableMemory};
+use crate::emu_lib::memory::{Memory, MemoryDevice};
 use crate::emu_lib::io::IO;
 
 pub mod z80;
@@ -30,7 +30,7 @@ pub trait RegisterOps: Debug {
 }
 
 pub trait InstructionDecoder {
-    fn decode(memory: &impl ReadableMemory, pos: u16) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
+    fn decode(memory: &impl MemoryDevice, pos: u16) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
 }
 
 pub trait InstructionEncoder {

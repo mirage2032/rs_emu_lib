@@ -27,7 +27,7 @@ fn main() {
     thread::sleep(Duration::from_millis(10000));
     println!("Creating emulator");
     let mut memory = Memory::new();
-    let bank = RAM::new(0x2000, false);
+    let bank = RAM::new(0x2000);
     memory.add_device(Box::new(bank));
     memory.add_device(Box::new(dsp));
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);

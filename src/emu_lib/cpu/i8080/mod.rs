@@ -1,5 +1,5 @@
 use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, ExecutableInstruction, InstructionDecoder, InstructionEncoder, RegisterOps};
-use crate::emu_lib::memory::ReadableMemory;
+use crate::emu_lib::memory::MemoryDevice;
 use crate::emu_lib::io::IO;
 
 use super::super::memory::Memory;
@@ -15,7 +15,7 @@ impl I8080 {
 }
 
 impl InstructionDecoder for I8080 {
-    fn decode(_: &impl ReadableMemory, _: u16) -> Result<Box<dyn ExecutableInstruction<Self>>, String> {
+    fn decode(_: &impl MemoryDevice, _: u16) -> Result<Box<dyn ExecutableInstruction<Self>>, String> {
         unimplemented!()
     }
 }

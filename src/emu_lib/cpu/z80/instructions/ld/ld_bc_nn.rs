@@ -3,7 +3,7 @@ use std::fmt::Display;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::{Memory, ReadableMemory};
+use crate::emu_lib::memory::{Memory, MemoryDevice};
 use crate::emu_lib::io::IO;
 
 const COMMON: InstructionCommon = InstructionCommon {
@@ -18,7 +18,7 @@ pub struct LD_BC_NN {
 }
 
 impl LD_BC_NN {
-    pub fn new<T: ReadableMemory>(memory: &T, pos: u16) -> Result<LD_BC_NN, String>
+    pub fn new<T: MemoryDevice>(memory: &T, pos: u16) -> Result<LD_BC_NN, String>
     {
         Ok(LD_BC_NN {
             common: COMMON,

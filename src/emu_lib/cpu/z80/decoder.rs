@@ -1,10 +1,10 @@
 use crate::emu_lib::cpu::{ExecutableInstruction, InstructionDecoder};
 use crate::emu_lib::cpu::z80::instructions::{ex, halt, ld, math, nop, rlca, rrca};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::ReadableMemory;
+use crate::emu_lib::memory::MemoryDevice;
 
 impl InstructionDecoder for Z80 {
-    fn decode(memory: &impl ReadableMemory, pos: u16) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
+    fn decode(memory: &impl MemoryDevice, pos: u16) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
         let instruction: Box<dyn ExecutableInstruction<Z80>> = match memory.read_8(pos)? {
             0x00u8 => Box::new(nop::NOP::new()),
             0x01 => Box::new(ld::ld_bc_nn::LD_BC_NN::new(memory, pos)?),
