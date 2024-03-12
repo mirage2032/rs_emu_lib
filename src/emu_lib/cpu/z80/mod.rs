@@ -2,7 +2,8 @@ use registers::Registers;
 
 use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, InstructionParser, RegisterOps};
 use crate::emu_lib::cpu::ExecutableInstruction;
-use crate::emu_lib::io::{IO, InterruptType};
+use crate::emu_lib::io::{InterruptType, IO};
+use crate::push_16;
 
 use super::super::memory::{Memory, MemoryDevice};
 
@@ -41,9 +42,8 @@ impl Z80 {
                         Some(instruction)
                     }
                     remaining => {
-                        memory.write_16(self.registers.sp - 2, self.registers.pc + 1).map_err(|_| "Error pushing SP to stack durring interrupt".to_string())?;
-                        self.registers.sp -= 2;
-                        self.registers.swap();
+                        push_16!(self.registers.pc,memory,self.registers.sp);
+                        self.registers.swap(); // TODO: Check: Should be done???
                         match remaining {
                             InterruptType::IM1 => {
                                 self.registers.pc = 0x38;

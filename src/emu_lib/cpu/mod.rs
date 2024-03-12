@@ -82,3 +82,37 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
         Ok(())
     }
 }
+
+#[macro_export]
+macro_rules! push_8 {
+    ($val:expr, $memory:expr, $sp:expr) => {
+        $sp -=1;
+        $memory.write_8($sp, $val).map_err(|_| "Error pushing value to stack")?;
+    };
+    }
+
+#[macro_export]
+macro_rules! push_16 {
+    ($val:expr, $memory:expr, $sp:expr) => {
+        $sp -= 2;
+        $memory.write_16($sp, $val).map_err(|_| "Error pushing value to stack")?;
+    };
+    }
+
+#[macro_export]
+macro_rules! pop_8 {
+    ($memory:expr, $sp:expr) => {
+        let val = $memory.read_8(*sp).map_err(|_| "Error popping value from stack")?;
+        *$sp +=1;
+        val
+    };
+    }
+
+#[macro_export]
+macro_rules! pop_16 {
+    ($memory:expr, $sp:expr) => {
+        let val = $memory.read_16(*sp).map_err(|_| "Error popping value from stack")?;
+        *$sp +=2;
+        val
+    };
+    }

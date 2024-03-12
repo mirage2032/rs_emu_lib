@@ -3,8 +3,8 @@ use std::fmt::Display;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::Memory;
 use crate::emu_lib::io::IO;
+use crate::emu_lib::memory::Memory;
 
 pub struct NOP {
     common: InstructionCommon,
@@ -38,7 +38,7 @@ impl BaseInstruction for NOP {
 }
 
 impl ExecutableInstruction<Z80> for NOP {
-    fn runner(&self, _memory: &mut Memory, _cpu: &mut Z80,_:&mut  IO) -> Result<(), String> {
+    fn runner(&self, _memory: &mut Memory, _cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         Ok(())
     }
 }

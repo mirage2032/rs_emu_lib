@@ -3,8 +3,8 @@ use std::fmt::Display;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::Memory;
 use crate::emu_lib::io::IO;
+use crate::emu_lib::memory::Memory;
 
 pub struct Halt {
     common: InstructionCommon,

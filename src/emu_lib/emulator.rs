@@ -22,8 +22,8 @@ pub struct Emulator {
 impl Emulator {
     pub fn new(cpu_type: CPUType) -> Emulator {
         let cpu: Box<dyn Cpu> = match cpu_type {
-            CPUType::Z80 => Box::new(Z80::default()),
-            CPUType::I8080 => Box::new(I8080::default())
+            CPUType::Z80 => Box::<Z80>::default(),
+            CPUType::I8080 => Box::<I8080>::default()
         };
         Emulator {
             memory: Memory::default(),
@@ -34,8 +34,8 @@ impl Emulator {
     }
     pub fn new_w_mem(cpu_type: CPUType, memory: Memory) -> Emulator {
         let cpu: Box<dyn Cpu> = match cpu_type {
-            CPUType::Z80 => Box::new(Z80::default()),
-            CPUType::I8080 => Box::new(I8080::default())
+            CPUType::Z80 => Box::<Z80>::default(),
+            CPUType::I8080 => Box::<I8080>::default()
         };
         Emulator {
             memory,

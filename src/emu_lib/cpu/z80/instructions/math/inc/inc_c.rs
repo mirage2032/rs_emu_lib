@@ -3,9 +3,9 @@ use std::fmt::Display;
 
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
+use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 use crate::inc_r;
-use crate::emu_lib::io::IO;
 
 pub struct INC_C {
     common: InstructionCommon,
@@ -39,7 +39,7 @@ impl BaseInstruction for INC_C {
 }
 
 impl ExecutableInstruction<Z80> for INC_C {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80,_:&mut IO) -> Result<(), String> {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         inc_r!(&mut cpu.registers.main.c, &mut cpu.registers.main.f);
         Ok(())
     }

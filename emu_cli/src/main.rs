@@ -8,8 +8,6 @@ use memdsp::MemViz;
 
 mod memdsp;
 
-struct B {}
-
 fn print_registers(registers: &dyn RegisterOps) {
     let register_map = registers.get_all();
     print!("Registers: ");

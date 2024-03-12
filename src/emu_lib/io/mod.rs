@@ -6,9 +6,12 @@ use iodevice::IORegister;
 pub mod iodevice;
 
 pub enum InterruptType {
-    NMI,     // non-maskable interrupt
-    IM0(u8), // instruction to exec, usually RST xx, no save of PC by default
-    IM1,     // jump to 0x0038 after pushing PC to stack
+    NMI,
+    // non-maskable interrupt
+    IM0(u8),
+    // instruction to exec, usually RST xx, no save of PC by default
+    IM1,
+    // jump to 0x0038 after pushing PC to stack
     IM2(u8), // jump to I + this after pushing PC to stack
 }
 
@@ -54,15 +57,16 @@ impl IO {
         }
     }
 
-    pub fn add_device(&mut self, device: Box<dyn IODevice>) {
+    pub fn add_device(&mut self, device: Box<dyn IODevice>) -> Result<(), &'static str> {
         let pins = device.pins();
         for pin in pins {
             if self.port_map.contains_key(&pin) {
-                panic!("Attempting to add device with port already in use by other device");
+                return Err("Attempting to add a device with a port already in use by other device");
             }
             self.port_map.insert(pin, self.io_devices.len() as u8);
         }
         self.io_devices.push(device);
+        Ok(())
     }
 
     pub fn get_interrupt(&self) -> Option<(InterruptType, usize)> {

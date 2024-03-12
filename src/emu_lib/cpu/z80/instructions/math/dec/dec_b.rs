@@ -4,8 +4,8 @@ use std::fmt::Display;
 use crate::dec_r;
 use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::memory::Memory;
 use crate::emu_lib::io::IO;
+use crate::emu_lib::memory::Memory;
 
 pub struct DEC_B {
     common: InstructionCommon,
@@ -39,7 +39,7 @@ impl BaseInstruction for DEC_B {
 }
 
 impl ExecutableInstruction<Z80> for DEC_B {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80,_:&mut IO) -> Result<(), String> {
+    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         dec_r!(&mut cpu.registers.main.b, &mut cpu.registers.main.f);
         Ok(())
     }

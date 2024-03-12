@@ -56,7 +56,7 @@ impl MemoryDevice for ROM {
         let val = self.data.get(addr as usize).ok_or("Address out of bounds")?;
         Ok(*val)
     }
-    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+    fn write_8(&mut self, _: u16, _: u8) -> Result<(), &'static str> {
         Err("ROM is read only")
     }
 }

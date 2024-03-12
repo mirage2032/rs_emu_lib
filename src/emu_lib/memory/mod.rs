@@ -10,9 +10,16 @@ mod memdevice;
 
 pub struct Memory {
     data: Vec<Box<dyn MemoryDevice>>,
+    callback: Option<Box<dyn Fn(MemoryOperation)>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
+pub enum MemoryOperation {
+    Read(usize, u8),
+    Write(usize, u8),
+}
+
+#[derive(Debug, Copy, Clone)]
 pub enum MemoryError {
     FileError,
     ReadError,
@@ -65,11 +72,14 @@ impl MemoryDevice for Vec<u8> {
 
 impl Memory {
     pub fn new() -> Memory {
-        Memory { data: Vec::new() }
+        Memory { data: Vec::new(), callback: Some(Box::new(|_: MemoryOperation| {})) }
     }
 
     pub fn add_device(&mut self, device: Box<dyn MemoryDevice>) {
         self.data.push(device);
+    }
+    pub fn add_callback(&mut self, callback: Box<dyn Fn(MemoryOperation)>) {
+        self.callback = Some(callback);
     }
 
     fn get_elem_idx(&self, addr: u16) -> Result<(usize, usize), &'static str> {
@@ -163,10 +173,18 @@ impl Size for Memory {
 impl MemoryDevice for Memory {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
-        self.data[device_idx].read_8(offset as u16)
+        let data = self.data[device_idx].read_8(offset as u16)?;
+        if let Some(callback) = &self.callback {
+            callback(MemoryOperation::Read(addr as usize, data));
+        }
+        Ok(data)
     }
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
-        self.data[device_idx].write_8(offset as u16, data)
+        self.data[device_idx].write_8(offset as u16, data)?;
+        if let Some(callback) = &self.callback {
+            callback(MemoryOperation::Write(addr as usize, data));
+        }
+        Ok(())
     }
 }
