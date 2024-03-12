@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
 
-use crate::emu_lib::memory::{Memory, MemoryDevice};
 use crate::emu_lib::io::IO;
+use crate::emu_lib::memory::Memory;
 
 pub mod z80;
 pub mod i8080;
@@ -13,6 +13,7 @@ pub enum CPUType {
     I8080,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum SingleRegister {
     Bit8(u8),
     Bit16(u16),
@@ -29,25 +30,18 @@ pub trait RegisterOps: Debug {
     fn pc_mut(&mut self) -> &mut u16;
 }
 
-pub trait InstructionDecoder {
-    fn decode(memory: &impl MemoryDevice, pos: u16) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
-}
-
-pub trait InstructionEncoder {
-    fn encode(instruction: String) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
+pub trait InstructionParser {
+    fn ins_from_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
+    fn ins_from_vec(&self, memory: &Vec<u8>, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
+    fn ins_from_string(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String>;
 }
 
 pub trait Cpu: Send {
     fn step(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn encode(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn decode_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn decode_vec(&self, vec: &Vec<u8>) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn type_of(&self) -> CPUType;
-
+    fn parser(&self) -> &dyn InstructionParser;
     fn registers(&mut self) -> &mut dyn RegisterOps;
-
     fn halted(&self) -> bool;
-
     fn set_halted(&mut self, halted: bool);
 }
 
@@ -81,6 +75,7 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
         if self.common().increment_pc {
             let inst_length = self.common().length;
             *cpu.registers().pc_mut() += inst_length;
+            // Increment r register
             let new_r = cpu.registers().get_8("r").wrapping_add(inst_length as u8);
             cpu.registers().set_8("r", new_r);
         }

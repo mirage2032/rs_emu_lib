@@ -1,11 +1,14 @@
 use std::thread;
 use std::time::Duration;
+
 use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
 use emu_lib::emulator::Emulator;
 use emu_lib::memory::{Memory, MemoryError, RAM};
 use memdsp::MemViz;
 
 mod memdsp;
+
+struct B {}
 
 fn print_registers(registers: &dyn RegisterOps) {
     let register_map = registers.get_all();
@@ -24,7 +27,7 @@ fn main() {
     let mut dsp = MemViz::new(64 * 64, 64);
     dsp.start_thread(12.0);
     dsp.randomize();
-    thread::sleep(Duration::from_millis(10000));
+    thread::sleep(Duration::from_millis(1000));
     println!("Creating emulator");
     let mut memory = Memory::new();
     let bank = RAM::new(0x2000);
@@ -64,7 +67,7 @@ fn main() {
         emu_lib::emulator::StopReason::Halt => println!("Halted"),
         emu_lib::emulator::StopReason::Error(e) => {
             let pc = *emulator.cpu.registers().pc();
-            let instruction = emulator.cpu.decode_mem(&emulator.memory, pc).expect("Error decoding instruction");
+            let instruction = emulator.cpu.parser().ins_from_mem(&emulator.memory, pc).expect("Error decoding instruction");
             println!("Error: {} while executing \"{}\"", e, instruction)
         }
     }

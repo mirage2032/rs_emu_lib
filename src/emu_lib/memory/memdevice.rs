@@ -1,6 +1,7 @@
 use crate::emu_lib::memory::MemoryDevice;
 use crate::emu_lib::utils::Size;
 
+#[derive(Debug, Clone)]
 pub struct RAM {
     data: Vec<u8>,
 }
@@ -31,6 +32,7 @@ impl MemoryDevice for RAM {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct ROM {
     data: Vec<u8>,
 }

@@ -34,7 +34,7 @@ pub struct ByteRegisters {
 }
 
 #[cfg(target_endian = "little")]
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 #[repr(C)]
 pub struct ByteRegisters {
     pub f: Flags,
@@ -47,7 +47,7 @@ pub struct ByteRegisters {
     pub h: u8,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 #[repr(C)]
 pub struct WordRegisters {
     pub af: u16,
@@ -69,7 +69,7 @@ impl DerefMut for ByteRegisters {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct Registers {
     pub main: ByteRegisters,
     pub shadow: ByteRegisters,
@@ -153,7 +153,7 @@ impl RegisterOps for Registers {
             _ => panic!("Invalid register"),
         }
     }
-    
+
     fn get_8(&self, register: &str) -> u8 {
         match register {
             "a" => self.main.a,
@@ -177,7 +177,7 @@ impl RegisterOps for Registers {
             _ => panic!("Invalid register"),
         }
     }
-    
+
     fn get_16(&self, register: &str) -> u16 {
         match register {
             "af" => self.main.af,

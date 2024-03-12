@@ -3,9 +3,14 @@ use std::collections::HashMap;
 use iodevice::IODevice;
 use iodevice::IORegister;
 
-use crate::emu_lib::io::iodevice::InterruptType;
-
 pub mod iodevice;
+
+pub enum InterruptType {
+    NMI,     // non-maskable interrupt
+    IM0(u8), // instruction to exec, usually RST xx, no save of PC by default
+    IM1,     // jump to 0x0038 after pushing PC to stack
+    IM2(u8), // jump to I + this after pushing PC to stack
+}
 
 pub struct IO {
     pub io_devices: Vec<Box<dyn IODevice>>,

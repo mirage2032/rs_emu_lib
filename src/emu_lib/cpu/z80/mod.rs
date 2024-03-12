@@ -1,29 +1,32 @@
 use registers::Registers;
 
+use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, InstructionParser, RegisterOps};
 use crate::emu_lib::cpu::ExecutableInstruction;
-use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, InstructionDecoder, InstructionEncoder, RegisterOps};
-use crate::emu_lib::io::{IO, iodevice::InterruptType};
+use crate::emu_lib::io::{IO, InterruptType};
 
 use super::super::memory::{Memory, MemoryDevice};
 
 mod registers;
 pub mod instructions;
-mod encoder;
-mod decoder;
+mod parser;
 
 pub struct Z80 {
     registers: Registers,
+    parser: parser::Z80Parser,
     halted: bool,
 }
 
-impl Z80 {
-    pub fn new() -> Z80 {
+impl Default for Z80 {
+    fn default() -> Self {
         Z80 {
-            registers: Registers::new(),
+            registers: Registers::default(),
+            parser: parser::Z80Parser::new(),
             halted: false,
         }
     }
+}
 
+impl Z80 {
     fn handle_interrupt(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Option<Box<dyn ExecutableInstruction<Z80>>>, String> {
         match io.get_interrupt() {
             Some((int_vector, id)) => {
@@ -33,7 +36,7 @@ impl Z80 {
                         None
                     }
                     InterruptType::IM0(instruction) => {
-                        let instruction = Self::decode(&vec![instruction], 0)?;
+                        let instruction = parser::Z80Parser::from_memdev(&vec![instruction], 0)?;
                         instruction.execute(memory, self, io)?;
                         Some(instruction)
                     }
@@ -64,24 +67,15 @@ impl Z80 {
 impl Cpu for Z80 {
     fn step(&mut self, memory: &mut Memory, io: &mut IO) -> Result<Box<(dyn BaseInstruction)>, String> {
         let res = self.handle_interrupt(memory, io)?; // If IM1 interrupt it will be returned and executed
-        let instruction = match res {
+        let instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
             Some(instruction) => instruction,
-            None => Self::decode(memory, self.registers.pc)?
+            None => parser::Z80Parser::from_memdev(memory, self.registers.pc)?
         };
         instruction.execute(memory, self, io)?;
         Ok(instruction)
     }
-
-    fn encode(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String> {
-        <Self as InstructionEncoder>::encode(instruction).map(|i| i as Box<(dyn BaseInstruction)>)
-    }
-
-    fn decode_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String> {
-        Self::decode(memory, pos).map(|i| i as Box<(dyn BaseInstruction)>)
-    }
-
-    fn decode_vec(&self, vec: &Vec<u8>) -> Result<Box<(dyn BaseInstruction)>, String> {
-        Self::decode(vec, 0).map(|i| i as Box<(dyn BaseInstruction)>)
+    fn parser(&self) -> &dyn InstructionParser {
+        &self.parser
     }
     fn type_of(&self) -> CPUType {
         CPUType::Z80

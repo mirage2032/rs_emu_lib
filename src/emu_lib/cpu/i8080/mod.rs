@@ -1,5 +1,4 @@
-use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, ExecutableInstruction, InstructionDecoder, InstructionEncoder, RegisterOps};
-use crate::emu_lib::memory::MemoryDevice;
+use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType, InstructionParser, RegisterOps};
 use crate::emu_lib::io::IO;
 
 use super::super::memory::Memory;
@@ -8,21 +7,9 @@ pub struct I8080 {
     halted: bool,
 }
 
-impl I8080 {
-    pub fn new() -> I8080 {
+impl Default for I8080 {
+    fn default() -> I8080 {
         I8080 { halted: false }
-    }
-}
-
-impl InstructionDecoder for I8080 {
-    fn decode(_: &impl MemoryDevice, _: u16) -> Result<Box<dyn ExecutableInstruction<Self>>, String> {
-        unimplemented!()
-    }
-}
-
-impl InstructionEncoder for I8080 {
-    fn encode(_: String) -> Result<Box<dyn ExecutableInstruction<Self>>, String> {
-        unimplemented!()
     }
 }
 
@@ -30,21 +17,11 @@ impl Cpu for I8080 {
     fn step(&mut self, _: &mut Memory, _: &mut IO) -> Result<Box<dyn BaseInstruction>, String> {
         unimplemented!()
     }
-
-    fn encode(&self, _: String) -> Result<Box<dyn BaseInstruction>, String> {
-        unimplemented!()
-    }
-
-    fn decode_mem(&self, _: &Memory, _: u16) -> Result<Box<dyn BaseInstruction>, String> {
-        unimplemented!()
-    }
-
-    fn decode_vec(&self, _: &Vec<u8>) -> Result<Box<dyn BaseInstruction>, String> {
-        unimplemented!()
-    }
-
     fn type_of(&self) -> CPUType {
         CPUType::I8080
+    }
+    fn parser(&self) -> &dyn InstructionParser {
+        unimplemented!()
     }
     fn registers(&mut self) -> &mut dyn RegisterOps {
         unimplemented!()
