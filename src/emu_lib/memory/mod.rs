@@ -1,30 +1,20 @@
+use std::fs;
 use std::fs::File;
 use std::io;
 use std::io::{BufReader, Read, Write};
+use std::path::{Path, PathBuf};
 
-pub use memdevice::RAM;
+use errors::{FileError, MemoryError, MemWriteError};
 
 use crate::utils::Size;
 
-mod memdevice;
+pub mod memdevices;
+pub mod errors;
 
 pub struct Memory {
     data: Vec<Box<dyn MemoryDevice>>,
-    callback: Option<Box<dyn Fn(MemoryOperation)>>,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum MemoryOperation {
-    Read(usize, u8),
-    Write(usize, u8),
-}
-
-#[derive(Debug, Copy, Clone)]
-pub enum MemoryError {
-    FileError,
-    ReadError,
-    ReadOnly(usize, usize),
-    EndOfMem(usize),
+    readcallback: Option<fn(u16, u8)>,
+    writecallback: Option<fn(u16, u8)>,
 }
 
 pub trait MemoryDevice: Size {
@@ -72,14 +62,18 @@ impl MemoryDevice for Vec<u8> {
 
 impl Memory {
     pub fn new() -> Memory {
-        Memory { data: Vec::new(), callback: Some(Box::new(|_: MemoryOperation| {})) }
+        Memory { data: Vec::new(), writecallback: None, readcallback: None }
     }
 
     pub fn add_device(&mut self, device: Box<dyn MemoryDevice>) {
         self.data.push(device);
     }
-    pub fn add_callback(&mut self, callback: Box<dyn Fn(MemoryOperation)>) {
-        self.callback = Some(callback);
+    pub fn add_write_callback(&mut self, callback: fn(u16, u8)) {
+        self.writecallback = Some(callback);
+    }
+
+    pub fn add_read_callback(&mut self, callback: fn(u16, u8)) {
+        self.readcallback = Some(callback);
     }
 
     fn get_elem_idx(&self, addr: u16) -> Result<(usize, usize), &'static str> {
@@ -95,53 +89,53 @@ impl Memory {
         Err("Address not mapped")
     }
 
-    pub fn save(&self, filename: String) -> Result<(), &'static str> {
-        let mut file = File::create(filename).map_err(|_| "Error creating file")?;
+    pub fn save(&self, filename: PathBuf) -> Result<(), MemoryError> {
+        if fs::metadata(&filename).is_ok() {
+            return Err(FileError::FileExists(filename).into());
+        }
+        let mut file = File::create(&filename).map_err(|_| FileError::FileCreate(filename))?;
         for device in &self.data {
             for byte in 0..device.size() {
-                file.write_all(&[device.read_8(byte as u16)?]).map_err(|_| "Error writing to file")?;
+                file.write_all(&[device.read_8(byte as u16).map_err(|err| MemoryError::MemRead(byte, err))?])
+                    .map_err(|_| FileError::WriteError)?;
             }
         }
         Ok(())
     }
 
-    pub fn load(&mut self, filename: String) -> Result<(), Vec<MemoryError>> {
+    pub fn load(&mut self, filename: &Path) -> Result<(), Vec<MemoryError>> {
+        if fs::metadata(filename).is_err() {
+            return Err(vec!(FileError::FileDoesNotExist(filename.to_path_buf()).into()));
+        }
         match File::open(filename) {
             Ok(file) => {
-                let filesize = file.metadata().unwrap().len();
-                let mut result = vec![];
+                let mut result: Vec<MemoryError> = vec![];
                 let mut reader = BufReader::new(file);
                 let mut index: usize = 0;
                 for device in &mut self.data {
-                    // if device.is_read_only() {
-                    //     let dev_size = device.size();
-                    //     reader.consume(dev_size);
-                    //     index += device.size();
-                    //     result.push(MemoryError::ReadOnly(index, device.size()));
-                    // } else {
                     let mut buffer = vec![0; device.size()];
                     match reader.read_exact(&mut buffer) {
                         Ok(_) => {
                             for (i, byte) in buffer.iter().enumerate() {
-                                device.write_8(i as u16, *byte).unwrap();
+                                if let Err(err) = device.write_8(i as u16, *byte) {
+                                    result.push(MemWriteError::Write(index + i, err).into());
+                                };
                             }
                             index += device.size();
                         }
                         Err(ref err) if err.kind() == io::ErrorKind::UnexpectedEof => {
                             for (i, byte) in buffer.iter().enumerate() {
-                                device.write_8(i as u16, *byte).unwrap();
+                                if let Err(err) = device.write_8(i as u16, *byte) {
+                                    result.push(MemWriteError::Write(index + i, err).into());
+                                };
                             }
-                            index += device.size();
-                        }
-                        Err(_) => {
-                            result.push(MemoryError::ReadError);
                             break;
                         }
-                        // }
+                        Err(_) => {
+                            result.push(MemoryError::File(FileError::ReadError));
+                            break;
+                        }
                     }
-                }
-                if filesize >= index as u64 {
-                    result.push(MemoryError::EndOfMem(index));
                 }
 
                 if result.is_empty() {
@@ -150,7 +144,7 @@ impl Memory {
                     Err(result)
                 }
             }
-            Err(_) => Err(vec![MemoryError::FileError]),
+            Err(_) => Err(vec![FileError::FileCreate(filename.to_path_buf()).into()]),
         }
     }
 }
@@ -158,8 +152,8 @@ impl Memory {
 impl Default for Memory {
     fn default() -> Self {
         let mut mem = Self::new();
-        mem.add_device(Box::new(memdevice::RAM::new(0x4000)));
-        mem.add_device(Box::new(memdevice::ROM::new(0xC000)));
+        mem.add_device(Box::new(memdevices::RAM::new(0x4000)));
+        mem.add_device(Box::new(memdevices::ROM::new(0xC000)));
         mem
     }
 }
@@ -174,16 +168,16 @@ impl MemoryDevice for Memory {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         let data = self.data[device_idx].read_8(offset as u16)?;
-        if let Some(callback) = &self.callback {
-            callback(MemoryOperation::Read(addr as usize, data));
+        if let Some(callback) = &self.readcallback {
+            callback(addr, data);
         }
         Ok(data)
     }
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].write_8(offset as u16, data)?;
-        if let Some(callback) = &self.callback {
-            callback(MemoryOperation::Write(addr as usize, data));
+        if let Some(callback) = &self.writecallback {
+            callback(addr, data);
         }
         Ok(())
     }

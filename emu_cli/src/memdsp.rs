@@ -4,7 +4,7 @@ use std::thread;
 use minifb::{Key, Window, WindowOptions};
 use rand::random;
 
-use emu_lib::memory::{MemoryDevice};
+use emu_lib::memory::MemoryDevice;
 use emu_lib::utils::Size;
 
 enum Event {
@@ -64,8 +64,7 @@ impl MemViz {
                             let size = buffer.lock().unwrap().capacity();
                             if size % new_width != 0 {
                                 continue;
-                            }
-                            width = new_width;
+                            }                            width = new_width;
                             height = get_height(size, width);
                             window = Window::new(
                                 "Test - ESC to exit",
@@ -82,18 +81,21 @@ impl MemViz {
                         }
                     }
                 }
-                for (i, val) in dsp_buffer.iter_mut().enumerate() {
-                    let data = buffer.lock().unwrap()[i];
-                    let r = data & 0b11100000;
-                    let g = (data & 0b00011100) << 3;
-                    let b = (data & 0b00000011) << 6;
-                    let color = u32::from_be_bytes([
-                        0,
-                        r,
-                        g,
-                        b,
-                    ]);
-                    *val = color;
+                {
+                    let lockbuf = buffer.lock();
+                    for (i, val) in dsp_buffer.iter_mut().enumerate() {
+                        let data = lockbuf.as_ref().unwrap()[i];
+                        let r = data & 0b11100000;          // first 3 bits are used for the red channel
+                        let g = (data & 0b00011100) << 3;   // next 3 bits are used for the green channel
+                        let b = (data & 0b00000011) << 6;   // last 2 bits are used for the blue channel
+                        let color = u32::from_be_bytes([
+                            0,
+                            r,
+                            g,
+                            b,
+                        ]);
+                        *val = color;
+                    }
                 }
                 window.update_with_buffer(&dsp_buffer, width, height).unwrap();
             }

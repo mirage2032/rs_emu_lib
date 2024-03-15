@@ -12,7 +12,7 @@ pub enum InterruptType {
     // instruction to exec, usually RST xx, no save of PC by default
     IM1,
     // jump to 0x0038 after pushing PC to stack
-    IM2(u8), // jump to I + this after pushing PC to stack
+    IM2(u8), // jump to val = I[msb] | u8[lsb]
 }
 
 pub struct IO {
@@ -81,8 +81,8 @@ impl IO {
     }
 
     pub fn ack_int(&mut self, device_id: usize) -> Result<(), &str> {
-        let s = self.io_devices.get_mut(device_id).ok_or("Attempting to acknowledge interrupt from non existent device")?;
-        s.ack_int()
+        let device = self.io_devices.get_mut(device_id).ok_or("Attempting to acknowledge interrupt from non existent device")?;
+        device.ack_int()
     }
 
     pub fn int_enabled(&self) -> bool {

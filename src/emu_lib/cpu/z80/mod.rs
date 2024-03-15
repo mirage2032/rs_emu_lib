@@ -38,12 +38,11 @@ impl Z80 {
                     }
                     InterruptType::IM0(instruction) => {
                         let instruction = parser::Z80Parser::from_memdev(&vec![instruction], 0)?;
-                        instruction.execute(memory, self, io)?;
                         Some(instruction)
                     }
                     remaining => {
                         push_16!(self.registers.pc,memory,self.registers.sp);
-                        self.registers.swap(); // TODO: Check: Should be done???
+                        // self.registers.swap(); // TODO: Check if registers are swapped automatically
                         match remaining {
                             InterruptType::IM1 => {
                                 self.registers.pc = 0x38;
