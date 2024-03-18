@@ -5,7 +5,7 @@ use crate::emu_lib::cpu::ExecutableInstruction;
 use crate::emu_lib::io::{InterruptType, IO};
 use crate::push_16;
 
-use super::super::memory::{Memory, MemoryDevice};
+use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
 
 mod registers;
 pub mod instructions;
@@ -37,7 +37,8 @@ impl Z80 {
                         None
                     }
                     InterruptType::IM0(instruction) => {
-                        let instruction = parser::Z80Parser::from_memdev(&vec![instruction], 0)?;
+                        let rom: ROM = vec![instruction].into();
+                        let instruction = parser::Z80Parser::from_memdev(&rom, 0)?;
                         Some(instruction)
                     }
                     remaining => {

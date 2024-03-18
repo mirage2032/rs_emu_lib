@@ -5,7 +5,6 @@ use minifb::{Key, Window, WindowOptions};
 use rand::random;
 
 use emu_lib::memory::MemoryDevice;
-use emu_lib::utils::Size;
 
 enum Event {
     SetWidth(usize),
@@ -124,13 +123,9 @@ impl Drop for MemViz {
     }
 }
 
-impl Size for MemViz {
-    fn size(&self) -> usize {
-        self.buffer.lock().unwrap().len()
-    }
-}
-
 impl MemoryDevice for MemViz {
+    fn size(&self) -> usize {
+        self.buffer.lock().unwrap().len()}
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         Ok(self.buffer.lock().unwrap()[addr as usize])
     }

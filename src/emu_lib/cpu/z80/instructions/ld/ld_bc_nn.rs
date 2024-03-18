@@ -18,7 +18,7 @@ pub struct LD_BC_NN {
 }
 
 impl LD_BC_NN {
-    pub fn new<T: MemoryDevice>(memory: &T, pos: u16) -> Result<LD_BC_NN, String>
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_BC_NN, String>
     {
         Ok(LD_BC_NN {
             common: COMMON,

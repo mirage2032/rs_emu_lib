@@ -6,8 +6,6 @@ use std::path::{Path, PathBuf};
 
 use errors::{FileError, MemoryError, MemWriteError};
 
-use crate::utils::Size;
-
 pub mod memdevices;
 pub mod errors;
 
@@ -17,7 +15,8 @@ pub struct Memory {
     writecallback: Option<fn(u16, u8)>,
 }
 
-pub trait MemoryDevice: Size {
+pub trait MemoryDevice {
+    fn size(&self) -> usize;
     fn read_8(&self, addr: u16) -> Result<u8, &'static str>;
     fn read_16(&self, addr: u16) -> Result<u16, &'static str> {
         let lsb = self.read_8(addr)?;
@@ -35,27 +34,6 @@ pub trait MemoryDevice: Size {
         for i in 0..self.size() {
             self.write_8(i as u16, 0)?;
         }
-        Ok(())
-    }
-}
-
-impl Size for Vec<u8> {
-    fn size(&self) -> usize {
-        self.len()
-    }
-}
-
-impl MemoryDevice for Vec<u8> {
-    fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
-        Ok(self[addr as usize])
-    }
-    fn read_16(&self, addr: u16) -> Result<u16, &'static str> {
-        let lsb = self.read_8(addr)?;
-        let msb = self.read_8(addr + 1)?;
-        Ok(u16::from_le_bytes([lsb, msb]))
-    }
-    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
-        self[addr as usize] = data;
         Ok(())
     }
 }
@@ -158,13 +136,10 @@ impl Default for Memory {
     }
 }
 
-impl Size for Memory {
+impl MemoryDevice for Memory {
     fn size(&self) -> usize {
         self.data.iter().map(|d| d.size()).sum()
     }
-}
-
-impl MemoryDevice for Memory {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         let data = self.data[device_idx].read_8(offset as u16)?;

@@ -14,13 +14,10 @@ impl RAM {
     }
 }
 
-impl Size for RAM {
+impl MemoryDevice for RAM {
     fn size(&self) -> usize {
         self.data.len()
     }
-}
-
-impl MemoryDevice for RAM {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         let val = self.data.get(addr as usize).ok_or("Address out of bounds")?;
         Ok(*val)
@@ -29,6 +26,12 @@ impl MemoryDevice for RAM {
         let val = self.data.get_mut(addr as usize).ok_or("Address out of bounds")?;
         *val = data;
         Ok(())
+    }
+}
+
+impl From<Vec<u8>> for RAM {
+    fn from(data: Vec<u8>) -> RAM {
+        RAM { data }
     }
 }
 
@@ -45,13 +48,10 @@ impl ROM {
     }
 }
 
-impl Size for ROM {
+impl MemoryDevice for ROM {
     fn size(&self) -> usize {
         self.data.len()
     }
-}
-
-impl MemoryDevice for ROM {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         let val = self.data.get(addr as usize).ok_or("Address out of bounds")?;
         Ok(*val)
@@ -61,3 +61,8 @@ impl MemoryDevice for ROM {
     }
 }
 
+impl From<Vec<u8>> for ROM {
+    fn from(data: Vec<u8>) -> ROM {
+        ROM { data }
+    }
+}

@@ -18,7 +18,7 @@ pub struct LD_B_N {
 }
 
 impl LD_B_N {
-    pub fn new<T: MemoryDevice>(memory: &T, pos: u16) -> Result<LD_B_N, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_B_N, String> {
         Ok(LD_B_N {
             common: COMMON,
             n: memory.read_8(pos + 1)?,
