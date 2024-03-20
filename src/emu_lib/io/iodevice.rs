@@ -3,12 +3,12 @@ use std::collections::HashMap;
 use super::InterruptType;
 
 pub trait IODevice: Send {
-    fn pins(&self) -> Vec<u8>;
-    fn read(&self, pin: u8) -> Result<u8, &str>;
-    fn write(&mut self, pin: u8, data: u8) -> Result<(), &str>;
+    fn ports(&self) -> Vec<u8>;
+    fn read(&self, pin: u8) -> Result<u8, &'static str>;
+    fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str>;
     fn step(&mut self);
     fn will_interrupt(&self) -> Option<InterruptType>;
-    fn ack_int(&mut self) -> Result<(), &str>;
+    fn ack_int(&mut self) -> Result<(), &'static str>;
 }
 
 pub struct IORegister {
@@ -28,13 +28,13 @@ impl IORegister {
 }
 
 impl IODevice for IORegister {
-    fn pins(&self) -> Vec<u8> {
+    fn ports(&self) -> Vec<u8> {
         self.registers.keys().copied().collect()
     }
-    fn read(&self, pin: u8) -> Result<u8, &str> {
+    fn read(&self, pin: u8) -> Result<u8, &'static str> {
         self.registers.get(&pin).copied().ok_or("Attempting to read port not mapped to this device")
     }
-    fn write(&mut self, pin: u8, data: u8) -> Result<(), &str> {
+    fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str> {
         *self.registers.get_mut(&pin).unwrap() = data;
         Ok(())
     }
@@ -43,7 +43,7 @@ impl IODevice for IORegister {
     fn will_interrupt(&self) -> Option<InterruptType> {
         None
     }
-    fn ack_int(&mut self) -> Result<(), &str> {
+    fn ack_int(&mut self) -> Result<(), &'static str> {
         Ok(())
     }
 }

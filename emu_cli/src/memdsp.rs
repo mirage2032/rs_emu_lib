@@ -7,13 +7,13 @@ use rand::random;
 use emu_lib::memory::MemoryDevice;
 
 enum Event {
-    SetWidth(usize),
     Exit,
+    SetScale(f32),
 }
 
 pub struct MemViz {
-    buffer: Arc<Mutex<Vec<u8>>>,
     width: usize,
+    buffer: Arc<Mutex<Vec<u8>>>,
     thread: Option<thread::JoinHandle<()>>,
     events: Arc<Mutex<Vec<Event>>>,
 }
@@ -22,12 +22,22 @@ fn get_height(size: usize, width: usize) -> usize {
     size.div_ceil(width)
 }
 
+fn create_window(width:f32,height:f32, scale:f32) -> Window {
+    Window::new(
+        "Test - ESC to exit",
+        (width * scale) as usize,
+        (height * scale) as usize,
+        WindowOptions::default(),
+    )
+        .expect("Unable to create window")
+}
+
 impl MemViz {
     pub fn new(size: usize, width: usize) -> MemViz {
         let buffer = Arc::new(Mutex::new(vec![0; size]));
         MemViz {
-            buffer,
             width,
+            buffer,
             thread: None,
             events: Arc::new(Mutex::new(vec![])),
         }
@@ -46,37 +56,14 @@ impl MemViz {
         let mut dsp_buffer: Vec<u32> = vec![0; width * height];
         let events = self.events.clone();
         self.thread = Some(thread::spawn(move || {
-            let mut window = Window::new(
-                "Test - ESC to exit",
-                (width as f32 * scale) as usize,
-                (height as f32 * scale) as usize,
-                WindowOptions::default(),
-            )
-                .unwrap_or_else(|e| {
-                    panic!("{}", e);
-                });
+            let mut window = create_window(width as f32, height as f32, scale);
             window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
             while window.is_open() && !window.is_key_down(Key::Escape) {
                 while let Some(event) = events.lock().unwrap().pop() {
                     match event {
-                        Event::SetWidth(new_width) => {
-                            let size = buffer.lock().unwrap().capacity();
-                            if size % new_width != 0 {
-                                continue;
-                            }                            width = new_width;
-                            height = get_height(size, width);
-                            window = Window::new(
-                                "Test - ESC to exit",
-                                (width as f32 * scale) as usize,
-                                (height as f32 * scale) as usize,
-                                WindowOptions::default(),
-                            )
-                                .unwrap_or_else(|e| {
-                                    panic!("{}", e);
-                                });
-                        }
-                        Event::Exit => {
-                            return;
+                        Event::Exit => return,
+                        Event::SetScale(scale) => {
+                            window = create_window(width as f32, height as f32, scale);
                         }
                     }
                 }
@@ -102,18 +89,17 @@ impl MemViz {
     }
 
     pub fn stop_thread(&mut self) {
-        if self.thread.is_none() {
-            return;
+        if let Some(thread) = self.thread.take() {
+            self.events.lock().unwrap().push(Event::Exit);
+            thread.join().unwrap();
         }
-        self.events.lock().unwrap().push(Event::Exit);
-        self.thread.take().unwrap().join().unwrap();
     }
     pub fn get_height(&self) -> usize {
         get_height(self.buffer.lock().unwrap().len(), self.width)
     }
-
-    pub fn set_width(&mut self, width: usize) {
-        self.events.lock().unwrap().push(Event::SetWidth(width))
+    
+    pub fn set_scale(&mut self, scale: f32) {
+        self.events.lock().unwrap().push(Event::SetScale(scale));
     }
 }
 
@@ -125,7 +111,8 @@ impl Drop for MemViz {
 
 impl MemoryDevice for MemViz {
     fn size(&self) -> usize {
-        self.buffer.lock().unwrap().len()}
+        self.buffer.lock().unwrap().len()
+    }
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         Ok(self.buffer.lock().unwrap()[addr as usize])
     }

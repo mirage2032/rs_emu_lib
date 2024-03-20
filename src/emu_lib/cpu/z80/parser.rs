@@ -83,7 +83,7 @@ impl Z80Parser {
     fn from_string(instruction: String) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
         let filtered = instruction.to_lowercase().replace(",", " ");
         //regex
-        let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9')]+)(?: ?+,? ?+([(a-z0-9')]+))?)?$").unwrap();
+        let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9')]+)(?: ?+,? ?+([(a-z0-9')]+))?)?$").expect("Error building Z80 instruction parsing regex");
         let op = re.captures(&filtered).expect("Invalid instruction");
         let instruction: Box<dyn ExecutableInstruction<Z80>> = match op.get(1).unwrap().as_str() {
             "nop" => Box::new(nop::NOP::new()),

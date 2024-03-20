@@ -4,9 +4,9 @@ use std::time::Duration;
 
 use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::{Memory};
-use emu_lib::memory::memdevices::{RAM};
-use emu_lib::memory::errors::{MemoryError};
+use emu_lib::memory::errors::MemoryError;
+use emu_lib::memory::memdevices::RAM;
+use emu_lib::memory::Memory;
 use memdsp::MemViz;
 
 mod memdsp;
@@ -26,11 +26,12 @@ fn print_registers(registers: &dyn RegisterOps) {
 
 fn main() {
     let mut dsp = MemViz::new(64 * 64, 64);
-    // dsp.start_thread(12.0);
-    // loop {
-    //     dsp.randomize();
-    //     thread::sleep(Duration::from_millis(1));
-    // }
+    dsp.start_thread(12.0);
+    let mut i = 1.01;
+    loop {
+        dsp.randomize();
+        thread::sleep(Duration::from_millis(100));
+    }
     println!("Creating emulator");
     let mut memory = Memory::new();
     let bank = RAM::new(0x2000);
@@ -38,17 +39,13 @@ fn main() {
     memory.add_device(Box::new(dsp));
     memory = Memory::default();
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
-    let rom_path:PathBuf = PathBuf::from("roms/rom.z80.bin");
+    let rom_path: PathBuf = PathBuf::from("roms/rom.z80.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
     match emulator.memory.load(&rom_path) {
         Ok(_) => {}
         Err(e) => {
             for err in e {
-                match err {
-                    MemoryError::File(e) => panic!("{}", e),
-                    MemoryError::MemWrite(e) => println!("{}", e),
-                    _ => {}
-                }
+                if let MemoryError::File(e) = err { panic!("{}", e) }
             }
         }
     };
