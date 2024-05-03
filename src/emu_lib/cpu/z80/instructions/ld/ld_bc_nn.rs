@@ -57,5 +57,9 @@ impl ExecutableInstruction<Z80> for LD_BC_NN {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(LD_BC_NN, [0x01]);
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(LD_BC_NN, [0xbeef]);
+}

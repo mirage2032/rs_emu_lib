@@ -44,5 +44,10 @@ impl ExecutableInstruction<Z80> for Halt {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(Halt);
+
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(Halt);
+}

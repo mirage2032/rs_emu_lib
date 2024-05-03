@@ -43,5 +43,9 @@ impl ExecutableInstruction<Z80> for NOP {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(NOP);
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(NOP);
+}

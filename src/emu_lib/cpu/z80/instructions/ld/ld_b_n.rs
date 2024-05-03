@@ -35,7 +35,7 @@ impl LD_B_N {
 
 impl Display for LD_B_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld b, 0x{:x}", self.n)
+        write!(f, "ld b, 0x{:02x}", self.n)
     }
 }
 
@@ -55,7 +55,10 @@ impl ExecutableInstruction<Z80> for LD_B_N {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
 
-use crate::generate_instruction_test;
-generate_instruction_test!(LD_B_N, [0x07]);
+    generate_instruction_test!(LD_B_N, [0xbf]);
+}
 

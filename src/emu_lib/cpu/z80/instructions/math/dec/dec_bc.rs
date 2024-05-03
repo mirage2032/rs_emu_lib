@@ -44,5 +44,9 @@ impl ExecutableInstruction<Z80> for DEC_BC {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(DEC_BC);
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(DEC_BC);
+}

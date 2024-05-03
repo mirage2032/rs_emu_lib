@@ -8,8 +8,8 @@ use crate::memory::{Memory, MemoryDevice,memdevices::ROM};
 
 #[derive(Debug, Clone)]
 enum ImmediateValue {
-    Val(Number),
-    Ptr(Number),
+    Val(u16),
+    Ptr(u16),
 }
 
 
@@ -19,21 +19,17 @@ enum Number {
     U16(u16),
 }
 
-fn is_num(number: &str) -> Result<Number, String> {
-    let num = if number.starts_with("0x") && number.len() <= 4 {
-        Number::U8(u8::from_str_radix(&number[2..], 16).map_err(|e| e.to_string())?)
-    } else if number.starts_with("0b") && number.len() <= 10 {
-        Number::U8(u8::from_str_radix(&number[2..], 2).map_err(|e| e.to_string())?)
-    } else if number.starts_with("0x") && number.len() <= 6 {
-        Number::U16(u16::from_str_radix(&number[2..], 16).map_err(|e| e.to_string())?)
+fn is_num(number: &str) -> Result<u16, String> {
+    let num = if number.starts_with("0x") && number.len() <= 6 {
+        u16::from_str_radix(&number[2..], 16).map_err(|e| e.to_string())?
     } else if number.starts_with("0b") && number.len() <= 18 {
-        Number::U16(u16::from_str_radix(&number[2..], 2).map_err(|e| e.to_string())?)
+        u16::from_str_radix(&number[2..], 2).map_err(|e| e.to_string())?
     // } else if number.len() <= 3 {
     //     Number::U8(u8::from_str_radix(&number, 10).map_err(|e| e.to_string())?)
     // } else if number.len() <= 5 {
     //     Number::U16(u16::from_str_radix(&number, 10).map_err(|e| e.to_string())?)
     } else {
-        return Err("Invalid number".to_string());
+        u16::from_str_radix(&number, 10).map_err(|e| e.to_string())?
     };
     Ok(num)
 }
@@ -93,36 +89,28 @@ impl Z80Parser {
                 let _d = is_val(destination);
                 let _s = is_val(source);
                 match (is_val(destination), is_val(source)) {
-                    (Err(_), Ok(ImmediateValue::Val(Number::U16(val)))) =>
+                    (Err(_), Ok(ImmediateValue::Val(val))) =>
                         match destination {
                             "bc" => Box::new(ld::ld_bc_nn::LD_BC_NN::new_with_value(val)),
+                            "b" => Box::new(ld::ld_b_n::LD_B_N::new_with_value(val as u8)),
+                            "c" => Box::new(ld::ld_c_n::LD_C_N::new_with_value(val as u8)),
                             _ => return Err(format!("Invalid \"ld {0}, {1}\" destination register {0}", destination, source))
                         },
-                    (Err(_), Ok(ImmediateValue::Val(Number::U8(val)))) =>
-                        match destination {
-                            "b" => Box::new(ld::ld_b_n::LD_B_N::new_with_value(val)),
-                            "c" => Box::new(ld::ld_c_n::LD_C_N::new_with_value(val)),
-                            _ => return Err(format!("Invalid \"ld {0}, {1}\" destination register {0}", destination, source))
-                        },
-                    (Err(_), Ok(ImmediateValue::Ptr(Number::U16(_)))) =>
-                        match destination {
-                            _ => return Err(format!("Invalid \"ld {0}, {1}\" destination register {0}", destination, source))
-                        },
-                    (Err(_), Ok(ImmediateValue::Ptr(Number::U8(_)))) =>
+                    (Err(_), Ok(ImmediateValue::Ptr(_))) =>
                         match destination {
                             _ => return Err(format!("Invalid \"ld {0}, {1}\" destination register {0}", destination, source))
                         },
 
                     (Ok(ImmediateValue::Val(_)), Err(_)) =>
                         return Err(format!("Invalid \"ld {0}, {1}\" source register {1}", destination, source)),
-                    (Ok(ImmediateValue::Ptr(Number::U16(_))), Err(_)) =>
+                    (Ok(ImmediateValue::Ptr(_)), Err(_)) =>
                         match source {
                             _ => return Err(format!("Invalid \"ld {0}, {1}\" source register {1}", destination, source))
                         },
-                    (Ok(ImmediateValue::Ptr(Number::U8(_))), Err(_)) =>
-                        match source {
-                            _ => return Err(format!("Invalid \"ld {0}, {1}\" source register {1}", destination, source))
-                        },
+                    // (Ok(ImmediateValue::Ptr(_)), Err(_)) =>
+                    //     match source {
+                    //         _ => return Err(format!("Invalid \"ld {0}, {1}\" source register {1}", destination, source))
+                    //     },
 
                     (Ok(_), Ok(_)) => {
                         return Err("Invalid operands".to_string());

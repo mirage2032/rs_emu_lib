@@ -11,11 +11,9 @@ pub mod rrca;
 #[macro_export]
 macro_rules! generate_instruction_test {
     ($instruction:ident, [$($arg:expr),*]) => {
-        #[cfg(test)]
-        mod tests {
             use crate::cpu::z80::parser::Z80Parser;
             use crate::memory::memdevices::ROM;
-            
+
             use super::*;
 
             paste::item! {
@@ -38,14 +36,11 @@ macro_rules! generate_instruction_test {
                     assert_eq!(ins_as_string, new_instruction.to_string());
                 }
             }
-        }
     };
     ($instruction:ident) => {
-        #[cfg(test)]
-        mod tests {
             use crate::cpu::z80::parser::Z80Parser;
             use crate::memory::memdevices::ROM;
-            
+
             use super::*;
 
             paste::item! {
@@ -68,6 +63,5 @@ macro_rules! generate_instruction_test {
                     assert_eq!(ins_as_string, new_instruction.to_string());
                 }
             }
-        }
     };
 }

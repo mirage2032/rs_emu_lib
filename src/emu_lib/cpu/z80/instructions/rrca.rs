@@ -49,5 +49,9 @@ impl ExecutableInstruction<Z80> for RRCA {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(RRCA);
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(RRCA);
+}

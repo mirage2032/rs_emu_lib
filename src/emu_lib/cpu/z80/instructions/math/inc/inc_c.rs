@@ -45,5 +45,9 @@ impl ExecutableInstruction<Z80> for INC_C {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(INC_C);
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(INC_C);
+}

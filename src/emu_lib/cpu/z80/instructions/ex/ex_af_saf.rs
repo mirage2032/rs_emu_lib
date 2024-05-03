@@ -46,5 +46,9 @@ impl ExecutableInstruction<Z80> for EX_AF_SAF {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(EX_AF_SAF);
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(EX_AF_SAF);
+}

@@ -45,5 +45,9 @@ impl ExecutableInstruction<Z80> for LD_PBC_A {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(LD_PBC_A);
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(LD_PBC_A);
+}

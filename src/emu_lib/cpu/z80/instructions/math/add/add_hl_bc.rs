@@ -45,5 +45,9 @@ impl ExecutableInstruction<Z80> for ADD_HL_BC {
     }
 }
 
-use crate::generate_instruction_test;
-generate_instruction_test!(ADD_HL_BC);
+#[cfg(test)]
+mod tests {
+    use crate::generate_instruction_test;
+
+    generate_instruction_test!(ADD_HL_BC);
+}
