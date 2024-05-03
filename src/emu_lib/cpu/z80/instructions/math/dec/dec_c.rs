@@ -44,3 +44,6 @@ impl ExecutableInstruction<Z80> for DEC_C {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(DEC_C);

@@ -44,3 +44,6 @@ impl ExecutableInstruction<Z80> for LD_PBC_A {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(LD_PBC_A);

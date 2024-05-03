@@ -12,3 +12,6 @@ crate-type = ["lib"]
 bitfield-struct = "0.6.0"
 regex = "1.10.3"
 thiserror = "1.0.58"
+
+[dev-dependencies]
+paste = "1.0.14"

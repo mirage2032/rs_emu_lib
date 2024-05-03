@@ -42,3 +42,6 @@ impl ExecutableInstruction<Z80> for NOP {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(NOP);

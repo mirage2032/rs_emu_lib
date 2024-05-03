@@ -43,3 +43,6 @@ impl ExecutableInstruction<Z80> for INC_BC {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(INC_BC);

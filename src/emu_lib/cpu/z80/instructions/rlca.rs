@@ -48,3 +48,6 @@ impl ExecutableInstruction<Z80> for RLCA {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(RLCA);

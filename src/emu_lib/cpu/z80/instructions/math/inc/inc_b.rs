@@ -44,3 +44,6 @@ impl ExecutableInstruction<Z80> for INC_B {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(INC_B);

@@ -1,5 +1,4 @@
 use crate::emu_lib::memory::MemoryDevice;
-use crate::emu_lib::utils::Size;
 
 #[derive(Debug, Clone)]
 pub struct RAM {

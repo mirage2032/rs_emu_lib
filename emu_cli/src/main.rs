@@ -25,19 +25,14 @@ fn print_registers(registers: &dyn RegisterOps) {
 }
 
 fn main() {
-    let mut dsp = MemViz::new(64 * 64, 64);
-    dsp.start_thread(12.0);
-    let mut i = 1.01;
-    loop {
-        dsp.randomize();
-        thread::sleep(Duration::from_millis(100));
-    }
+    let mut dsp = MemViz::new(64 * 64, 64,10.0);
+    dsp.randomize();
+    thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
     let mut memory = Memory::new();
     let bank = RAM::new(0x2000);
-    memory.add_device(Box::new(bank));
     memory.add_device(Box::new(dsp));
-    memory = Memory::default();
+    memory.add_device(Box::new(bank));
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
     let rom_path: PathBuf = PathBuf::from("roms/rom.z80.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
@@ -51,7 +46,7 @@ fn main() {
     };
     println!("Running emulator");
     print_registers(emulator.cpu.registers());
-    let err = emulator.run_w_cb(10.0, Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
+    let err = emulator.run_w_cb(20.0, Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
         println!("{}", instruction);
         print_registers(emu.cpu.registers());
     }
@@ -66,5 +61,4 @@ fn main() {
             println!("Error: {} while executing \"{}\"", e, instruction)
         }
     }
-    std::thread::sleep(Duration::from_millis(10000));
 }

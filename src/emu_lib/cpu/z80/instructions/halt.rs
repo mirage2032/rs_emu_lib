@@ -43,3 +43,6 @@ impl ExecutableInstruction<Z80> for Halt {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(Halt);

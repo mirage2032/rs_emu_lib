@@ -34,7 +34,7 @@ impl LD_C_N {
 
 impl Display for LD_C_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld c, n")
+        write!(f, "ld c, 0x{:02X}", self.n)
     }
 }
 
@@ -53,3 +53,6 @@ impl ExecutableInstruction<Z80> for LD_C_N {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(LD_C_N, [0x0e]);

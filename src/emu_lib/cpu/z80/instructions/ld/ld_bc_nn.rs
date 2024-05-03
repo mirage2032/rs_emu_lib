@@ -36,7 +36,7 @@ impl LD_BC_NN {
 
 impl Display for LD_BC_NN {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld bc, {:x}", self.nn)
+        write!(f, "ld bc, 0x{:04x}", self.nn)
     }
 }
 
@@ -56,3 +56,6 @@ impl ExecutableInstruction<Z80> for LD_BC_NN {
         Ok(())
     }
 }
+
+use crate::generate_instruction_test;
+generate_instruction_test!(LD_BC_NN, [0x01]);

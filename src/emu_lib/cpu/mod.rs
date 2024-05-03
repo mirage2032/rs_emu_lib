@@ -33,7 +33,7 @@ pub trait RegisterOps: Debug {
 pub trait InstructionParser {
     fn ins_from_mem(&self, memory: &Memory, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
     fn ins_from_vec(&self, memory: Vec<u8>, pos: u16) -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn ins_from_string(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String>;
+    fn ins_from_string(&self, instruction: &String) -> Result<Box<(dyn BaseInstruction)>, String>;
 }
 
 pub trait Cpu: Send {

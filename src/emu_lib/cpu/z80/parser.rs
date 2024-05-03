@@ -25,13 +25,13 @@ fn is_num(number: &str) -> Result<Number, String> {
     } else if number.starts_with("0b") && number.len() <= 10 {
         Number::U8(u8::from_str_radix(&number[2..], 2).map_err(|e| e.to_string())?)
     } else if number.starts_with("0x") && number.len() <= 6 {
-        Number::U16(u16::from_str_radix(&number[1..], 8).map_err(|e| e.to_string())?)
+        Number::U16(u16::from_str_radix(&number[2..], 16).map_err(|e| e.to_string())?)
     } else if number.starts_with("0b") && number.len() <= 18 {
-        Number::U16(u16::from_str_radix(&number[1..], 10).map_err(|e| e.to_string())?)
-    } else if number.len() <= 3 {
-        Number::U8(u8::from_str_radix(&number, 10).map_err(|e| e.to_string())?)
-    } else if number.len() <= 5 {
-        Number::U16(u16::from_str_radix(&number, 10).map_err(|e| e.to_string())?)
+        Number::U16(u16::from_str_radix(&number[2..], 2).map_err(|e| e.to_string())?)
+    // } else if number.len() <= 3 {
+    //     Number::U8(u8::from_str_radix(&number, 10).map_err(|e| e.to_string())?)
+    // } else if number.len() <= 5 {
+    //     Number::U16(u16::from_str_radix(&number, 10).map_err(|e| e.to_string())?)
     } else {
         return Err("Invalid number".to_string());
     };
@@ -80,7 +80,7 @@ impl Z80Parser {
         };
         Ok(instruction)
     }
-    fn from_string(instruction: String) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
+    pub fn from_string(instruction: &String) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
         let filtered = instruction.to_lowercase().replace(",", " ");
         //regex
         let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9')]+)(?: ?+,? ?+([(a-z0-9')]+))?)?$").expect("Error building Z80 instruction parsing regex");
@@ -90,6 +90,8 @@ impl Z80Parser {
             "ld" => {
                 let destination = op.get(2).unwrap().as_str();
                 let source = op.get(3).unwrap().as_str();
+                let _d = is_val(destination);
+                let _s = is_val(source);
                 match (is_val(destination), is_val(source)) {
                     (Err(_), Ok(ImmediateValue::Val(Number::U16(val)))) =>
                         match destination {
@@ -190,7 +192,7 @@ impl InstructionParser for Z80Parser {
         let rom : ROM = memory.into();
         Z80Parser::from_memdev(&rom, pos).map(|x| x as Box<dyn BaseInstruction>)
     }
-    fn ins_from_string(&self, instruction: String) -> Result<Box<(dyn BaseInstruction)>, String> {
+    fn ins_from_string(&self, instruction: &String) -> Result<Box<(dyn BaseInstruction)>, String> {
         Z80Parser::from_string(instruction).map(|x| x as Box<dyn BaseInstruction>)
     }
 }
