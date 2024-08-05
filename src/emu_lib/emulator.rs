@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime};
 
 use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType};
@@ -13,7 +14,7 @@ pub enum StopReason {
 }
 
 pub struct Emulator {
-    pub memory: Memory,
+    pub memory: Arc<Mutex<Memory>>,
     pub cpu: Box<dyn Cpu>,
     pub breakpoints: Vec<u16>,
     pub io: IO,
@@ -26,7 +27,7 @@ impl Emulator {
             CPUType::I8080 => Box::<I8080>::default()
         };
         Emulator {
-            memory: Memory::default(),
+            memory: Arc::new(Mutex::new(Memory::default())),
             cpu,
             breakpoints: Vec::new(),
             io: IO::default(),
@@ -38,7 +39,7 @@ impl Emulator {
             CPUType::I8080 => Box::<I8080>::default()
         };
         Emulator {
-            memory,
+            memory:Arc::new(Mutex::new(memory)),
             cpu,
             breakpoints: Vec::new(),
             io: IO::default(),
@@ -48,7 +49,9 @@ impl Emulator {
         if self.cpu.halted() {
             return Err("CPU is halted".to_string());
         }
-        self.cpu.step(&mut self.memory, &mut self.io)
+        let mut lock = self.memory.lock();
+        self.cpu.step(lock.as_mut().unwrap(),
+                      &mut self.io)
     }
 
     pub fn run_w_cb<T: Fn(&mut Self, &dyn BaseInstruction)>(&mut self, frequency: f32, callback: Option<T>) -> StopReason
