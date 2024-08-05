@@ -30,6 +30,15 @@ pub trait MemoryDevice {
         self.write_8(addr + 1, bytes[1])?;
         Ok(())
     }
+
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str>;
+    fn write_16_force(&mut self, addr: u16, data: u16) -> Result<(), &'static str> {
+        let bytes = data.to_le_bytes();
+        self.write_8_force(addr, bytes[0])?;
+        self.write_8_force(addr + 1, bytes[1])?;
+        Ok(())
+    }
+
     fn clear(&mut self) -> Result<(), &'static str> {
         for i in 0..self.size() {
             self.write_8(i as u16, 0)?;
@@ -67,60 +76,57 @@ impl Memory {
         Err("Address not mapped")
     }
 
-    pub fn save(&self, filename: PathBuf) -> Result<(), MemoryError> {
+    pub fn save(&self) -> Result<Vec<u8>, MemoryError> {
+        let mut data = Vec::new();
+        for device in &self.data {
+            for byte in 0..device.size() {
+                data.push(device.read_8(byte as u16).map_err(|err| MemoryError::MemRead(byte, err))?);
+            }
+        }
+        Ok(data)
+    }
+
+    pub fn save_file(&self, filename: PathBuf) -> Result<(), MemoryError> {
         if fs::metadata(&filename).is_ok() {
             return Err(FileError::FileExists(filename).into());
         }
-        let mut file = File::create(&filename).map_err(|_| FileError::FileCreate(filename))?;
-        for device in &self.data {
-            for byte in 0..device.size() {
-                file.write_all(&[device.read_8(byte as u16).map_err(|err| MemoryError::MemRead(byte, err))?])
-                    .map_err(|_| FileError::WriteError)?;
-            }
-        }
+        fs::write(&filename, &self.save()?).map_err(|_| FileError::FileCreate(filename))?;
         Ok(())
     }
 
-    pub fn load(&mut self, filename: &Path) -> Result<(), Vec<MemoryError>> {
+    pub fn load(&mut self, data: &[u8]) -> Result<(), Vec<MemoryError>> {
+        let mut result: Vec<MemoryError> = vec![];
+        let mut index: usize = 0;
+        for device in &mut self.data {
+            let mut offset = 0;
+            let dev_size = device.size();
+            while offset < dev_size {
+                if index >= data.len() {
+                    break;
+                }
+                let byte = data[index];
+                if let Err(err) = device.write_8_force(offset as u16, byte) {
+                    result.push(MemWriteError::Write(index, err).into());
+                }
+                offset += 1;
+                index += 1;
+            }
+        }
+        if result.is_empty() {
+            Ok(())
+        } else {
+            Err(result)
+        }
+    }
+
+    pub fn load_file(&mut self, filename: &Path) -> Result<(), Vec<MemoryError>> {
         if fs::metadata(filename).is_err() {
             return Err(vec!(FileError::FileDoesNotExist(filename.to_path_buf()).into()));
         }
         match File::open(filename) {
             Ok(file) => {
-                let mut result: Vec<MemoryError> = vec![];
                 let mut reader = BufReader::new(file);
-                let mut index: usize = 0;
-                for device in &mut self.data {
-                    let mut buffer = vec![0; device.size()];
-                    match reader.read_exact(&mut buffer) {
-                        Ok(_) => {
-                            for (i, byte) in buffer.iter().enumerate() {
-                                if let Err(err) = device.write_8(i as u16, *byte) {
-                                    result.push(MemWriteError::Write(index + i, err).into());
-                                };
-                            }
-                            index += device.size();
-                        }
-                        Err(ref err) if err.kind() == io::ErrorKind::UnexpectedEof => {
-                            for (i, byte) in buffer.iter().enumerate() {
-                                if let Err(err) = device.write_8(i as u16, *byte) {
-                                    result.push(MemWriteError::Write(index + i, err).into());
-                                };
-                            }
-                            break;
-                        }
-                        Err(_) => {
-                            result.push(MemoryError::File(FileError::ReadError));
-                            break;
-                        }
-                    }
-                }
-
-                if result.is_empty() {
-                    Ok(())
-                } else {
-                    Err(result)
-                }
+                self.load(&reader.bytes().map(|b| b.unwrap()).collect::<Vec<u8>>())
             }
             Err(_) => Err(vec![FileError::FileCreate(filename.to_path_buf()).into()]),
         }
@@ -151,6 +157,15 @@ impl MemoryDevice for Memory {
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].write_8(offset as u16, data)?;
+        if let Some(callback) = &self.writecallback {
+            callback(addr, data);
+        }
+        Ok(())
+    }
+
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+        let (device_idx, offset) = self.get_elem_idx(addr)?;
+        self.data[device_idx].write_8_force(offset as u16, data)?;
         if let Some(callback) = &self.writecallback {
             callback(addr, data);
         }

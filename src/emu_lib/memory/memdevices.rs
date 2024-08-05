@@ -26,6 +26,10 @@ impl MemoryDevice for RAM {
         *val = data;
         Ok(())
     }
+
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+        self.write_8(addr, data)
+    }
 }
 
 impl From<Vec<u8>> for RAM {
@@ -57,6 +61,12 @@ impl MemoryDevice for ROM {
     }
     fn write_8(&mut self, _: u16, _: u8) -> Result<(), &'static str> {
         Err("ROM is read only")
+    }
+
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+        let val = self.data.get_mut(addr as usize).ok_or("Address out of bounds")?;
+        *val = data;
+        Ok(())
     }
 }
 
