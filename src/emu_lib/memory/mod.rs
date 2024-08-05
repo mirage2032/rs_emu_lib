@@ -1,7 +1,6 @@
 use std::fs;
 use std::fs::File;
-use std::io;
-use std::io::{BufReader, Read, Write};
+use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
 use errors::{FileError, MemoryError, MemWriteError};
@@ -125,7 +124,7 @@ impl Memory {
         }
         match File::open(filename) {
             Ok(file) => {
-                let mut reader = BufReader::new(file);
+                let reader = BufReader::new(file);
                 self.load(&reader.bytes().map(|b| b.unwrap()).collect::<Vec<u8>>())
             }
             Err(_) => Err(vec![FileError::FileCreate(filename.to_path_buf()).into()]),
