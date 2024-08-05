@@ -14,7 +14,7 @@ pub enum StopReason {
 }
 
 pub struct Emulator {
-    pub memory: Arc<Mutex<Memory>>,
+    pub memory: Memory,
     pub cpu: Box<dyn Cpu>,
     pub breakpoints: Vec<u16>,
     pub io: IO,
@@ -27,7 +27,7 @@ impl Emulator {
             CPUType::I8080 => Box::<I8080>::default()
         };
         Emulator {
-            memory: Arc::new(Mutex::new(Memory::default())),
+            memory: Memory::default(),
             cpu,
             breakpoints: Vec::new(),
             io: IO::default(),
@@ -39,7 +39,7 @@ impl Emulator {
             CPUType::I8080 => Box::<I8080>::default()
         };
         Emulator {
-            memory:Arc::new(Mutex::new(memory)),
+            memory,
             cpu,
             breakpoints: Vec::new(),
             io: IO::default(),
@@ -49,8 +49,8 @@ impl Emulator {
         if self.cpu.halted() {
             return Err("CPU is halted".to_string());
         }
-        let mut lock = self.memory.lock();
-        self.cpu.step(lock.as_mut().unwrap(),
+
+        self.cpu.step(&mut self.memory,
                       &mut self.io)
     }
 
