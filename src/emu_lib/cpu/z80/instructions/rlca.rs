@@ -24,7 +24,7 @@ impl RLCA {
 
 impl Display for RLCA {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "rlca")
+        write!(f, "RLCA")
     }
 }
 

@@ -18,8 +18,7 @@ pub struct LD_BC_NN {
 }
 
 impl LD_BC_NN {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_BC_NN, String>
-    {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_BC_NN, String> {
         Ok(LD_BC_NN {
             common: COMMON,
             nn: memory.read_16(pos + 1)?,
@@ -27,16 +26,13 @@ impl LD_BC_NN {
     }
 
     pub fn new_with_value(nn: u16) -> LD_BC_NN {
-        LD_BC_NN {
-            common: COMMON,
-            nn,
-        }
+        LD_BC_NN { common: COMMON, nn }
     }
 }
 
 impl Display for LD_BC_NN {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld bc, 0x{:04x}", self.nn)
+        write!(f, "LD bc, 0x{:04x}", self.nn)
     }
 }
 

@@ -24,7 +24,7 @@ impl RRCA {
 
 impl Display for RRCA {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "rrca")
+        write!(f, "RRCA")
     }
 }
 

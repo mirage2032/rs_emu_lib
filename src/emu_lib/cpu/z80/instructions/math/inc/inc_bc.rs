@@ -24,7 +24,7 @@ impl INC_BC {
 
 impl Display for INC_BC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "inc bc")
+        write!(f, "INC bc")
     }
 }
 

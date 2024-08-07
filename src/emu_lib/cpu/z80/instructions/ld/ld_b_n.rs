@@ -26,16 +26,13 @@ impl LD_B_N {
     }
 
     pub fn new_with_value(n: u8) -> LD_B_N {
-        LD_B_N {
-            common: COMMON,
-            n,
-        }
+        LD_B_N { common: COMMON, n }
     }
 }
 
 impl Display for LD_B_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld b, 0x{:02x}", self.n)
+        write!(f, "LD b, 0x{:02x}", self.n)
     }
 }
 
@@ -61,4 +58,3 @@ mod tests {
 
     generate_instruction_test!(LD_B_N, [0xbf]);
 }
-

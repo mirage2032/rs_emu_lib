@@ -24,7 +24,7 @@ impl EX_AF_SAF {
 
 impl Display for EX_AF_SAF {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ex af, af'")
+        write!(f, "EX af, af'")
     }
 }
 

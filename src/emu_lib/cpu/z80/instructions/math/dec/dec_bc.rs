@@ -24,7 +24,7 @@ impl DEC_BC {
 
 impl Display for DEC_BC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "dec bc")
+        write!(f, "DEC bc")
     }
 }
 

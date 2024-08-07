@@ -72,7 +72,7 @@ impl Z80Parser {
             0x0E => Box::new(ld::ld_c_n::LD_C_N::new(memory, pos)?),
             0x0F => Box::new(rrca::RRCA::new()),
             0x76 => Box::new(halt::Halt::new()),
-            _ => unimplemented!()
+            _ => return Err("Invalid instruction".to_string())
         };
         Ok(instruction)
     }

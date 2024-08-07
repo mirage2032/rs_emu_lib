@@ -135,7 +135,7 @@ impl Memory {
 impl Default for Memory {
     fn default() -> Self {
         let mut mem = Self::new();
-        mem.add_device(Box::new(memdevices::ROM::new(0x4000)));
+        mem.add_device(Box::new(memdevices::RAM::new(0x4000)));
         mem.add_device(Box::new(memdevices::RAM::new(0xC000)));
         mem
     }

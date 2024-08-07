@@ -25,16 +25,13 @@ impl LD_C_N {
         })
     }
     pub fn new_with_value(n: u8) -> LD_C_N {
-        LD_C_N {
-            common: COMMON,
-            n,
-        }
+        LD_C_N { common: COMMON, n }
     }
 }
 
 impl Display for LD_C_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ld c, 0x{:02x}", self.n)
+        write!(f, "LD c, 0x{:02x}", self.n)
     }
 }
 
