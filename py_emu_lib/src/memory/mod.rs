@@ -1,27 +1,28 @@
+use emu_lib::memory::*;
+use memdevice::*;
 use pyo3::*;
 use pyo3::prelude::*;
 
-use memdevice::*;
-
 mod memdevice;
-use emu_lib::memory::*;
-
 #[pyclass(name = "Memory")]
 struct PyMemory {
     memory: Memory,
 }
-
 
 #[pymethods]
 impl PyMemory {
     #[new]
     #[pyo3(signature = (*_args, **_kwargs))]
     fn new(_args: &PyAny, _kwargs: Option<&PyAny>) -> Self {
-        PyMemory { memory: emu_lib::memory::Memory::new() }
+        PyMemory {
+            memory: emu_lib::memory::Memory::new(),
+        }
     }
     #[staticmethod]
     fn empty() -> Self {
-        PyMemory { memory: emu_lib::memory::Memory::default() }
+        PyMemory {
+            memory: emu_lib::memory::Memory::default(),
+        }
     }
     fn write8(&mut self, addr: u16, data: u8) -> PyResult<()> {
         match self.memory.write_8(addr, data) {
@@ -50,11 +51,11 @@ impl PyMemory {
             Err(e) => Err(pyo3::exceptions::PyException::new_err(e)),
         }
     }
-    
+
     fn len(&self) -> usize {
         self.memory.len()
     }
-    
+
     fn save(&self, filename: String) -> PyResult<()> {
         match &self.memory.save(&*filename) {
             Ok(_) => Ok(()),
@@ -66,8 +67,12 @@ impl PyMemory {
             Err(vec) => {
                 for e in vec {
                     match e {
-                        MemoryError::FileError => return Err(pyo3::exceptions::PyException::new_err("Open file error")),
-                        MemoryError::ReadError => return Err(pyo3::exceptions::PyException::new_err("Read error")),
+                        MemoryError::FileError => {
+                            return Err(pyo3::exceptions::PyException::new_err("Open file error"))
+                        }
+                        MemoryError::ReadError => {
+                            return Err(pyo3::exceptions::PyException::new_err("Read error"))
+                        }
                         _ => {}
                     }
                 }

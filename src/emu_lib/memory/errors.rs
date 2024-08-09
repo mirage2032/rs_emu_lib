@@ -22,7 +22,9 @@ pub enum FileError {
 pub enum MemWriteError {
     #[error("Error writing to address: d:{0} h:{0:x}. {1}")]
     Write(usize, &'static str),
-    #[error("Attempted to write to address: d:{0} h:{0:x} beyond the end of mapped memory. Skipping...")]
+    #[error(
+        "Attempted to write to address: d:{0} h:{0:x} beyond the end of mapped memory. Skipping..."
+    )]
     EndOfMem(usize),
 }
 
@@ -34,5 +36,4 @@ pub enum MemoryError {
     MemWrite(#[from] MemWriteError),
     #[error("Error reading from address: d:{0} h:{0:x}. {1}")]
     MemRead(usize, &'static str),
-
 }

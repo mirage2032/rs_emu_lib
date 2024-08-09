@@ -1,78 +1,14 @@
 use std::collections::HashMap;
-use std::ops::{Deref, DerefMut};
 
-use bitfield_struct::bitfield;
-
-use crate::emu_lib::cpu::{RegisterOps, SingleRegister};
-
-#[bitfield(u8)]
-#[derive(PartialEq, Eq)]
-pub struct Flags {
-    // Define your fields with their sizes
-    pub carry: bool,
-    pub add_sub: bool,
-    pub parity_overflow: bool,
-    _bit3: bool,
-    pub half_carry: bool,
-    _bit5: bool,
-    pub zero: bool,
-    pub sign: bool,
-}
-
-#[cfg(target_endian = "big")]
-#[derive(Default, Debug)]
-#[repr(C)]
-pub struct ByteRegisters {
-    pub a: u8,
-    pub f: Flags,
-    pub b: u8,
-    pub c: u8,
-    pub d: u8,
-    pub e: u8,
-    pub h: u8,
-    pub l: u8,
-}
-
-#[cfg(target_endian = "little")]
-#[derive(Default, Debug, Clone)]
-#[repr(C)]
-pub struct ByteRegisters {
-    pub f: Flags,
-    pub a: u8,
-    pub c: u8,
-    pub b: u8,
-    pub e: u8,
-    pub d: u8,
-    pub l: u8,
-    pub h: u8,
-}
-
-#[derive(Default, Debug, Clone)]
-#[repr(C)]
-pub struct WordRegisters {
-    pub af: u16,
-    pub bc: u16,
-    pub de: u16,
-    pub hl: u16,
-}
-
-impl Deref for ByteRegisters {
-    type Target = WordRegisters;
-    fn deref(&self) -> &Self::Target {
-        unsafe { std::mem::transmute(self) }
-    }
-}
-
-impl DerefMut for ByteRegisters {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        unsafe { std::mem::transmute(self) }
-    }
-}
+use crate::emu_lib::cpu::{
+    RegisterOps,
+    registers::{GPByteRegisters, GPRegister},
+};
 
 #[derive(Debug, Default, Clone)]
 pub struct Registers {
-    pub main: ByteRegisters,
-    pub shadow: ByteRegisters,
+    pub main: GPByteRegisters,
+    pub shadow: GPByteRegisters,
     pub ix: u16,
     pub iy: u16,
     pub sp: u16,
@@ -84,8 +20,8 @@ pub struct Registers {
 impl Registers {
     pub fn new() -> Registers {
         Registers {
-            main: ByteRegisters::default(),
-            shadow: ByteRegisters::default(),
+            main: GPByteRegisters::default(),
+            shadow: GPByteRegisters::default(),
             ix: 0,
             iy: 0,
             sp: 0xFFFF,
@@ -101,8 +37,8 @@ impl Registers {
 
 impl RegisterOps for Registers {
     fn clear(&mut self) {
-        self.main = ByteRegisters::default();
-        self.shadow = ByteRegisters::default();
+        self.main = GPByteRegisters::default();
+        self.shadow = GPByteRegisters::default();
         self.ix = 0;
         self.iy = 0;
         self.sp = 0;
@@ -134,7 +70,6 @@ impl RegisterOps for Registers {
             _ => panic!("Invalid register"),
         }
     }
-
 
     fn set_16(&mut self, register: &str, value: u16) {
         match register {
@@ -177,7 +112,6 @@ impl RegisterOps for Registers {
             _ => panic!("Invalid register"),
         }
     }
-
     fn get_16(&self, register: &str) -> u16 {
         match register {
             "af" => self.main.af,
@@ -196,40 +130,40 @@ impl RegisterOps for Registers {
         }
     }
 
-    fn get_all(&self) -> HashMap<&str, SingleRegister> {
+    fn get_all(&self) -> HashMap<&str, GPRegister> {
         let mut map = HashMap::new();
-        map.insert("af", SingleRegister::Bit16(self.main.af));
-        map.insert("bc", SingleRegister::Bit16(self.main.bc));
-        map.insert("de", SingleRegister::Bit16(self.main.de));
-        map.insert("hl", SingleRegister::Bit16(self.main.hl));
-        map.insert("a", SingleRegister::Bit8(self.main.a));
-        map.insert("f", SingleRegister::Bit8(self.main.f.into()));
-        map.insert("b", SingleRegister::Bit8(self.main.b));
-        map.insert("c", SingleRegister::Bit8(self.main.c));
-        map.insert("d", SingleRegister::Bit8(self.main.d));
-        map.insert("e", SingleRegister::Bit8(self.main.e));
-        map.insert("h", SingleRegister::Bit8(self.main.h));
-        map.insert("l", SingleRegister::Bit8(self.main.l));
+        map.insert("af", GPRegister::Bit16(self.main.af));
+        map.insert("bc", GPRegister::Bit16(self.main.bc));
+        map.insert("de", GPRegister::Bit16(self.main.de));
+        map.insert("hl", GPRegister::Bit16(self.main.hl));
+        map.insert("a", GPRegister::Bit8(self.main.a));
+        map.insert("f", GPRegister::Bit8(self.main.f.into()));
+        map.insert("b", GPRegister::Bit8(self.main.b));
+        map.insert("c", GPRegister::Bit8(self.main.c));
+        map.insert("d", GPRegister::Bit8(self.main.d));
+        map.insert("e", GPRegister::Bit8(self.main.e));
+        map.insert("h", GPRegister::Bit8(self.main.h));
+        map.insert("l", GPRegister::Bit8(self.main.l));
 
-        map.insert("af'", SingleRegister::Bit16(self.shadow.af));
-        map.insert("bc'", SingleRegister::Bit16(self.shadow.bc));
-        map.insert("de'", SingleRegister::Bit16(self.shadow.de));
-        map.insert("hl'", SingleRegister::Bit16(self.shadow.hl));
-        map.insert("a'", SingleRegister::Bit8(self.shadow.a));
-        map.insert("f'", SingleRegister::Bit8(self.shadow.f.into()));
-        map.insert("b'", SingleRegister::Bit8(self.shadow.b));
-        map.insert("c'", SingleRegister::Bit8(self.shadow.c));
-        map.insert("d'", SingleRegister::Bit8(self.shadow.d));
-        map.insert("e'", SingleRegister::Bit8(self.shadow.e));
-        map.insert("h'", SingleRegister::Bit8(self.shadow.h));
-        map.insert("l'", SingleRegister::Bit8(self.shadow.l));
+        map.insert("af'", GPRegister::Bit16(self.shadow.af));
+        map.insert("bc'", GPRegister::Bit16(self.shadow.bc));
+        map.insert("de'", GPRegister::Bit16(self.shadow.de));
+        map.insert("hl'", GPRegister::Bit16(self.shadow.hl));
+        map.insert("a'", GPRegister::Bit8(self.shadow.a));
+        map.insert("f'", GPRegister::Bit8(self.shadow.f.into()));
+        map.insert("b'", GPRegister::Bit8(self.shadow.b));
+        map.insert("c'", GPRegister::Bit8(self.shadow.c));
+        map.insert("d'", GPRegister::Bit8(self.shadow.d));
+        map.insert("e'", GPRegister::Bit8(self.shadow.e));
+        map.insert("h'", GPRegister::Bit8(self.shadow.h));
+        map.insert("l'", GPRegister::Bit8(self.shadow.l));
 
-        map.insert("ix", SingleRegister::Bit16(self.ix));
-        map.insert("iy", SingleRegister::Bit16(self.iy));
-        map.insert("sp", SingleRegister::Bit16(self.sp));
-        map.insert("pc", SingleRegister::Bit16(self.pc));
-        map.insert("i", SingleRegister::Bit8(self.i));
-        map.insert("r", SingleRegister::Bit8(self.r));
+        map.insert("ix", GPRegister::Bit16(self.ix));
+        map.insert("iy", GPRegister::Bit16(self.iy));
+        map.insert("sp", GPRegister::Bit16(self.sp));
+        map.insert("pc", GPRegister::Bit16(self.pc));
+        map.insert("i", GPRegister::Bit8(self.i));
+        map.insert("r", GPRegister::Bit8(self.r));
         map
     }
 
@@ -238,5 +172,18 @@ impl RegisterOps for Registers {
     }
     fn pc_mut(&mut self) -> &mut u16 {
         &mut self.pc
+    }
+    fn sp(&self) -> &u16 {
+        &self.sp
+    }
+    fn sp_mut(&mut self) -> &mut u16 {
+        &mut self.sp
+    }
+    fn get_gp(&self) -> &GPByteRegisters {
+        &self.main
+    }
+
+    fn get_gp_mut(&mut self) -> &mut GPByteRegisters {
+        &mut self.main
     }
 }

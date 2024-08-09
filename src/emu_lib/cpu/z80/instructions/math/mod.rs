@@ -1,3 +1,3 @@
-pub mod inc;
-pub mod dec;
 pub mod add;
+pub mod dec;
+pub mod inc;

@@ -1,6 +1,6 @@
 pub mod add_hl_bc;
 
-#[macro_export]
+
 macro_rules! add_rr_rr {
     ($reg1:expr, $reg2:expr, $flags:expr) => {
         let result = $reg1.wrapping_add($reg2);
@@ -12,3 +12,5 @@ macro_rules! add_rr_rr {
         $flags.set_add_sub(false);
     };
 }
+
+pub(crate) use add_rr_rr;

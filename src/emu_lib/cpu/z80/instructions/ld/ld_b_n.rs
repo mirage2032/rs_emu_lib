@@ -1,16 +1,14 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use once_cell::sync::Lazy;
+
+use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
 
-const COMMON: InstructionCommon = InstructionCommon {
-    length: 2,
-    cycles: 8,
-    increment_pc: true,
-};
+static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
 
 pub struct LD_B_N {
     common: InstructionCommon,
@@ -20,13 +18,13 @@ pub struct LD_B_N {
 impl LD_B_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_B_N, String> {
         Ok(LD_B_N {
-            common: COMMON,
+            common: *COMMON,
             n: memory.read_8(pos + 1)?,
         })
     }
 
     pub fn new_with_value(n: u8) -> LD_B_N {
-        LD_B_N { common: COMMON, n }
+        LD_B_N { common: *COMMON, n }
     }
 }
 
@@ -54,7 +52,7 @@ impl ExecutableInstruction<Z80> for LD_B_N {
 
 #[cfg(test)]
 mod tests {
-    use crate::generate_instruction_test;
+    use crate::emu_lib::cpu::test::test_instruction_parse;
 
-    generate_instruction_test!(LD_B_N, [0xbf]);
+    test_instruction_parse!(LD_B_N, [0xbf]);
 }

@@ -18,11 +18,17 @@ impl MemoryDevice for RAM {
         self.data.len()
     }
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
-        let val = self.data.get(addr as usize).ok_or("Address out of bounds")?;
+        let val = self
+            .data
+            .get(addr as usize)
+            .ok_or("Address out of bounds")?;
         Ok(*val)
     }
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
-        let val = self.data.get_mut(addr as usize).ok_or("Address out of bounds")?;
+        let val = self
+            .data
+            .get_mut(addr as usize)
+            .ok_or("Address out of bounds")?;
         *val = data;
         Ok(())
     }
@@ -56,7 +62,10 @@ impl MemoryDevice for ROM {
         self.data.len()
     }
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
-        let val = self.data.get(addr as usize).ok_or("Address out of bounds")?;
+        let val = self
+            .data
+            .get(addr as usize)
+            .ok_or("Address out of bounds")?;
         Ok(*val)
     }
     fn write_8(&mut self, _: u16, _: u8) -> Result<(), &'static str> {
@@ -64,7 +73,10 @@ impl MemoryDevice for ROM {
     }
 
     fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
-        let val = self.data.get_mut(addr as usize).ok_or("Address out of bounds")?;
+        let val = self
+            .data
+            .get_mut(addr as usize)
+            .ok_or("Address out of bounds")?;
         *val = data;
         Ok(())
     }

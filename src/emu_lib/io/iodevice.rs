@@ -21,9 +21,7 @@ impl IORegister {
         for pin in pins {
             registers.insert(pin, 0);
         }
-        IORegister {
-            registers
-        }
+        IORegister { registers }
     }
 }
 
@@ -32,7 +30,10 @@ impl IODevice for IORegister {
         self.registers.keys().copied().collect()
     }
     fn read(&self, pin: u8) -> Result<u8, &'static str> {
-        self.registers.get(&pin).copied().ok_or("Attempting to read port not mapped to this device")
+        self.registers
+            .get(&pin)
+            .copied()
+            .ok_or("Attempting to read port not mapped to this device")
     }
     fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str> {
         *self.registers.get_mut(&pin).unwrap() = data;
@@ -54,8 +55,6 @@ impl Default for IORegister {
         for pin in 0x00..0x100 {
             registers.insert(pin as u8, 0);
         }
-        IORegister {
-            registers
-        }
+        IORegister { registers }
     }
 }

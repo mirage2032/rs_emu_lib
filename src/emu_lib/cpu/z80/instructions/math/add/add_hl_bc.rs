@@ -1,8 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::add_rr_rr;
-use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
@@ -14,11 +13,7 @@ pub struct ADD_HL_BC {
 impl ADD_HL_BC {
     pub fn new() -> ADD_HL_BC {
         ADD_HL_BC {
-            common: InstructionCommon {
-                length: 3,
-                cycles: 10,
-                increment_pc: true,
-            },
+            common: InstructionCommon::new(1, 11, true),
         }
     }
 }
@@ -40,14 +35,18 @@ impl BaseInstruction for ADD_HL_BC {
 
 impl ExecutableInstruction<Z80> for ADD_HL_BC {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        add_rr_rr!(&mut cpu.registers.main.hl, cpu.registers.main.bc, cpu.registers.main.f);
+        super::add_rr_rr!(
+            &mut cpu.registers.main.hl,
+            cpu.registers.main.bc,
+            cpu.registers.main.f
+        );
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::generate_instruction_test;
+    use crate::emu_lib::cpu::test::test_instruction_parse;
 
-    generate_instruction_test!(ADD_HL_BC);
+    test_instruction_parse!(ADD_HL_BC);
 }

@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 
 use errors::{FileError, MemoryError, MemWriteError};
 
-pub mod memdevices;
 pub mod errors;
+pub mod memdevices;
 
 pub struct Memory {
     data: Vec<Box<dyn MemoryDevice>>,
@@ -48,7 +48,11 @@ pub trait MemoryDevice {
 
 impl Memory {
     pub fn new() -> Memory {
-        Memory { data: Vec::new(), writecallback: None, readcallback: None }
+        Memory {
+            data: Vec::new(),
+            writecallback: None,
+            readcallback: None,
+        }
     }
 
     pub fn add_device(&mut self, device: Box<dyn MemoryDevice>) {
@@ -79,7 +83,11 @@ impl Memory {
         let mut data = Vec::new();
         for device in &self.data {
             for byte in 0..device.size() {
-                data.push(device.read_8(byte as u16).map_err(|err| MemoryError::MemRead(byte, err))?);
+                data.push(
+                    device
+                        .read_8(byte as u16)
+                        .map_err(|err| MemoryError::MemRead(byte, err))?,
+                );
             }
         }
         Ok(data)
@@ -120,7 +128,9 @@ impl Memory {
 
     pub fn load_file(&mut self, filename: &Path) -> Result<(), Vec<MemoryError>> {
         if fs::metadata(filename).is_err() {
-            return Err(vec!(FileError::FileDoesNotExist(filename.to_path_buf()).into()));
+            return Err(vec![
+                FileError::FileDoesNotExist(filename.to_path_buf()).into()
+            ]);
         }
         match File::open(filename) {
             Ok(file) => {

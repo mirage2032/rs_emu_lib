@@ -1,6 +1,5 @@
-use pyo3::prelude::*;
-
 use emu_lib::cpu::*;
+use pyo3::prelude::*;
 
 #[pyclass(name = "CPUType")]
 #[derive(Clone, Copy)]

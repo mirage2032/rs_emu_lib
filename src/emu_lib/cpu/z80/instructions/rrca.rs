@@ -1,7 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
@@ -13,11 +13,7 @@ pub struct RRCA {
 impl RRCA {
     pub fn new() -> RRCA {
         RRCA {
-            common: InstructionCommon {
-                length: 1,
-                cycles: 4,
-                increment_pc: true,
-            },
+            common: InstructionCommon::new(1, 4, true),
         }
     }
 }
@@ -51,7 +47,7 @@ impl ExecutableInstruction<Z80> for RRCA {
 
 #[cfg(test)]
 mod tests {
-    use crate::generate_instruction_test;
+    use crate::emu_lib::cpu::test::test_instruction_parse;
 
-    generate_instruction_test!(RRCA);
+    test_instruction_parse!(RRCA);
 }

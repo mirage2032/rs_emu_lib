@@ -1,12 +1,10 @@
-mod memory;
-mod cpu;
-
+use cpu::*;
+use emu_lib::emulator::Emulator;
+use memory::*;
 use pyo3::prelude::*;
 
-use cpu::*;
-use memory::*;
-use emu_lib::emulator::Emulator;
-
+mod cpu;
+mod memory;
 
 #[pyclass(name = "Emulator")]
 struct PyEmulator {
@@ -17,7 +15,9 @@ struct PyEmulator {
 impl PyEmulator {
     #[new]
     fn new(cputype: PyCPUType) -> Self {
-        PyEmulator { emulator: Emulator::new(cputype.into()) }
+        PyEmulator {
+            emulator: Emulator::new(cputype.into()),
+        }
     }
 
     #[setter]

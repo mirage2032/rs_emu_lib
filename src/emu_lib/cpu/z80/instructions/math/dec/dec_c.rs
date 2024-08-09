@@ -1,8 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::dec_r;
-use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
@@ -14,11 +13,7 @@ pub struct DEC_C {
 impl DEC_C {
     pub fn new() -> DEC_C {
         DEC_C {
-            common: InstructionCommon {
-                length: 1,
-                cycles: 4,
-                increment_pc: true,
-            },
+            common: InstructionCommon::new(1, 4, false),
         }
     }
 }
@@ -40,14 +35,14 @@ impl BaseInstruction for DEC_C {
 
 impl ExecutableInstruction<Z80> for DEC_C {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        dec_r!(&mut cpu.registers.main.c, &mut cpu.registers.main.f);
+        super::dec_r!(&mut cpu.registers.main.c, &mut cpu.registers.main.f);
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::generate_instruction_test;
+    use crate::emu_lib::cpu::test::test_instruction_parse;
 
-    generate_instruction_test!(DEC_C);
+    test_instruction_parse!(DEC_C);
 }

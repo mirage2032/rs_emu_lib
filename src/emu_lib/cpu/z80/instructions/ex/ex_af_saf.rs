@@ -1,7 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::emu_lib::cpu::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
@@ -13,11 +13,7 @@ pub struct EX_AF_SAF {
 impl EX_AF_SAF {
     pub fn new() -> EX_AF_SAF {
         EX_AF_SAF {
-            common: InstructionCommon {
-                length: 1,
-                cycles: 4,
-                increment_pc: true,
-            },
+            common: InstructionCommon::new(1, 4, true),
         }
     }
 }
@@ -48,7 +44,6 @@ impl ExecutableInstruction<Z80> for EX_AF_SAF {
 
 #[cfg(test)]
 mod tests {
-    use crate::generate_instruction_test;
-
-    generate_instruction_test!(EX_AF_SAF);
+    use crate::emu_lib::cpu::test::test_instruction_parse;
+    test_instruction_parse!(EX_AF_SAF);
 }

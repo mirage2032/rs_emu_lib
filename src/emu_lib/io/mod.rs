@@ -42,12 +42,18 @@ impl Default for IO {
 
 impl IO {
     pub fn read(&self, port: u8) -> Result<u8, &str> {
-        let device = self.port_map.get(&port).ok_or("Attempting to read from unconnected port")?;
+        let device = self
+            .port_map
+            .get(&port)
+            .ok_or("Attempting to read from unconnected port")?;
         device.borrow().read(port)
     }
 
     pub fn write(&mut self, port: u8, data: u8) -> Result<(), &str> {
-        let device = self.port_map.get(&port).ok_or("Attempting to write to unconnected port")?;
+        let device = self
+            .port_map
+            .get(&port)
+            .ok_or("Attempting to write to unconnected port")?;
         device.borrow_mut().write(port, data)
     }
 
@@ -61,7 +67,9 @@ impl IO {
         let ports = device.borrow().ports();
         for port in ports {
             if self.port_map.contains_key(&port) {
-                return Err("Attempting to add a device with a port already in use by other device");
+                return Err(
+                    "Attempting to add a device with a port already in use by other device",
+                );
             }
             self.port_map.insert(port, device.clone());
         }
@@ -70,7 +78,10 @@ impl IO {
     }
 
     pub fn remove_device(&mut self, device_id: usize) -> Result<(), &str> {
-        let devopt = self.devices.get_mut(device_id).ok_or("Attempting to remove non existent device")?;
+        let devopt = self
+            .devices
+            .get_mut(device_id)
+            .ok_or("Attempting to remove non existent device")?;
         if let Some(dev) = devopt.take() {
             let ports = dev.borrow().ports();
             for port in ports {
@@ -86,8 +97,12 @@ impl IO {
         for (i, device) in self.devices.iter().enumerate() {
             if let Some(dev) = device {
                 match dev.borrow().will_interrupt() {
-                    Some(InterruptType::NMI) => { return Some((InterruptType::NMI, i)); }
-                    Some(val) if self.int_enabled() => { return Some((val, i)); }
+                    Some(InterruptType::NMI) => {
+                        return Some((InterruptType::NMI, i));
+                    }
+                    Some(val) if self.int_enabled() => {
+                        return Some((val, i));
+                    }
                     _ => {}
                 }
             }
@@ -96,7 +111,10 @@ impl IO {
     }
 
     pub fn ack_int(&mut self, device_id: usize) -> Result<(), &str> {
-        let devopt = self.devices.get_mut(device_id).ok_or("Attempting to acknowledge interrupt from non existent device")?;
+        let devopt = self
+            .devices
+            .get_mut(device_id)
+            .ok_or("Attempting to acknowledge interrupt from non existent device")?;
         if let Some(dev) = devopt {
             dev.borrow_mut().ack_int()
         } else {

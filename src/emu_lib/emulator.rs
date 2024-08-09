@@ -1,7 +1,8 @@
 use std::time::{Duration, SystemTime};
 
-use crate::emu_lib::cpu::{BaseInstruction, Cpu, CPUType};
+use crate::emu_lib::cpu::{Cpu, CPUType};
 use crate::emu_lib::cpu::i8080::I8080;
+use crate::emu_lib::cpu::instruction::BaseInstruction;
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
@@ -23,7 +24,7 @@ impl Emulator {
     pub fn new(cpu_type: CPUType) -> Emulator {
         let cpu: Box<dyn Cpu> = match cpu_type {
             CPUType::Z80 => Box::<Z80>::default(),
-            CPUType::I8080 => Box::<I8080>::default()
+            CPUType::I8080 => Box::<I8080>::default(),
         };
         Emulator {
             memory: Memory::default(),
@@ -35,7 +36,7 @@ impl Emulator {
     pub fn new_w_mem(cpu_type: CPUType, memory: Memory) -> Emulator {
         let cpu: Box<dyn Cpu> = match cpu_type {
             CPUType::Z80 => Box::<Z80>::default(),
-            CPUType::I8080 => Box::<I8080>::default()
+            CPUType::I8080 => Box::<I8080>::default(),
         };
         Emulator {
             memory,
@@ -49,18 +50,20 @@ impl Emulator {
             return Err("CPU is halted".to_string());
         }
 
-        self.cpu.step(&mut self.memory,
-                      &mut self.io)
+        self.cpu.step(&mut self.memory, &mut self.io)
     }
 
-    pub fn run_w_cb<T: Fn(&mut Self, &dyn BaseInstruction)>(&mut self, frequency: f32, callback: Option<T>) -> StopReason
-    {
+    pub fn run_w_cb<T: Fn(&mut Self, &dyn BaseInstruction)>(
+        &mut self,
+        frequency: f32,
+        callback: Option<T>,
+    ) -> StopReason {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
 
         loop {
             let time_before = SystemTime::now();
             let instruction = match self.step() {
-                Ok(instructions) => { instructions }
+                Ok(instructions) => instructions,
                 Err(e) => return StopReason::Error(e),
             };
             if let Some(cb) = &callback {
@@ -71,7 +74,7 @@ impl Emulator {
                 return StopReason::Halt;
             }
 
-            if self.breakpoints.contains(self.cpu.registers().pc()) {
+            if self.breakpoints.contains(self.cpu.registers_mut().pc()) {
                 return StopReason::Breakpoint;
             }
             let exec_duration = tick_duration * instruction.common().get_cycles() as u32;
@@ -91,10 +94,8 @@ impl Emulator {
             return;
         }
         self.cpu = match cpu_type {
-            CPUType::Z80 =>
-                Box::<Z80>::default(),
-            CPUType::I8080 =>
-                Box::<I8080>::default()
+            CPUType::Z80 => Box::<Z80>::default(),
+            CPUType::I8080 => Box::<I8080>::default(),
         };
     }
 }

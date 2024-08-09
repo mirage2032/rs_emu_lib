@@ -8,7 +8,7 @@ name = "emu_cli"
 path = "src/main.rs"
 
 [dependencies]
-emu_lib = { path = ".."}
+emu_lib = { path = ".." }
 rand = "0.8.5"
 futures = "0.3.30"
 minifb = "0.25.0"
