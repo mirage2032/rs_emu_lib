@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-
+use crate::cpu::registers::{AllRegisters, AllRegistersMut, GPRegisterMut};
 use crate::emu_lib::cpu::{
     RegisterOps,
     registers::{GPByteRegisters, GPRegister},
@@ -47,8 +47,8 @@ impl RegisterOps for Registers {
         self.r = 0;
     }
 
-    fn set_8(&mut self, register: &str, value: u8) {
-        match register {
+    fn set_8(&mut self, register: &str, value: u8) -> Result<(), &str>{
+        let val =match register {
             "a" => self.main.a = value,
             "f" => self.main.f = value.into(),
             "b" => self.main.b = value,
@@ -67,12 +67,13 @@ impl RegisterOps for Registers {
             "l'" => self.shadow.l = value,
             "i" => self.i = value,
             "r" => self.r = value,
-            _ => panic!("Invalid register"),
-        }
+            _ => return Err("Invalid register"),
+        };
+        Ok(val)
     }
 
-    fn set_16(&mut self, register: &str, value: u16) {
-        match register {
+    fn set_16(&mut self, register: &str, value: u16) -> Result<(), &str>{
+        let val = match register {
             "af" => self.main.af = value,
             "bc" => self.main.bc = value,
             "de" => self.main.de = value,
@@ -85,12 +86,13 @@ impl RegisterOps for Registers {
             "iy" => self.iy = value,
             "pc" => self.pc = value,
             "sp" => self.sp = value,
-            _ => panic!("Invalid register"),
-        }
+            _ => return Err("Invalid register"),
+        };
+        Ok(val)
     }
 
-    fn get_8(&self, register: &str) -> u8 {
-        match register {
+    fn get_8(&self, register: &str) -> Result<u8,&str> {
+        let val = match register {
             "a" => self.main.a,
             "f" => self.main.f.into(),
             "b" => self.main.b,
@@ -109,11 +111,12 @@ impl RegisterOps for Registers {
             "l'" => self.shadow.l,
             "i" => self.i,
             "r" => self.r,
-            _ => panic!("Invalid register"),
-        }
+            _ => return Err("Invalid register"),
+        };
+        Ok(val)
     }
-    fn get_16(&self, register: &str) -> u16 {
-        match register {
+    fn get_16(&self, register: &str) -> Result<u16, &str>{
+        let val = match register {
             "af" => self.main.af,
             "bc" => self.main.bc,
             "de" => self.main.de,
@@ -126,45 +129,37 @@ impl RegisterOps for Registers {
             "iy" => self.iy,
             "pc" => self.pc,
             "sp" => self.sp,
-            _ => panic!("Invalid register"),
+            _ => return Err("Invalid register"),
+        };
+        Ok(val)
+    }
+
+    fn get_all(&self) -> AllRegisters {
+        let mut map = HashMap::new();
+        map.insert("ix", GPRegister::Bit16(&self.ix));
+        map.insert("iy", GPRegister::Bit16(&self.iy));
+        map.insert("i", GPRegister::Bit8(&self.i));
+        map.insert("r", GPRegister::Bit8(&self.r));
+        AllRegisters {
+            gp: vec![&self.main, &self.shadow],
+            sp: &self.sp,
+            pc: &self.pc,
+            other: map,
         }
     }
 
-    fn get_all(&self) -> HashMap<&str, GPRegister> {
+    fn get_all_mut(&mut self) -> AllRegistersMut {
         let mut map = HashMap::new();
-        map.insert("af", GPRegister::Bit16(self.main.af));
-        map.insert("bc", GPRegister::Bit16(self.main.bc));
-        map.insert("de", GPRegister::Bit16(self.main.de));
-        map.insert("hl", GPRegister::Bit16(self.main.hl));
-        map.insert("a", GPRegister::Bit8(self.main.a));
-        map.insert("f", GPRegister::Bit8(self.main.f.into()));
-        map.insert("b", GPRegister::Bit8(self.main.b));
-        map.insert("c", GPRegister::Bit8(self.main.c));
-        map.insert("d", GPRegister::Bit8(self.main.d));
-        map.insert("e", GPRegister::Bit8(self.main.e));
-        map.insert("h", GPRegister::Bit8(self.main.h));
-        map.insert("l", GPRegister::Bit8(self.main.l));
-
-        map.insert("af'", GPRegister::Bit16(self.shadow.af));
-        map.insert("bc'", GPRegister::Bit16(self.shadow.bc));
-        map.insert("de'", GPRegister::Bit16(self.shadow.de));
-        map.insert("hl'", GPRegister::Bit16(self.shadow.hl));
-        map.insert("a'", GPRegister::Bit8(self.shadow.a));
-        map.insert("f'", GPRegister::Bit8(self.shadow.f.into()));
-        map.insert("b'", GPRegister::Bit8(self.shadow.b));
-        map.insert("c'", GPRegister::Bit8(self.shadow.c));
-        map.insert("d'", GPRegister::Bit8(self.shadow.d));
-        map.insert("e'", GPRegister::Bit8(self.shadow.e));
-        map.insert("h'", GPRegister::Bit8(self.shadow.h));
-        map.insert("l'", GPRegister::Bit8(self.shadow.l));
-
-        map.insert("ix", GPRegister::Bit16(self.ix));
-        map.insert("iy", GPRegister::Bit16(self.iy));
-        map.insert("sp", GPRegister::Bit16(self.sp));
-        map.insert("pc", GPRegister::Bit16(self.pc));
-        map.insert("i", GPRegister::Bit8(self.i));
-        map.insert("r", GPRegister::Bit8(self.r));
-        map
+        map.insert("ix", GPRegisterMut::Bit16(&mut self.ix));
+        map.insert("iy", GPRegisterMut::Bit16(&mut self.iy));
+        map.insert("i", GPRegisterMut::Bit8(&mut self.i));
+        map.insert("r", GPRegisterMut::Bit8(&mut self.r));
+        AllRegistersMut {
+            gp: vec![&mut self.main, &mut self.shadow],
+            sp: &mut self.sp,
+            pc: &mut self.pc,
+            other: map,
+        }
     }
 
     fn pc(&self) -> &u16 {

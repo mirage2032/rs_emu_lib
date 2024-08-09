@@ -45,9 +45,9 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
             // Increment r register
             let new_r = cpu
                 .registers_mut()
-                .get_8("r")
+                .get_8("r")?
                 .wrapping_add(inst_length as u8);
-            cpu.registers_mut().set_8("r", new_r);
+            cpu.registers_mut().set_8("r", new_r)?;
         }
         Ok(())
     }
