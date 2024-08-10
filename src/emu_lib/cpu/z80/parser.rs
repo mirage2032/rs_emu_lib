@@ -42,14 +42,8 @@ fn is_val(number: &str) -> Result<ImmediateValue, String> {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct Z80Parser {}
-
-impl Z80Parser {
-    pub fn new() -> Z80Parser {
-        Z80Parser {}
-    }
-}
 
 impl Z80Parser {
     pub fn from_memdev(

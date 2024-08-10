@@ -35,9 +35,9 @@ impl BaseInstruction for EX_AF_SAF {
 
 impl ExecutableInstruction<Z80> for EX_AF_SAF {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let af = cpu.registers.main.af;
-        cpu.registers.main.af = cpu.registers.shadow.af;
-        cpu.registers.shadow.af = af;
+        let af = cpu.registers.gp[0].af;
+        cpu.registers.gp[0].af = cpu.registers.gp[1].af;
+        cpu.registers.gp[1].af = af;
         Ok(())
     }
 }

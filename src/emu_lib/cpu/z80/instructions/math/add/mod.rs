@@ -1,6 +1,5 @@
 pub mod add_hl_bc;
 
-
 macro_rules! add_rr_rr {
     ($reg1:expr, $reg2:expr, $flags:expr) => {
         let result = $reg1.wrapping_add($reg2);

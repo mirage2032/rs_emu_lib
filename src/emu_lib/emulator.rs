@@ -1,9 +1,9 @@
 use std::time::{Duration, SystemTime};
 
-use crate::emu_lib::cpu::{Cpu, CPUType};
 use crate::emu_lib::cpu::i8080::I8080;
 use crate::emu_lib::cpu::instruction::BaseInstruction;
 use crate::emu_lib::cpu::z80::Z80;
+use crate::emu_lib::cpu::{CPUType, Cpu};
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 
@@ -74,7 +74,7 @@ impl Emulator {
                 return StopReason::Halt;
             }
 
-            if self.breakpoints.contains(self.cpu.registers_mut().pc()) {
+            if self.breakpoints.contains(&self.cpu.registers().pc) {
                 return StopReason::Breakpoint;
             }
             let exec_duration = tick_duration * instruction.common().get_cycles() as u32;

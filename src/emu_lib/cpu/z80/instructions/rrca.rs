@@ -35,12 +35,12 @@ impl BaseInstruction for RRCA {
 
 impl ExecutableInstruction<Z80> for RRCA {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let carry = cpu.registers.main.a << 7;
-        cpu.registers.main.f.set_carry(carry != 0);
-        let a = (cpu.registers.main.a >> 1) | carry;
-        cpu.registers.main.a = a;
-        cpu.registers.main.f.set_add_sub(false);
-        cpu.registers.main.f.set_half_carry(false);
+        let carry = cpu.registers.gp[0].a << 7;
+        cpu.registers.gp[0].f.set_carry(carry != 0);
+        let a = (cpu.registers.gp[0].a >> 1) | carry;
+        cpu.registers.gp[0].a = a;
+        cpu.registers.gp[0].f.set_add_sub(false);
+        cpu.registers.gp[0].f.set_half_carry(false);
         Ok(())
     }
 }

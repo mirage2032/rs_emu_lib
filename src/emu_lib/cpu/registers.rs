@@ -8,15 +8,9 @@ use crate::cpu::instruction::BaseInstruction;
 use crate::memory::Memory;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub enum GPRegister<'a> {
-    Bit8(&'a u8),
-    Bit16(&'a u16),
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum GPRegisterMut<'a> {
-    Bit8(&'a mut u8),
-    Bit16(&'a mut u16),
+pub enum GPRegister {
+    Bit8(u8),
+    Bit16(u16),
 }
 
 #[bitfield(u8)]
@@ -82,34 +76,12 @@ impl DerefMut for GPByteRegisters {
     }
 }
 
-pub struct AllRegisters<'a> {
-    pub gp: Vec<&'a GPByteRegisters>,
-    pub sp: &'a u16,
-    pub pc: &'a u16,
-    pub other: HashMap<&'static str, GPRegister<'a>>,
-}
-
-pub struct AllRegistersMut<'a> {
-    pub gp: Vec<&'a mut GPByteRegisters>,
-    pub sp: &'a mut u16,
-    pub pc: &'a mut u16,
-    pub other: HashMap<&'static str, GPRegisterMut<'a>>,
-}
-
-pub trait RegisterOps: Debug {
-    fn clear(&mut self);
-    fn set_8(&mut self, register: &str, value: u8) -> Result<(), &str>;
-    fn set_16(&mut self, register: &str, value: u16) -> Result<(), &str>;
-    fn get_8(&self, register: &str) -> Result<u8,&str>;
-    fn get_16(&self, register: &str) -> Result<u16,&str>;
-    fn get_all(&self) -> AllRegisters;
-    fn get_all_mut(&mut self) -> AllRegistersMut;
-    fn pc(&self) -> &u16;
-    fn pc_mut(&mut self) -> &mut u16;
-    fn sp(&self) -> &u16;
-    fn sp_mut(&mut self) -> &mut u16;
-    fn get_gp(&self) -> &GPByteRegisters;
-    fn get_gp_mut(&mut self) -> &mut GPByteRegisters;
+#[derive(Debug, Clone)]
+pub struct AllRegisters {
+    pub gp: Vec<GPByteRegisters>,
+    pub sp: u16,
+    pub pc: u16,
+    pub other: HashMap<&'static str, GPRegister>,
 }
 
 pub trait InstructionParser {

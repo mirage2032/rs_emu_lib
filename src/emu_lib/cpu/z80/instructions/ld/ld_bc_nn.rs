@@ -49,7 +49,7 @@ impl BaseInstruction for LD_BC_NN {
 
 impl ExecutableInstruction<Z80> for LD_BC_NN {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.main.bc = self.nn;
+        cpu.registers.gp[0].bc = self.nn;
         Ok(())
     }
 }

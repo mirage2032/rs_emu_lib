@@ -1,18 +1,30 @@
-use registers::Registers;
-
-use crate::emu_lib::cpu::{Cpu, CPUType, registers::RegisterOps};
-use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction,push_16};
+use crate::cpu::registers::{AllRegisters, GPByteRegisters, GPRegister};
+use crate::emu_lib::cpu::instruction::{push_16, BaseInstruction, ExecutableInstruction};
 use crate::emu_lib::cpu::registers::InstructionParser;
+use crate::emu_lib::cpu::{CPUType, Cpu};
 use crate::emu_lib::io::{InterruptType, IO};
+use std::collections::HashMap;
 
 use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
 
 pub mod instructions;
 mod parser;
-mod registers;
 
+fn default_registers() -> AllRegisters {
+    let mut map = HashMap::new();
+    map.insert("ix", GPRegister::Bit16(0));
+    map.insert("iy", GPRegister::Bit16(0));
+    map.insert("i", GPRegister::Bit8(0));
+    map.insert("r", GPRegister::Bit8(0));
+    AllRegisters {
+        gp: vec![GPByteRegisters::default(), GPByteRegisters::default()],
+        sp: 0xFFFF,
+        pc: 0,
+        other: map,
+    }
+}
 pub struct Z80 {
-    registers: Registers,
+    registers: AllRegisters,
     parser: parser::Z80Parser,
     halted: bool,
 }
@@ -20,8 +32,8 @@ pub struct Z80 {
 impl Default for Z80 {
     fn default() -> Self {
         Z80 {
-            registers: Registers::default(),
-            parser: parser::Z80Parser::new(),
+            registers: default_registers(),
+            parser: parser::Z80Parser::default(),
             halted: false,
         }
     }
@@ -53,8 +65,10 @@ impl Z80 {
                                 self.registers.pc = 0x38;
                             }
                             InterruptType::IM2(int_vector) => {
-                                self.registers.pc =
-                                    u16::from_le_bytes([int_vector, self.registers.i]);
+                                let GPRegister::Bit8(i) = self.registers.other["i"] else {
+                                    panic!("I register is not 8-bit");
+                                };
+                                self.registers.pc = u16::from_le_bytes([int_vector, i]);
                             }
                             _ => unreachable!("IM0/NMI should have been handled"),
                         }
@@ -90,10 +104,10 @@ impl Cpu for Z80 {
         CPUType::Z80
     }
 
-    fn registers(&self) -> &dyn RegisterOps {
+    fn registers(&self) -> &AllRegisters {
         &self.registers
     }
-    fn registers_mut(&mut self) -> &mut dyn RegisterOps {
+    fn registers_mut(&mut self) -> &mut AllRegisters {
         &mut self.registers
     }
     fn halted(&self) -> bool {

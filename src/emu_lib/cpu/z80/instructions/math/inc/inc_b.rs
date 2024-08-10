@@ -35,7 +35,8 @@ impl BaseInstruction for INC_B {
 
 impl ExecutableInstruction<Z80> for INC_B {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        super::inc_r!(&mut cpu.registers.main.b, &mut cpu.registers.main.f);
+        let gp = &mut cpu.registers.gp[0];
+        super::inc_r!(&mut gp.b, &mut gp.f);
         Ok(())
     }
 }

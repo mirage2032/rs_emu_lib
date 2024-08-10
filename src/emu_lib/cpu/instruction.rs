@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use crate::cpu::registers::GPRegister;
 use crate::cpu::Cpu;
 use crate::io::IO;
 use crate::memory::Memory;
@@ -41,13 +42,16 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
         self.runner(memory, cpu, io)?;
         if self.common().increment_pc {
             let inst_length = self.common().length;
-            *cpu.registers_mut().pc_mut() += inst_length;
+            cpu.registers_mut().pc += inst_length;
             // Increment r register
-            let new_r = cpu
-                .registers_mut()
-                .get_8("r")?
-                .wrapping_add(inst_length as u8);
-            cpu.registers_mut().set_8("r", new_r)?;
+            match cpu.registers_mut().other.get_mut("r") {
+                Some(GPRegister::Bit8(r)) => {
+                    *r = r.wrapping_add(1);
+                }
+                _ => {
+                    panic!("r register is not 8 bit")
+                }
+            }
         }
         Ok(())
     }
@@ -74,7 +78,6 @@ macro_rules! push_16 {
     };
 }
 pub(crate) use push_16;
-
 
 macro_rules! pop_8 {
     ($memory:expr, $sp:expr) => {

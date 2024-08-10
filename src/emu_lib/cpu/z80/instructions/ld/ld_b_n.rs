@@ -45,7 +45,7 @@ impl BaseInstruction for LD_B_N {
 
 impl ExecutableInstruction<Z80> for LD_B_N {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.main.b = self.n;
+        cpu.registers.gp[0].b = self.n;
         Ok(())
     }
 }

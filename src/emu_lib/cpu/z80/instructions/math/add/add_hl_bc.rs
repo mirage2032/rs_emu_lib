@@ -36,9 +36,9 @@ impl BaseInstruction for ADD_HL_BC {
 impl ExecutableInstruction<Z80> for ADD_HL_BC {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         super::add_rr_rr!(
-            &mut cpu.registers.main.hl,
-            cpu.registers.main.bc,
-            cpu.registers.main.f
+            &mut cpu.registers.gp[0].hl,
+            cpu.registers.gp[0].bc,
+            cpu.registers.gp[0].f
         );
         Ok(())
     }

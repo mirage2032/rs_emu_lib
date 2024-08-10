@@ -1,6 +1,7 @@
-use crate::emu_lib::cpu::{Cpu, CPUType, RegisterOps};
+use crate::cpu::registers::AllRegisters;
 use crate::emu_lib::cpu::instruction::BaseInstruction;
 use crate::emu_lib::cpu::registers::InstructionParser;
+use crate::emu_lib::cpu::{CPUType, Cpu};
 use crate::emu_lib::io::IO;
 
 use super::super::memory::Memory;
@@ -26,10 +27,10 @@ impl Cpu for I8080 {
         unimplemented!()
     }
 
-    fn registers(&self) -> &dyn RegisterOps {
+    fn registers(&self) -> &AllRegisters {
         unimplemented!()
     }
-    fn registers_mut(&mut self) -> &mut dyn RegisterOps {
+    fn registers_mut(&mut self) -> &mut AllRegisters {
         unimplemented!()
     }
     fn halted(&self) -> bool {
