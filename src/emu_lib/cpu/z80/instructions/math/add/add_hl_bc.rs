@@ -20,7 +20,7 @@ impl ADD_HL_BC {
 
 impl Display for ADD_HL_BC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ADD hl, bc")
+        write!(f, "ADD HL, BC")
     }
 }
 

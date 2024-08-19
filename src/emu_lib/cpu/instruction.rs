@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::cpu::registers::GPRegister;
+use crate::cpu::registers::BaseRegister;
 use crate::cpu::Cpu;
 use crate::io::IO;
 use crate::memory::Memory;
@@ -45,7 +45,7 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
             cpu.registers_mut().pc += inst_length;
             // Increment r register
             match cpu.registers_mut().other.get_mut("r") {
-                Some(GPRegister::Bit8(r)) => {
+                Some(BaseRegister::Bit8(r)) => {
                     *r = r.wrapping_add(1);
                 }
                 _ => {

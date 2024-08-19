@@ -33,7 +33,7 @@ impl LD_BC_NN {
 
 impl Display for LD_BC_NN {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD bc, 0x{:04x}", self.nn)
+        write!(f, "LD BC, 0x{:04x}", self.nn)
     }
 }
 

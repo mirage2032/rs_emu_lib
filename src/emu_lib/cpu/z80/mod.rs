@@ -1,4 +1,4 @@
-use crate::cpu::registers::{AllRegisters, GPByteRegisters, GPRegister};
+use crate::cpu::registers::{AllRegisters, GPByteRegisters, BaseRegister};
 use crate::emu_lib::cpu::instruction::{push_16, BaseInstruction, ExecutableInstruction};
 use crate::emu_lib::cpu::registers::InstructionParser;
 use crate::emu_lib::cpu::{CPUType, Cpu};
@@ -12,10 +12,10 @@ mod parser;
 
 fn default_registers() -> AllRegisters {
     let mut map = HashMap::new();
-    map.insert("ix", GPRegister::Bit16(0));
-    map.insert("iy", GPRegister::Bit16(0));
-    map.insert("i", GPRegister::Bit8(0));
-    map.insert("r", GPRegister::Bit8(0));
+    map.insert("ix", BaseRegister::Bit16(0));
+    map.insert("iy", BaseRegister::Bit16(0));
+    map.insert("i", BaseRegister::Bit8(0));
+    map.insert("r", BaseRegister::Bit8(0));
     AllRegisters {
         gp: vec![GPByteRegisters::default(), GPByteRegisters::default()],
         sp: 0xFFFF,
@@ -65,7 +65,7 @@ impl Z80 {
                                 self.registers.pc = 0x38;
                             }
                             InterruptType::IM2(int_vector) => {
-                                let GPRegister::Bit8(i) = self.registers.other["i"] else {
+                                let BaseRegister::Bit8(i) = self.registers.other["i"] else {
                                     panic!("I register is not 8-bit");
                                 };
                                 self.registers.pc = u16::from_le_bytes([int_vector, i]);

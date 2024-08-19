@@ -29,7 +29,7 @@ impl LD_C_N {
 
 impl Display for LD_C_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD c, 0x{:02x}", self.n)
+        write!(f, "LD C, 0x{:02x}", self.n)
     }
 }
 

@@ -20,7 +20,7 @@ impl LD_PBC_A {
 
 impl Display for LD_PBC_A {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD (bc), a")
+        write!(f, "LD (BC), A")
     }
 }
 

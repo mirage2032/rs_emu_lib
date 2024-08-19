@@ -30,7 +30,7 @@ impl LD_B_N {
 
 impl Display for LD_B_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD b, 0x{:02x}", self.n)
+        write!(f, "LD B, 0x{:02x}", self.n)
     }
 }
 

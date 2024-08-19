@@ -8,7 +8,7 @@ use crate::cpu::instruction::BaseInstruction;
 use crate::memory::Memory;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub enum GPRegister {
+pub enum BaseRegister {
     Bit8(u8),
     Bit16(u16),
 }
@@ -81,7 +81,7 @@ pub struct AllRegisters {
     pub gp: Vec<GPByteRegisters>,
     pub sp: u16,
     pub pc: u16,
-    pub other: HashMap<&'static str, GPRegister>,
+    pub other: HashMap<&'static str, BaseRegister>,
 }
 
 pub trait InstructionParser {

@@ -13,14 +13,14 @@ pub struct INC_BC {
 impl INC_BC {
     pub fn new() -> INC_BC {
         INC_BC {
-            common: InstructionCommon::new(1, 6, false),
+            common: InstructionCommon::new(1, 6, true),
         }
     }
 }
 
 impl Display for INC_BC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "INC bc")
+        write!(f, "INC BC")
     }
 }
 

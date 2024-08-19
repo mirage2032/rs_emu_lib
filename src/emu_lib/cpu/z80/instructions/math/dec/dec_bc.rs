@@ -13,14 +13,14 @@ pub struct DEC_BC {
 impl DEC_BC {
     pub fn new() -> DEC_BC {
         DEC_BC {
-            common: InstructionCommon::new(1, 6, false),
+            common: InstructionCommon::new(1, 6, true),
         }
     }
 }
 
 impl Display for DEC_BC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "DEC bc")
+        write!(f, "DEC BC")
     }
 }
 
