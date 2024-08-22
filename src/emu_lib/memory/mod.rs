@@ -10,6 +10,7 @@ pub mod memdevices;
 
 pub struct Memory {
     data: Vec<Box<dyn MemoryDevice>>,
+    changes: Option<Vec<u16>>,
     readcallback: Option<fn(u16, u8)>,
     writecallback: Option<fn(u16, u8)>,
 }
@@ -50,6 +51,7 @@ impl Memory {
     pub fn new() -> Memory {
         Memory {
             data: Vec::new(),
+            changes: None,
             writecallback: None,
             readcallback: None,
         }
@@ -58,12 +60,25 @@ impl Memory {
     pub fn add_device(&mut self, device: Box<dyn MemoryDevice>) {
         self.data.push(device);
     }
-    pub fn add_write_callback(&mut self, callback: fn(u16, u8)) {
-        self.writecallback = Some(callback);
+    
+    pub fn record_changes(&mut self, active: bool){
+        if active {
+            self.changes = Some(Vec::new());
+        } else {
+            self.changes = None;
+        }
+    }
+    pub fn clear_changes(&mut self) {
+        if let Some(changes) = &mut self.changes {
+            changes.clear();
+        }
+    }
+    pub fn add_write_callback(&mut self, callback: Option<fn(u16, u8)>) {
+        self.writecallback = callback;
     }
 
-    pub fn add_read_callback(&mut self, callback: fn(u16, u8)) {
-        self.readcallback = Some(callback);
+    pub fn add_read_callback(&mut self, callback: Option<fn(u16, u8)>) {
+        self.readcallback = callback;
     }
 
     fn get_elem_idx(&self, addr: u16) -> Result<(usize, usize), &'static str> {
@@ -169,6 +184,9 @@ impl MemoryDevice for Memory {
         if let Some(callback) = &self.writecallback {
             callback(addr, data);
         }
+        if let Some(changes) = &mut self.changes {
+            changes.push(addr);
+        }
         Ok(())
     }
 
@@ -177,6 +195,9 @@ impl MemoryDevice for Memory {
         self.data[device_idx].write_8_force(offset as u16, data)?;
         if let Some(callback) = &self.writecallback {
             callback(addr, data);
+        }
+        if let Some(changes) = &mut self.changes {
+            changes.push(addr);
         }
         Ok(())
     }
