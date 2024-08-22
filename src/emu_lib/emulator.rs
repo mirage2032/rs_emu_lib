@@ -49,7 +49,7 @@ impl Emulator {
         if self.cpu.halted() {
             return Err("CPU is halted".to_string());
         }
-
+        self.memory.clear_changes();
         self.cpu.step(&mut self.memory, &mut self.io)
     }
 

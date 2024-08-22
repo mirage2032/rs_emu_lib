@@ -1,25 +1,26 @@
 use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
-use emu_lib::cpu::instruction::BaseInstruction;
+
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::errors::MemoryError;
-use emu_lib::memory::memdevices::RAM;
-use emu_lib::memory::Memory;
-use memdsp::MemViz;
+use emu_lib::cpu::{instruction::BaseInstruction,registers::{AllRegisters,GPByteRegisters}};
+use emu_lib::memory::{errors::MemoryError,memdevices::RAM,Memory};
 
 mod memdsp;
+use memdsp::MemViz;
 
-fn print_registers(registers: &emu_lib::cpu::registers::AllRegisters) {
+
+fn print_registers(registers: &AllRegisters) {
     println!("PC: {:04X}, SP: {:04X}", registers.pc, registers.sp);
-    fn print_gp(gp: &emu_lib::cpu::registers::GPByteRegisters, suffix: &str) {
+    fn print_gp(gp: &GPByteRegisters, suffix: &str) {
         println!(
             "AF{suffix}: {:04X}, BC{suffix}: {:04X}, DE{suffix}: {:04X}, HL{suffix}: {:04X}",
             gp.af, gp.bc, gp.de, gp.hl
         );
     }
-    print_gp(&registers.gp[0], "");
-    print_gp(&registers.gp[0], "'");
+    for (i,gp_regs) in registers.gp.iter().enumerate() {
+        print_gp(gp_regs, &String::from("'").repeat(i));
+    }
     for (key, value) in &registers.other {
         print!("{}: {}, ", key.to_uppercase(), value);
     }
