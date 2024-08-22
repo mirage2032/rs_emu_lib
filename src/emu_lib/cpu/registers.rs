@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::ops::{Deref, DerefMut};
 
 use bitfield_struct::bitfield;
@@ -11,6 +11,15 @@ use crate::memory::Memory;
 pub enum BaseRegister {
     Bit8(u8),
     Bit16(u16),
+}
+
+impl Display for BaseRegister {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BaseRegister::Bit8(val) => write!(f, "{:02X}", val),
+            BaseRegister::Bit16(val) => write!(f, "{:04X}", val),
+        }
+    }
 }
 
 #[bitfield(u8)]

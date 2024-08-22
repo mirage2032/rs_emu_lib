@@ -1,8 +1,7 @@
 use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
-
-use emu_lib::cpu::{BaseInstruction, RegisterOps, SingleRegister};
+use emu_lib::cpu::instruction::BaseInstruction;
 use emu_lib::emulator::Emulator;
 use emu_lib::memory::errors::MemoryError;
 use emu_lib::memory::memdevices::RAM;
@@ -11,20 +10,19 @@ use memdsp::MemViz;
 
 mod memdsp;
 
-fn print_registers(registers: &dyn RegisterOps) {
-    let register_map = registers.get_all();
-    print!("Registers: ");
-    for i in ["af", "bc", "de", "hl", "ix", "iy", "sp", "pc"].iter() {
-        match register_map.get(i).unwrap() {
-            SingleRegister::Bit8(v) => {
-                print!("{} {:02X}, ", i, v);
-            }
-            SingleRegister::Bit16(v) => {
-                print!("{} {:04X}, ", i, v);
-            }
-        }
+fn print_registers(registers: &emu_lib::cpu::registers::AllRegisters) {
+    println!("PC: {:04X}, SP: {:04X}", registers.pc, registers.sp);
+    fn print_gp(gp: &emu_lib::cpu::registers::GPByteRegisters, suffix: &str) {
+        println!(
+            "AF{suffix}: {:04X}, BC{suffix}: {:04X}, DE{suffix}: {:04X}, HL{suffix}: {:04X}",
+            gp.af, gp.bc, gp.de, gp.hl
+        );
     }
-    print!("pc {:04X}, ", registers.pc());
+    print_gp(&registers.gp[0], "");
+    print_gp(&registers.gp[0], "'");
+    for (key, value) in &registers.other {
+        print!("{}: {}, ", key.to_uppercase(), value);
+    }
     println!();
 }
 
@@ -40,7 +38,7 @@ fn main() {
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
     let rom_path: PathBuf = PathBuf::from("roms/rom.z80.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
-    match emulator.memory.load(&rom_path) {
+    match emulator.memory.load_file(&rom_path) {
         Ok(_) => {}
         Err(e) => {
             for err in e {
@@ -64,7 +62,7 @@ fn main() {
         emu_lib::emulator::StopReason::Breakpoint => println!("Breakpoint"),
         emu_lib::emulator::StopReason::Halt => println!("Halted"),
         emu_lib::emulator::StopReason::Error(e) => {
-            let pc = *emulator.cpu.registers().pc();
+            let pc = emulator.cpu.registers().pc;
             let instruction = emulator
                 .cpu
                 .parser()

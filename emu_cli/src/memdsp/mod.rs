@@ -89,4 +89,8 @@ impl MemoryDevice for MemViz {
             .ok_or("Address out of bounds")?;
         Ok(())
     }
+
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+        Self::write_8(self, addr, data)
+    }
 }
