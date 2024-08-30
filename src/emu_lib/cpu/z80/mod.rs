@@ -10,6 +10,9 @@ use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
 pub mod instructions;
 mod parser;
 
+#[cfg(test)]
+mod test;
+
 fn default_registers() -> AllRegisters {
     let mut map = HashMap::new();
     map.insert("ix", BaseRegister::Bit16(0));

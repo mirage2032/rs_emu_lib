@@ -6,6 +6,7 @@ use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 
+#[derive(Debug)]
 pub struct DEC_BC {
     common: InstructionCommon,
 }
@@ -13,7 +14,7 @@ pub struct DEC_BC {
 impl DEC_BC {
     pub fn new() -> DEC_BC {
         DEC_BC {
-            common: InstructionCommon::new(1, 6, true),
+            common: InstructionCommon::new(1, 6, true),//
         }
     }
 }

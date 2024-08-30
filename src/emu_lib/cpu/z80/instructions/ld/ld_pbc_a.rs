@@ -6,6 +6,7 @@ use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
 
+#[derive(Debug)]
 pub struct LD_PBC_A {
     common: InstructionCommon,
 }

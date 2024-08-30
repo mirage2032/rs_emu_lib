@@ -20,8 +20,8 @@ pub enum InterruptType {
 pub struct IO {
     pub port_map: HashMap<u8, Rc<RefCell<dyn IODevice>>>,
     devices: Vec<Option<Rc<RefCell<dyn IODevice>>>>,
-    iff1: bool,
-    iff2: bool,
+    pub iff1: bool,
+    pub iff2: bool,
 }
 
 impl Default for IO {

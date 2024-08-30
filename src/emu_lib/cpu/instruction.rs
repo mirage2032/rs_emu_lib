@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 use crate::cpu::registers::BaseRegister;
 use crate::cpu::Cpu;
@@ -31,7 +31,7 @@ impl InstructionCommon {
     }
 }
 
-pub trait BaseInstruction: Display {
+pub trait BaseInstruction: Display + Debug {
     fn common(&self) -> &InstructionCommon;
     fn to_bytes(&self) -> Vec<u8>;
 }
@@ -40,18 +40,12 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
     fn runner(&self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String>;
     fn execute(&self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String> {
         self.runner(memory, cpu, io)?;
+        if let BaseRegister::Bit8(val) = cpu.registers_mut().other.get_mut("r").unwrap(){
+            *val = val.wrapping_add(1)%128;
+        }
         if self.common().increment_pc {
             let inst_length = self.common().length;
             cpu.registers_mut().pc += inst_length;
-            // Increment r register
-            match cpu.registers_mut().other.get_mut("r") {
-                Some(BaseRegister::Bit8(r)) => {
-                    *r = r.wrapping_add(1);
-                }
-                _ => {
-                    panic!("r register is not 8 bit")
-                }
-            }
         }
         Ok(())
     }

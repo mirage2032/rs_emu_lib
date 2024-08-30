@@ -6,6 +6,7 @@ use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
 
+#[derive(Debug)]
 pub struct LD_A_PBC {
     common: InstructionCommon,
 }
@@ -42,7 +43,8 @@ impl ExecutableInstruction<Z80> for LD_A_PBC {
 
 #[cfg(test)]
 mod tests {
-    use crate::emu_lib::cpu::test::test_instruction_parse;
-
+    use crate::emu_lib::cpu::test::*;
+    use crate::emu_lib::cpu::z80::test::*;
+    test_z80!(LD_A_PBC,"0a.json");
     test_instruction_parse!(LD_A_PBC);
 }

@@ -10,6 +10,7 @@ use crate::emu_lib::memory::{Memory, MemoryDevice};
 
 static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
 
+#[derive(Debug)]
 pub struct LD_B_N {
     common: InstructionCommon,
     n: u8,

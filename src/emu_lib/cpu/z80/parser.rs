@@ -50,7 +50,8 @@ impl Z80Parser {
         memory: &dyn MemoryDevice,
         pos: u16,
     ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
-        let instruction: Box<dyn ExecutableInstruction<Z80>> = match memory.read_8(pos)? {
+        let ins_byte0 = memory.read_8(pos)?;
+        let instruction: Box<dyn ExecutableInstruction<Z80>> = match ins_byte0 {
             0x00u8 => Box::new(nop::NOP::new()),
             0x01 => Box::new(ld::ld_bc_nn::LD_BC_NN::new(memory, pos)?),
             0x02 => Box::new(ld::ld_pbc_a::LD_PBC_A::new()),
