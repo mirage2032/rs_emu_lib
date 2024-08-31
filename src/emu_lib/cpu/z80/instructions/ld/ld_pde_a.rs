@@ -17,9 +17,7 @@ pub struct LD_PDE_A {
 
 impl LD_PDE_A {
     pub fn new() -> LD_PDE_A {
-        LD_PDE_A {
-            common: *COMMON,
-        }
+        LD_PDE_A { common: *COMMON }
     }
 }
 
@@ -50,6 +48,7 @@ impl ExecutableInstruction<Z80> for LD_PDE_A {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("12.json");
     test_instruction_parse!(LD_PDE_A);
 }

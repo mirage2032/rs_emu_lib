@@ -25,7 +25,10 @@ impl LD_DE_NN {
     }
 
     pub fn new_with_value(nn: u16) -> LD_DE_NN {
-        LD_DE_NN { common: *COMMON, nn }
+        LD_DE_NN {
+            common: *COMMON,
+            nn,
+        }
     }
 }
 
@@ -56,6 +59,7 @@ impl ExecutableInstruction<Z80> for LD_DE_NN {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("11.json");
     test_instruction_parse!(LD_DE_NN, [0xbeef]);
 }

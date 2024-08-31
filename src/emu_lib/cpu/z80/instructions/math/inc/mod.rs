@@ -1,6 +1,9 @@
 pub mod inc_b;
 pub mod inc_bc;
 pub mod inc_c;
+pub mod inc_d;
+pub mod inc_de;
+pub mod inc_e;
 
 macro_rules! inc_r {
     ($reg:expr, $flags:expr) => {

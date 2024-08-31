@@ -1,46 +1,45 @@
 use std::fmt;
 use std::fmt::Display;
 
+use once_cell::sync::Lazy;
+
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 
+static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(1, 4, true));
+
 #[derive(Debug)]
-pub struct ADD_HL_BC {
+pub struct INC_D {
     common: InstructionCommon,
 }
 
-impl ADD_HL_BC {
-    pub fn new() -> ADD_HL_BC {
-        ADD_HL_BC {
-            common: InstructionCommon::new(1, 11, true),
-        }
+impl INC_D {
+    pub fn new() -> INC_D {
+        INC_D { common: *COMMON }
     }
 }
 
-impl Display for ADD_HL_BC {
+impl Display for INC_D {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ADD HL, BC")
+        write!(f, "INC D",)
     }
 }
 
-impl BaseInstruction for ADD_HL_BC {
+impl BaseInstruction for INC_D {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0x09]
+        vec![0x14]
     }
 }
 
-impl ExecutableInstruction<Z80> for ADD_HL_BC {
+impl ExecutableInstruction<Z80> for INC_D {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        super::add_rr_rr!(
-            &mut cpu.registers.gp[0].hl,
-            cpu.registers.gp[0].bc,
-            cpu.registers.gp[0].f
-        );
+        let gp = &mut cpu.registers.gp[0];
+        super::inc_r!(&mut gp.d, gp.f);
         Ok(())
     }
 }
@@ -50,6 +49,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("09.json");
-    test_instruction_parse!(ADD_HL_BC);
+    test_z80!("14.json");
+    test_instruction_parse!(INC_D);
 }

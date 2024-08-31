@@ -1,6 +1,9 @@
 pub mod dec_b;
 pub mod dec_bc;
 pub mod dec_c;
+pub mod dec_d;
+pub mod dec_de;
+pub mod dec_e;
 
 macro_rules! dec_r {
     ($reg:expr, $flags:expr) => {

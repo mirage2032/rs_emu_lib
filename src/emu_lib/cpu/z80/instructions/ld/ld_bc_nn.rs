@@ -59,6 +59,7 @@ impl ExecutableInstruction<Z80> for LD_BC_NN {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("01.json");
     test_instruction_parse!(LD_BC_NN, [0xbeef]);
 }

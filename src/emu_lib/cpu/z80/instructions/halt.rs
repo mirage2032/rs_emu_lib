@@ -45,6 +45,7 @@ impl ExecutableInstruction<Z80> for Halt {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("76.json");
     test_instruction_parse!(Halt);
 }

@@ -8,45 +8,44 @@ use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
 
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
+const COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
 
 #[derive(Debug)]
-pub struct LD_B_N {
+pub struct LD_E_N {
     common: InstructionCommon,
     n: u8,
 }
 
-impl LD_B_N {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_B_N, String> {
-        Ok(LD_B_N {
+impl LD_E_N {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_E_N, String> {
+        Ok(LD_E_N {
             common: *COMMON,
             n: memory.read_8(pos + 1)?,
         })
     }
-
-    pub fn new_with_value(n: u8) -> LD_B_N {
-        LD_B_N { common: *COMMON, n }
+    pub fn new_with_value(n: u8) -> LD_E_N {
+        LD_E_N { common: *COMMON, n }
     }
 }
 
-impl Display for LD_B_N {
+impl Display for LD_E_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD B, 0x{:02x}", self.n)
+        write!(f, "LD E, 0x{:02x}", self.n)
     }
 }
 
-impl BaseInstruction for LD_B_N {
+impl BaseInstruction for LD_E_N {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0x06, self.n]
+        vec![0x1e, self.n]
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_B_N {
+impl ExecutableInstruction<Z80> for LD_E_N {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.gp[0].b = self.n;
+        cpu.registers.gp[0].e = self.n;
         Ok(())
     }
 }
@@ -56,6 +55,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("06.json");
-    test_instruction_parse!(LD_B_N, [0xbf]);
+    test_z80!("1e.json");
+    test_instruction_parse!(LD_E_N, [0xe0]);
 }

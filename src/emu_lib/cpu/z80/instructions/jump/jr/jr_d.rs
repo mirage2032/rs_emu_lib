@@ -8,45 +8,48 @@ use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
 
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
+static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 12, true));
 
 #[derive(Debug)]
-pub struct LD_B_N {
+pub struct JR_D {
     common: InstructionCommon,
-    n: u8,
+    d: i8,
 }
 
-impl LD_B_N {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_B_N, String> {
-        Ok(LD_B_N {
+impl JR_D {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JR_D, String> {
+        Ok(JR_D {
             common: *COMMON,
-            n: memory.read_8(pos + 1)?,
+            d: memory.read_8(pos + 1)? as i8,
         })
     }
 
-    pub fn new_with_value(n: u8) -> LD_B_N {
-        LD_B_N { common: *COMMON, n }
+    pub fn new_with_value(d: u8) -> JR_D {
+        JR_D {
+            common: *COMMON,
+            d: d as i8,
+        }
     }
 }
 
-impl Display for LD_B_N {
+impl Display for JR_D {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD B, 0x{:02x}", self.n)
+        write!(f, "JR 0x{:02x}", self.d)
     }
 }
 
-impl BaseInstruction for LD_B_N {
+impl BaseInstruction for JR_D {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0x06, self.n]
+        vec![0x18, self.d as u8]
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_B_N {
+impl ExecutableInstruction<Z80> for JR_D {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.gp[0].b = self.n;
+        cpu.registers.pc = cpu.registers.pc.wrapping_add(self.d as u16);
         Ok(())
     }
 }
@@ -56,6 +59,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("06.json");
-    test_instruction_parse!(LD_B_N, [0xbf]);
+    test_z80!("18.json");
+    test_instruction_parse!(JR_D, [0xbf]);
 }

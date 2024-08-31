@@ -5,6 +5,7 @@ use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, I
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
+
 #[derive(Debug)]
 pub struct RRCA {
     common: InstructionCommon,
@@ -51,6 +52,7 @@ impl ExecutableInstruction<Z80> for RRCA {
 mod tests {
     use crate::emu_lib::cpu::test::test_instruction_parse;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("0f.json");
     test_instruction_parse!(RRCA);
 }

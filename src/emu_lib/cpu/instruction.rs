@@ -1,7 +1,8 @@
+#![allow(unused)]
 use std::fmt::{Debug, Display};
 
-use crate::cpu::registers::BaseRegister;
 use crate::cpu::Cpu;
+use crate::cpu::registers::BaseRegister;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -61,6 +62,7 @@ macro_rules! push_8 {
             .map_err(|_| "Error pushing value to stack")?;
     };
 }
+
 pub(crate) use push_8;
 
 macro_rules! push_16 {
@@ -71,6 +73,7 @@ macro_rules! push_16 {
             .map_err(|_| "Error pushing value to stack")?;
     };
 }
+
 pub(crate) use push_16;
 
 macro_rules! pop_8 {
@@ -82,6 +85,7 @@ macro_rules! pop_8 {
         val
     };
 }
+
 pub(crate) use pop_8;
 
 macro_rules! pop_16 {
@@ -93,4 +97,5 @@ macro_rules! pop_16 {
         val
     };
 }
+
 pub(crate) use pop_16;

@@ -7,43 +7,36 @@ use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 
 #[derive(Debug)]
-pub struct RLCA {
+pub struct DEC_DE {
     common: InstructionCommon,
 }
 
-impl RLCA {
-    pub fn new() -> RLCA {
-        RLCA {
-            common: InstructionCommon::new(1, 4, true),
+impl DEC_DE {
+    pub fn new() -> DEC_DE {
+        DEC_DE {
+            common: InstructionCommon::new(1, 6, true), //
         }
     }
 }
 
-impl Display for RLCA {
+impl Display for DEC_DE {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "RLCA")
+        write!(f, "DEC DE")
     }
 }
 
-impl BaseInstruction for RLCA {
+impl BaseInstruction for DEC_DE {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0x07]
+        vec![0x1b]
     }
 }
 
-impl ExecutableInstruction<Z80> for RLCA {
+impl ExecutableInstruction<Z80> for DEC_DE {
     fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let carry = cpu.registers.gp[0].a >> 7;
-        cpu.registers.gp[0].f.set_carry(carry != 0);
-        let a = (cpu.registers.gp[0].a << 1) | carry;
-        cpu.registers.gp[0].a = a;
-        cpu.registers.gp[0].f.set_add_sub(false);
-        cpu.registers.gp[0].f.set_half_carry(false);
-        cpu.registers.gp[0].f.set_bit3((a >> 3) & 1 == 1);
-        cpu.registers.gp[0].f.set_bit5((a >> 5) & 1 == 1);
+        cpu.registers.gp[0].de = cpu.registers.gp[0].de.wrapping_sub(1);
         Ok(())
     }
 }
@@ -53,6 +46,6 @@ mod tests {
     use crate::emu_lib::cpu::test::test_instruction_parse;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("07.json");
-    test_instruction_parse!(RLCA);
+    test_z80!("1b.json");
+    test_instruction_parse!(DEC_DE);
 }

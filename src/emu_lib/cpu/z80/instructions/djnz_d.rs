@@ -25,7 +25,10 @@ impl DJNZ_D {
     }
 
     pub fn new_with_value(d: u8) -> DJNZ_D {
-        DJNZ_D { common: *COMMON, d: d as i8 }
+        DJNZ_D {
+            common: *COMMON,
+            d: d as i8,
+        }
     }
 }
 
@@ -58,6 +61,7 @@ impl ExecutableInstruction<Z80> for DJNZ_D {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("10.json");
     test_instruction_parse!(DJNZ_D, [0xbf]);
 }

@@ -1,7 +1,10 @@
 pub mod ld_a_pbc;
+pub mod ld_a_pde;
 pub mod ld_b_n;
 pub mod ld_bc_nn;
 pub mod ld_c_n;
-pub mod ld_pbc_a;
+pub mod ld_d_n;
 pub mod ld_de_nn;
+pub mod ld_e_n;
+pub mod ld_pbc_a;
 pub mod ld_pde_a;

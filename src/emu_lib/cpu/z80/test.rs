@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-use crate::cpu::registers::BaseRegister;
 use crate::cpu::CPUType;
+use crate::cpu::registers::BaseRegister;
 use crate::emulator::Emulator;
-use crate::memory::memdevices::RAM;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::memdevices::RAM;
 
 #[derive(Debug, Serialize, Deserialize)]
-struct TestState {
+pub struct TestState {
     pc: u16,
     sp: u16,
     a: u8,
@@ -124,13 +124,19 @@ pub fn test_z80_w_data(test_data_vec: Vec<TestData>) {
 }
 macro_rules! include_test_data {
     ($test_data_path:literal ) => {{
-        let test_data = include_str!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/tests/z80/v1/",
-            $test_data_path
-        ));
+        use std::fs::read_to_string;
+        use std::path::PathBuf;
+        let mut full_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        full_path.push("tests/z80/v1/");
+        full_path.push($test_data_path);
+        let test_data_str = &read_to_string(full_path).expect("Failed to read test data");
+        // let test_data_str = include_str!(concat!(
+        //         env!("CARGO_MANIFEST_DIR"),
+        //         "/tests/z80/v1/",
+        //         $test_data_path
+        //     ));
         let test_data: Vec<TestData> =
-            serde_json::from_str(test_data).expect("Failed to parse test data");
+            serde_json::from_str(test_data_str).expect("Failed to parse test data");
         test_data
     }};
 }
@@ -139,6 +145,7 @@ pub(crate) use include_test_data;
 
 macro_rules! test_z80 {
     ($test_data_path:literal) => {
+        // use crate::emu_lib::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::item! {
             #[allow(non_snake_case)]
             #[test]

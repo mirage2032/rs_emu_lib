@@ -1,4 +1,5 @@
 pub mod add_hl_bc;
+pub mod add_hl_de;
 
 macro_rules! add_rr_rr {
     ($reg1:expr, $reg2:expr, $flags:expr) => {
