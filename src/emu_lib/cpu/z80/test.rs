@@ -66,6 +66,8 @@ fn setup_z80(emulator: &mut Emulator, state: &TestState) -> Result<(), &'static 
     registers.gp[1].de = state.de_;
     registers.gp[1].hl = state.hl_;
     //registers.other.insert("im",BaseRegister::Bit8(state.im));
+    //registers.other.insert("p",BaseRegister::Bit16(state.p));
+    //registers.other.insert("q",BaseRegister::Bit16(state.q));
     emulator.io.iff1 = if state.iff1 == 1 { true } else { false };
     emulator.io.iff2 = if state.iff2 == 1 { true } else { false };
     for (address, value) in &state.ram {
@@ -76,8 +78,6 @@ fn setup_z80(emulator: &mut Emulator, state: &TestState) -> Result<(), &'static 
 
 fn assert_z80(emulator: &mut Emulator, test_state: &TestState) {
     let registers = emulator.cpu.registers();
-    assert_eq!(registers.pc, test_state.pc);
-    assert_eq!(registers.sp, test_state.sp);
     assert_eq!(registers.gp[0].a, test_state.a);
     assert_eq!(registers.gp[0].b, test_state.b);
     assert_eq!(registers.gp[0].c, test_state.c);
@@ -88,15 +88,15 @@ fn assert_z80(emulator: &mut Emulator, test_state: &TestState) {
     assert_eq!(registers.gp[0].l, test_state.l);
     assert_eq!(registers.other["i"], BaseRegister::Bit8(test_state.i));
     assert_eq!(registers.other["r"], BaseRegister::Bit8(test_state.r));
-    //assert_eq!(registers.other["ei"],BaseRegister::Bit8(test_state.ei));
-    //assert_eq!(registers.other["wz"],BaseRegister::Bit16(test_state.wz));
-    assert_eq!(registers.other["ix"], BaseRegister::Bit16(test_state.ix));
-    assert_eq!(registers.other["iy"], BaseRegister::Bit16(test_state.iy));
     assert_eq!(registers.gp[1].af, test_state.af_);
     assert_eq!(registers.gp[1].bc, test_state.bc_);
     assert_eq!(registers.gp[1].de, test_state.de_);
     assert_eq!(registers.gp[1].hl, test_state.hl_);
-    //assert_eq!(registers.other["im"],BaseRegister::Bit8(test_state.im));
+    assert_eq!(registers.other["ix"], BaseRegister::Bit16(test_state.ix));
+    assert_eq!(registers.other["iy"], BaseRegister::Bit16(test_state.iy));
+    assert_eq!(registers.pc, test_state.pc);
+    assert_eq!(registers.sp, test_state.sp);
+    //assert_eq!(registers.other["wz"],BaseRegister::Bit16(test_state.wz));
     assert_eq!(
         emulator.io.iff1,
         if test_state.iff1 == 1 { true } else { false }
@@ -105,6 +105,10 @@ fn assert_z80(emulator: &mut Emulator, test_state: &TestState) {
         emulator.io.iff2,
         if test_state.iff2 == 1 { true } else { false }
     );
+    //assert_eq!(registers.other["im"],BaseRegister::Bit8(test_state.im));
+    //assert_eq!(registers.other["ei"],BaseRegister::Bit8(test_state.ei));
+    //assert_eq!(registers.other["p"],BaseRegister::Bit16(test_state.p));
+    //assert_eq!(registers.other["q"],BaseRegister::Bit16(test_state.q));
     for (address, value) in &test_state.ram {
         assert_eq!(emulator.memory.read_8(*address).unwrap(), *value);
     }

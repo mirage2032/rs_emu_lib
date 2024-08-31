@@ -1,4 +1,5 @@
 # Emulation and debugging library for Z80
+![build status](https://github.com/mirage2032/rs_emu_lib/actions/workflows/rust.yml/badge.svg)
 
 ## Status: WIP
 
