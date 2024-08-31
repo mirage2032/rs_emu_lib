@@ -25,15 +25,35 @@ impl Display for BaseRegister {
 #[bitfield(u8)]
 #[derive(PartialEq, Eq)]
 pub struct Flags {
+    #[bits(1)]
     pub carry: bool,
+    #[bits(1)]
     pub add_sub: bool,
+    #[bits(1)]
     pub parity_overflow: bool,
-    _bit3: bool,
+    #[bits(1)]
+    pub bit3: bool,
+    #[bits(1)]
     pub half_carry: bool,
-    _bit5: bool,
+    #[bits(1)]
+    pub bit5: bool,
+    #[bits(1)]
     pub zero: bool,
+    #[bits(1)]
     pub sign: bool,
 }
+// #[bitfield(u8)]
+// #[derive(PartialEq, Eq)]
+// pub struct Flags {
+//     pub add_sub: bool,
+//     pub parity_overflow: bool,
+//     _bit3: bool,
+//     pub half_carry: bool,
+//     _bit5: bool,
+//     pub zero: bool,
+//     pub sign: bool,
+//     pub carry: bool,
+// }
 
 #[cfg(target_endian = "big")]
 #[derive(Default, Debug)]
@@ -50,7 +70,7 @@ pub struct ByteRegisters {
 }
 
 #[cfg(target_endian = "little")]
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 #[repr(C)]
 pub struct GPByteRegisters {
     pub f: Flags,
@@ -61,6 +81,21 @@ pub struct GPByteRegisters {
     pub d: u8,
     pub l: u8,
     pub h: u8,
+}
+
+impl Default for GPByteRegisters {
+    fn default() -> Self {
+        GPByteRegisters {
+            f: Flags::default(),
+            a: 0,
+            c: 0,
+            b: 0,
+            e: 0,
+            d: 0,
+            l: 0,
+            h: 0,
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone)]

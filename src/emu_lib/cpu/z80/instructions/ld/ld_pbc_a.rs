@@ -44,7 +44,8 @@ impl ExecutableInstruction<Z80> for LD_PBC_A {
 
 #[cfg(test)]
 mod tests {
-    use crate::emu_lib::cpu::test::test_instruction_parse;
-
+    use crate::emu_lib::cpu::test::*;
+    use crate::emu_lib::cpu::z80::test::*;
+    test_z80!("02.json");
     test_instruction_parse!(LD_PBC_A);
 }

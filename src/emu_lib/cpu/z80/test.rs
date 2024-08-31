@@ -81,7 +81,7 @@ fn assert_z80(emulator: &mut Emulator,test_state: &TestState){
     assert_eq!(registers.gp[0].b,test_state.b);
     assert_eq!(registers.gp[0].c,test_state.c);
     assert_eq!(registers.gp[0].d,test_state.d);
-    assert_eq!(registers.gp[0].e,test_state.e);
+    assert_eq!(registers.gp[0].e,test_state.e);;
     assert_eq!(registers.gp[0].f,test_state.f.into());
     assert_eq!(registers.gp[0].h,test_state.h);
     assert_eq!(registers.gp[0].l,test_state.l);
@@ -109,6 +109,7 @@ pub fn test_z80_w_data(test_data_vec: Vec<TestData>){
     memory.add_device(Box::new(rom));
     let mut emulator = Emulator::new_w_mem(CPUType::Z80,memory);
     for test_data in test_data_vec {
+        // println!("Running test: {}",test_data.name);
         setup_z80(&mut emulator, &test_data.initial).expect("Failed to setup Z80");
         emulator.step().expect("Failed to step");
         assert_z80(&mut emulator, &test_data.final_state);
@@ -127,11 +128,11 @@ macro_rules! include_test_data {
 pub(crate) use include_test_data;
 
 macro_rules! test_z80 {
-    ($instruction:ident,$test_data_path:literal) => {
+    ($test_data_path:literal) => {
         paste::item! {
             #[allow(non_snake_case)]
             #[test]
-            fn [< test_ $instruction _json >]() {
+            fn [< test_json >]() {
                 let test_data = include_test_data!($test_data_path);
                 test_z80_w_data(test_data);
             }

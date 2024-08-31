@@ -97,7 +97,10 @@ impl Cpu for Z80 {
             Some(instruction) => instruction,
             None => parser::Z80Parser::from_memdev(memory, self.registers.pc)?,
         };
+        // println!("Executing: {:?}", self.registers.gp[0].f);
+        // println!("HL: {:X},BC:{:X}", self.registers.gp[0].hl,self.registers.gp[0].bc);
         instruction.execute(memory, self, io)?;
+        // println!("Executing: {:?}", self.registers.gp[0].f);
         Ok(instruction)
     }
     fn parser(&self) -> &dyn InstructionParser {
