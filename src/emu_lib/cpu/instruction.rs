@@ -40,8 +40,8 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
     fn runner(&self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String>;
     fn execute(&self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String> {
         self.runner(memory, cpu, io)?;
-        if let BaseRegister::Bit8(val) = cpu.registers_mut().other.get_mut("r").unwrap(){
-            *val = val.wrapping_add(1)%128;
+        if let BaseRegister::Bit8(val) = cpu.registers_mut().other.get_mut("r").unwrap() {
+            *val = val.wrapping_add(1) % 128;
         }
         if self.common().increment_pc {
             let inst_length = self.common().length;

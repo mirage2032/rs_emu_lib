@@ -25,35 +25,15 @@ impl Display for BaseRegister {
 #[bitfield(u8)]
 #[derive(PartialEq, Eq)]
 pub struct Flags {
-    #[bits(1)]
     pub carry: bool,
-    #[bits(1)]
     pub add_sub: bool,
-    #[bits(1)]
     pub parity_overflow: bool,
-    #[bits(1)]
     pub bit3: bool,
-    #[bits(1)]
     pub half_carry: bool,
-    #[bits(1)]
     pub bit5: bool,
-    #[bits(1)]
     pub zero: bool,
-    #[bits(1)]
     pub sign: bool,
 }
-// #[bitfield(u8)]
-// #[derive(PartialEq, Eq)]
-// pub struct Flags {
-//     pub add_sub: bool,
-//     pub parity_overflow: bool,
-//     _bit3: bool,
-//     pub half_carry: bool,
-//     _bit5: bool,
-//     pub zero: bool,
-//     pub sign: bool,
-//     pub carry: bool,
-// }
 
 #[cfg(target_endian = "big")]
 #[derive(Default, Debug)]

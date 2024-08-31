@@ -14,7 +14,7 @@ pub struct DEC_BC {
 impl DEC_BC {
     pub fn new() -> DEC_BC {
         DEC_BC {
-            common: InstructionCommon::new(1, 6, true),//
+            common: InstructionCommon::new(1, 6, true), //
         }
     }
 }

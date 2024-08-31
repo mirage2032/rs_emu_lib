@@ -41,6 +41,8 @@ impl ExecutableInstruction<Z80> for RRCA {
         cpu.registers.gp[0].a = a;
         cpu.registers.gp[0].f.set_add_sub(false);
         cpu.registers.gp[0].f.set_half_carry(false);
+        cpu.registers.gp[0].f.set_bit3((a >> 3)&1 == 1);
+        cpu.registers.gp[0].f.set_bit5((a >> 5)&1 == 1);
         Ok(())
     }
 }
@@ -48,6 +50,7 @@ impl ExecutableInstruction<Z80> for RRCA {
 #[cfg(test)]
 mod tests {
     use crate::emu_lib::cpu::test::test_instruction_parse;
-
+    use crate::emu_lib::cpu::z80::test::*;
+    test_z80!("0f.json");
     test_instruction_parse!(RRCA);
 }

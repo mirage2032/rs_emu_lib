@@ -60,8 +60,8 @@ impl Memory {
     pub fn add_device(&mut self, device: Box<dyn MemoryDevice>) {
         self.data.push(device);
     }
-    
-    pub fn record_changes(&mut self, active: bool){
+
+    pub fn record_changes(&mut self, active: bool) {
         if active {
             self.changes = Some(Vec::new());
         } else {

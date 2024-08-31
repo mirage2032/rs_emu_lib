@@ -1,4 +1,4 @@
-use crate::cpu::registers::{AllRegisters, GPByteRegisters, BaseRegister};
+use crate::cpu::registers::{AllRegisters, BaseRegister, GPByteRegisters};
 use crate::emu_lib::cpu::instruction::{push_16, BaseInstruction, ExecutableInstruction};
 use crate::emu_lib::cpu::registers::InstructionParser;
 use crate::emu_lib::cpu::{CPUType, Cpu};
