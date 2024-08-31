@@ -45,6 +45,7 @@ impl ExecutableInstruction<Z80> for INC_B {
 #[cfg(test)]
 mod tests {
     use crate::emu_lib::cpu::test::test_instruction_parse;
-
+    use crate::emu_lib::cpu::z80::test::*;
+    test_z80!("04.json");
     test_instruction_parse!(INC_B);
 }

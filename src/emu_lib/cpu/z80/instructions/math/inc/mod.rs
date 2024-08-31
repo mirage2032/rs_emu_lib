@@ -4,19 +4,24 @@ pub mod inc_c;
 
 macro_rules! inc_r {
     ($reg:expr, $flags:expr) => {
-        let sign = (*$reg & (1 << 7)) != 0;
-        let half_carry = (*$reg & (1 << 4)) != 0;
+        let value_before = *$reg;
+        let result = value_before.wrapping_add(1);
+        *$reg = result;
 
-        *$reg = $reg.wrapping_add(1);
+        let sign = (result & (1 << 7)) != 0;
+        let half_carry = (value_before & 0x0F) == 0x0F;
+        let pv_flag = value_before == 0x7F;
 
-        let newsign = (*$reg & (1 << 7)) != 0;
-        let new_half_carry = (*$reg & (1 << 4)) != 0;
+        // Update flags
+        $flags.set_zero(result == 0);
+        $flags.set_parity_overflow(pv_flag); // Correctly combine parity and overflow
+        $flags.set_sign(sign);
+        $flags.set_half_carry(half_carry);
+        $flags.set_add_sub(false); // INC is an addition, so set to false
 
-        $flags.set_zero(*$reg == 0);
-        $flags.set_parity_overflow(sign != newsign);
-        $flags.set_sign((*$reg & (1 << 7)) != 0);
-        $flags.set_half_carry(half_carry != new_half_carry);
-        $flags.set_add_sub(true);
+        // Set undocumented flags
+        $flags.set_bit3((result >> 3) & 1 == 1);
+        $flags.set_bit5((result >> 5) & 1 == 1);
     };
 }
 pub(crate) use inc_r;

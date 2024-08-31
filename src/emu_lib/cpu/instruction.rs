@@ -45,7 +45,8 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
         }
         if self.common().increment_pc {
             let inst_length = self.common().length;
-            cpu.registers_mut().pc += inst_length;
+            let new_pc = cpu.registers_mut().pc.wrapping_add(inst_length);
+            cpu.registers_mut().pc = new_pc;
         }
         Ok(())
     }

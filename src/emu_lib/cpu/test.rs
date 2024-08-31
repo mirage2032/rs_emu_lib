@@ -1,11 +1,3 @@
-use serde::{Deserialize, Serialize};
-
-use crate::cpu::registers::BaseRegister;
-use crate::cpu::CPUType;
-use crate::emulator::Emulator;
-use crate::memory::memdevices::RAM;
-use crate::memory::{Memory, MemoryDevice};
-
 macro_rules! test_instruction_parse {
     ($instruction:ident, [$($arg:expr),*]) => {
             use crate::cpu::z80::parser::Z80Parser;

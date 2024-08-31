@@ -42,8 +42,8 @@ impl ExecutableInstruction<Z80> for RLCA {
         cpu.registers.gp[0].a = a;
         cpu.registers.gp[0].f.set_add_sub(false);
         cpu.registers.gp[0].f.set_half_carry(false);
-        cpu.registers.gp[0].f.set_bit3((a >> 3)&1 == 1);
-        cpu.registers.gp[0].f.set_bit5((a >> 5)&1 == 1);
+        cpu.registers.gp[0].f.set_bit3((a >> 3) & 1 == 1);
+        cpu.registers.gp[0].f.set_bit5((a >> 5) & 1 == 1);
         Ok(())
     }
 }
