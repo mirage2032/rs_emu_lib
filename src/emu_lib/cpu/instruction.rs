@@ -63,7 +63,6 @@ macro_rules! push_8 {
 }
 pub(crate) use push_8;
 
-// #[macro_export]
 macro_rules! push_16 {
     ($val:expr, $memory:expr, $sp:expr) => {
         $sp -= 2;

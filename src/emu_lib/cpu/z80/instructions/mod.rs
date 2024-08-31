@@ -7,3 +7,4 @@ pub mod math;
 pub mod nop;
 pub mod rlca;
 pub mod rrca;
+pub mod djnz_d;
