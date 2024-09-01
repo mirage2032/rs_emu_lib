@@ -75,7 +75,7 @@ impl Default for GPByteRegisters {
     }
 }
 
-#[derive(Default, Debug, Clone,Copy)]
+#[derive(Default, Debug, Clone, Copy)]
 #[repr(C)]
 pub struct GPWordRegisters {
     pub af: u16,

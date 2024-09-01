@@ -1,8 +1,8 @@
 #![allow(unused)]
 use std::fmt::{Debug, Display};
 
-use crate::cpu::Cpu;
 use crate::cpu::registers::BaseRegister;
+use crate::cpu::Cpu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -55,9 +55,9 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
 
 pub trait InstructionParser {
     fn ins_from_mem(&self, memory: &Memory, pos: u16)
-                    -> Result<Box<(dyn BaseInstruction)>, String>;
+        -> Result<Box<(dyn BaseInstruction)>, String>;
     fn ins_from_vec(&self, memory: Vec<u8>, pos: u16)
-                    -> Result<Box<(dyn BaseInstruction)>, String>;
+        -> Result<Box<(dyn BaseInstruction)>, String>;
     fn ins_from_string(&self, instruction: &String) -> Result<Box<(dyn BaseInstruction)>, String>;
 }
 //MACROS
@@ -85,25 +85,25 @@ macro_rules! push_16 {
 pub(crate) use push_16;
 
 macro_rules! pop_8 {
-    ($memory:expr, $sp:expr) => {
+    ($memory:expr, $sp:expr) => {{
         let val = $memory
-            .read_8(*sp)
+            .read_8($sp)
             .map_err(|_| "Error popping value from stack")?;
-        *$sp += 1;
+        $sp += 1;
         val
-    };
+    }};
 }
 
 pub(crate) use pop_8;
 
 macro_rules! pop_16 {
-    ($memory:expr, $sp:expr) => {
+    ($memory:expr, $sp:expr) => {{
         let val = $memory
-            .read_16(*sp)
+            .read_16($sp)
             .map_err(|_| "Error popping value from stack")?;
-        *$sp += 2;
+        $sp += 2;
         val
-    };
+    }};
 }
 
 pub(crate) use pop_16;

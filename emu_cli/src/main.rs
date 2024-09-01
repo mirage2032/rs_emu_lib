@@ -2,13 +2,15 @@ use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
 
+use emu_lib::cpu::{
+    instruction::BaseInstruction,
+    registers::{AllRegisters, GPByteRegisters},
+};
 use emu_lib::emulator::Emulator;
-use emu_lib::cpu::{instruction::BaseInstruction,registers::{AllRegisters,GPByteRegisters}};
 use emu_lib::memory::{errors::MemoryError, memdevices::RAM, Memory, MemoryDevice};
 
 mod memdsp;
 use memdsp::MemViz;
-
 
 fn print_registers(registers: &AllRegisters) {
     println!("PC: {:04X}, SP: {:04X}", registers.pc, registers.sp);
@@ -18,7 +20,7 @@ fn print_registers(registers: &AllRegisters) {
             gp.af, gp.bc, gp.de, gp.hl
         );
     }
-    for (i,gp_regs) in registers.gp.iter().enumerate() {
+    for (i, gp_regs) in registers.gp.iter().enumerate() {
         print_gp(gp_regs, &String::from("'").repeat(i));
     }
     for (key, value) in &registers.other {
@@ -33,7 +35,7 @@ fn main() {
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
     let mut memory = Memory::new();
-    let bank = RAM::new(0x10000-dsp.size());
+    let bank = RAM::new(0x10000 - dsp.size());
     memory.add_device(Box::new(dsp));
     memory.add_device(Box::new(bank));
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
@@ -52,7 +54,7 @@ fn main() {
     println!("Running emulator");
     print_registers(emulator.cpu.registers());
     let err = emulator.run_w_cb(
-        20.0,
+        200.0,
         Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
             println!("{}", instruction);
             print_registers(emu.cpu.registers());
