@@ -18,6 +18,7 @@ pub struct Emulator {
     pub cpu: Box<dyn Cpu>,
     pub breakpoints: Vec<u16>,
     pub io: IO,
+    pub cycles: usize,
 }
 
 impl Emulator {
@@ -31,6 +32,7 @@ impl Emulator {
             cpu,
             breakpoints: Vec::new(),
             io: IO::default(),
+            cycles: 0,
         }
     }
     pub fn new_w_mem(cpu_type: CPUType, memory: Memory) -> Emulator {
@@ -43,6 +45,7 @@ impl Emulator {
             cpu,
             breakpoints: Vec::new(),
             io: IO::default(),
+            cycles: 0,
         }
     }
     pub fn step(&mut self) -> Result<Box<dyn BaseInstruction>, String> {
@@ -50,7 +53,11 @@ impl Emulator {
             return Err("CPU is halted".to_string());
         }
         self.memory.clear_changes();
-        self.cpu.step(&mut self.memory, &mut self.io)
+        let instruction = self.cpu.step(&mut self.memory, &mut self.io);
+        if let Ok(instruction) = &instruction {
+            self.cycles += instruction.common().get_cycles() as usize;
+        }
+        instruction
     }
 
     pub fn run_w_cb<T: Fn(&mut Self, &dyn BaseInstruction)>(

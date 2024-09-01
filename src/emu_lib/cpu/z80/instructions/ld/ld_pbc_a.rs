@@ -35,7 +35,7 @@ impl BaseInstruction for LD_PBC_A {
 }
 
 impl ExecutableInstruction<Z80> for LD_PBC_A {
-    fn runner(&self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let location = cpu.registers.gp[0].bc;
         memory.write_8(location, cpu.registers.gp[0].a)?;
         Ok(())

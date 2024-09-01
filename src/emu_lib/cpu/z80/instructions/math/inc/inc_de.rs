@@ -37,7 +37,7 @@ impl BaseInstruction for INC_DE {
 }
 
 impl ExecutableInstruction<Z80> for INC_DE {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.gp[0].de = cpu.registers.gp[0].de.wrapping_add(1);
         Ok(())
     }

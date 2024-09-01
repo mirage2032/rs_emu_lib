@@ -93,7 +93,7 @@ impl Cpu for Z80 {
         io: &mut IO,
     ) -> Result<Box<(dyn BaseInstruction)>, String> {
         let res = self.handle_interrupt(memory, io)?; // If IM1 interrupt it will be returned and executed
-        let instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
+        let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
             Some(instruction) => instruction,
             None => parser::Z80Parser::from_memdev(memory, self.registers.pc)?,
         };
@@ -103,11 +103,11 @@ impl Cpu for Z80 {
         // println!("Executing: {:?}", self.registers.gp[0].f);
         Ok(instruction)
     }
-    fn parser(&self) -> &dyn InstructionParser {
-        &self.parser
-    }
     fn type_of(&self) -> CPUType {
         CPUType::Z80
+    }
+    fn parser(&self) -> &dyn InstructionParser {
+        &self.parser
     }
 
     fn registers(&self) -> &AllRegisters {

@@ -37,7 +37,7 @@ impl BaseInstruction for DEC_D {
 }
 
 impl ExecutableInstruction<Z80> for DEC_D {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let gp = &mut cpu.registers.gp[0];
         super::dec_r!(&mut gp.d, &mut gp.f);
         Ok(())

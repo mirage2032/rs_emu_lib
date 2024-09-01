@@ -89,8 +89,12 @@ impl Z80Parser {
             0x1D => Box::new(math::dec::dec_e::DEC_E::new()),
             0x1E => Box::new(ld::ld_e_n::LD_E_N::new(memory, pos)?),
             0x1F => Box::new(rra::RRA::new()),
+            0x20 => Box::new(jump::jr::jr_nz_d::JR_NZ_D::new(memory, pos)?),
+            0x2A => Box::new(ld::ld_hl_pnn::LD_HL_PNN::new(memory, pos)?),
+            0x36 => Box::new(ld::ld_phl_n::LD_PHL_N::new(memory, pos)?),
             0x76 => Box::new(halt::Halt::new()),
-            _ => return Err("Invalid instruction".to_string()),
+            0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
+            _ => return Err(format!("Invalid instruction: 0x{:02x}", ins_byte0)),
         };
         Ok(instruction)
     }
@@ -115,6 +119,7 @@ impl Z80Parser {
                         "c" => Box::new(ld::ld_c_n::LD_C_N::new_with_value(val)),
                         "d" => Box::new(ld::ld_d_n::LD_D_N::new_with_value(val)),
                         "e" => Box::new(ld::ld_e_n::LD_E_N::new_with_value(val)),
+                        "(hl)" => Box::new(ld::ld_phl_n::LD_PHL_N::new_with_value(val)),
                         _ => {
                             return Err(format!(
                                 "Invalid \"ld {0}, {1}\" destination register {0}",
@@ -132,7 +137,8 @@ impl Z80Parser {
                             ))
                         }
                     },
-                    (Err(_), Ok(ImmediateValue::Ptr(_))) => match destination {
+                    (Err(_), Ok(ImmediateValue::Ptr(val))) => match destination {
+                        "hl" => Box::new(ld::ld_hl_pnn::LD_HL_PNN::new_with_value(val)),
                         _ => {
                             return Err(format!(
                                 "Invalid \"ld {0}, {1}\" destination register {0}",
@@ -224,23 +230,48 @@ impl Z80Parser {
                 let destination = is_val(op.get(2).unwrap().as_str());
                 match destination {
                     Ok(ImmediateValue::Val8(val)) => {
-                        Box::new(djnz_d::DJNZ_D::new_with_value(val as u8))
+                        Box::new(djnz_d::DJNZ_D::new_with_value(val))
                     }
                     _ => return Err("Invalid instruction".to_string()),
                 }
             }
             "rla" => Box::new(rla::RLA::new()),
             "jr" => {
-                let destination = is_val(op.get(2).unwrap().as_str());
-                match destination {
-                    Ok(ImmediateValue::Val8(val)) => {
-                        Box::new(jump::jr::jr_d::JR_D::new_with_value(val))
+                let op1 = op.get(2);
+                let op2 = op.get(3);
+                match (op1,op2) {
+                    (Some(op1_match),None) => {
+                        let op1_val = is_val(op1_match.as_str());
+                        match op1_val {
+                            Ok(ImmediateValue::Val8(val)) => {
+                                Box::new(jump::jr::jr_d::JR_D::new_with_value(val))
+                            }
+                            _ => return Err("Invalid instruction".to_string()),
+                        }
+                    }
+                    (Some(op1_match),Some(op2_match)) => {
+                        let op2_val = is_val(op2_match.as_str());
+                        match (op1_match.as_str(),op2_val) {
+                            ("nz",Ok(ImmediateValue::Val8(val))) => {
+                                Box::new(jump::jr::jr_nz_d::JR_NZ_D::new_with_value(val))
+                            }
+                            _ => return Err("Invalid instruction".to_string()),
+                        }
                     }
                     _ => return Err("Invalid instruction".to_string()),
                 }
             }
             "rra" => Box::new(rra::RRA::new()),
             "halt" => Box::new(halt::Halt::new()),
+            "call" => {
+                let destination = is_val(op.get(2).unwrap().as_str());
+                match destination {
+                    Ok(ImmediateValue::Val16(val)) => {
+                        Box::new(call::call_nn::CALL_NN::new_with_value(val))
+                    }
+                    _ => return Err("Invalid instruction".to_string()),
+                }
+            }
             _ => return Err("Invalid instruction".to_string()),
         };
         Ok(instruction)

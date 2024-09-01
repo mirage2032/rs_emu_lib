@@ -8,3 +8,5 @@ pub mod ld_de_nn;
 pub mod ld_e_n;
 pub mod ld_pbc_a;
 pub mod ld_pde_a;
+pub mod ld_hl_pnn;
+pub mod ld_phl_n;

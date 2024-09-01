@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use emu_lib::emulator::Emulator;
 use emu_lib::cpu::{instruction::BaseInstruction,registers::{AllRegisters,GPByteRegisters}};
-use emu_lib::memory::{errors::MemoryError,memdevices::RAM,Memory};
+use emu_lib::memory::{errors::MemoryError, memdevices::RAM, Memory, MemoryDevice};
 
 mod memdsp;
 use memdsp::MemViz;
@@ -29,15 +29,15 @@ fn print_registers(registers: &AllRegisters) {
 
 fn main() {
     let mut dsp = MemViz::new(64 * 64, 64, 10.0);
-    dsp.randomize();
-    thread::sleep(Duration::from_secs(2));
+    // dsp.randomize();
+    // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
     let mut memory = Memory::new();
-    let bank = RAM::new(0x2000);
+    let bank = RAM::new(0x10000-dsp.size());
     memory.add_device(Box::new(dsp));
     memory.add_device(Box::new(bank));
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
-    let rom_path: PathBuf = PathBuf::from("roms/rom.z80.bin");
+    let rom_path: PathBuf = PathBuf::from("roms/fib.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
     match emulator.memory.load_file(&rom_path) {
         Ok(_) => {}

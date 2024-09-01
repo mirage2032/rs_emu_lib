@@ -48,9 +48,10 @@ impl BaseInstruction for DJNZ_D {
 }
 
 impl ExecutableInstruction<Z80> for DJNZ_D {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.gp[0].b = cpu.registers.gp[0].b.wrapping_sub(1);
         if cpu.registers.gp[0].b != 0 {
+            self.common = InstructionCommon::new(2, 13, true);
             cpu.registers.pc = cpu.registers.pc.wrapping_add(self.d as u16);
         }
         Ok(())

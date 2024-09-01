@@ -37,7 +37,8 @@ pub struct TestState {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TestData {
     name: String,
-    initial: TestState,
+    #[serde(rename = "initial")]
+    initial_state: TestState,
     #[serde(rename = "final")]
     final_state: TestState,
     cycles: Vec<(u16, Option<u8>, String)>,
@@ -121,9 +122,10 @@ pub fn test_z80_w_data(test_data_vec: Vec<TestData>) {
         memory.add_device(Box::new(rom));
         let mut emulator = Emulator::new_w_mem(CPUType::Z80, memory);
         // println!("Running test: {}",test_data.name);
-        setup_z80(&mut emulator, &test_data.initial).expect("Failed to setup Z80");
+        setup_z80(&mut emulator, &test_data.initial_state).expect("Failed to setup Z80");
         emulator.step().expect("Failed to step");
         assert_z80(&mut emulator, &test_data.final_state);
+        assert_eq!(emulator.cycles, test_data.cycles.len());
     }
 }
 macro_rules! include_test_data {

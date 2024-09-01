@@ -35,7 +35,7 @@ impl BaseInstruction for ADD_HL_DE {
 }
 
 impl ExecutableInstruction<Z80> for ADD_HL_DE {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         super::add_rr_rr!(
             &mut cpu.registers.gp[0].hl,
             cpu.registers.gp[0].de,

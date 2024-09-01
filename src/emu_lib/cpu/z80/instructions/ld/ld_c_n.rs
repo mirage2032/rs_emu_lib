@@ -44,7 +44,7 @@ impl BaseInstruction for LD_C_N {
 }
 
 impl ExecutableInstruction<Z80> for LD_C_N {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.gp[0].c = self.n;
         Ok(())
     }

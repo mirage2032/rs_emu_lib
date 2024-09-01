@@ -37,7 +37,7 @@ impl BaseInstruction for RLA {
 }
 
 impl ExecutableInstruction<Z80> for RLA {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let carry = cpu.registers.gp[0].a >> 7;
         let a = (cpu.registers.gp[0].a << 1) | cpu.registers.gp[0].f.carry() as u8;
         cpu.registers.gp[0].f.set_carry(carry != 0);

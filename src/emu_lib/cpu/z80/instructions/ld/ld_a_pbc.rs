@@ -35,7 +35,7 @@ impl BaseInstruction for LD_A_PBC {
 }
 
 impl ExecutableInstruction<Z80> for LD_A_PBC {
-    fn runner(&self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.gp[0].a = memory.read_8(cpu.registers.gp[0].bc)?;
         Ok(())
     }
