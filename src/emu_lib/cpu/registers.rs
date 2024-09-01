@@ -4,9 +4,6 @@ use std::ops::{Deref, DerefMut};
 
 use bitfield_struct::bitfield;
 
-use crate::cpu::instruction::BaseInstruction;
-use crate::memory::Memory;
-
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum BaseRegister {
     Bit8(u8),
@@ -36,9 +33,9 @@ pub struct Flags {
 }
 
 #[cfg(target_endian = "big")]
-#[derive(Default, Debug)]
+#[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct ByteRegisters {
+pub struct GPByteRegisters {
     pub a: u8,
     pub f: Flags,
     pub b: u8,
@@ -50,7 +47,7 @@ pub struct ByteRegisters {
 }
 
 #[cfg(target_endian = "little")]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 pub struct GPByteRegisters {
     pub f: Flags,
@@ -78,7 +75,7 @@ impl Default for GPByteRegisters {
     }
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone,Copy)]
 #[repr(C)]
 pub struct GPWordRegisters {
     pub af: u16,
@@ -106,12 +103,4 @@ pub struct AllRegisters {
     pub sp: u16,
     pub pc: u16,
     pub other: HashMap<&'static str, BaseRegister>,
-}
-
-pub trait InstructionParser {
-    fn ins_from_mem(&self, memory: &Memory, pos: u16)
-        -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn ins_from_vec(&self, memory: Vec<u8>, pos: u16)
-        -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn ins_from_string(&self, instruction: &String) -> Result<Box<(dyn BaseInstruction)>, String>;
 }

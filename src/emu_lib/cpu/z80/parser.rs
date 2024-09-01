@@ -1,7 +1,6 @@
 use regex::Regex;
 
-use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction};
-use crate::emu_lib::cpu::registers::InstructionParser;
+use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionParser};
 use crate::emu_lib::cpu::z80::instructions::*;
 use crate::emu_lib::cpu::z80::Z80;
 use crate::memory::{memdevices::ROM, Memory, MemoryDevice};

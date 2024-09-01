@@ -8,7 +8,7 @@ use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
 
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 13, true));
+static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 8, true));
 
 #[derive(Debug)]
 pub struct DJNZ_D {
@@ -61,7 +61,6 @@ impl ExecutableInstruction<Z80> for DJNZ_D {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
-
     test_z80!("10.json");
     test_instruction_parse!(DJNZ_D, [0xbf]);
 }

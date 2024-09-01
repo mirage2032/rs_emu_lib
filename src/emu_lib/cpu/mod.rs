@@ -1,5 +1,4 @@
-use instruction::BaseInstruction;
-use registers::InstructionParser;
+use instruction::{BaseInstruction, InstructionParser};
 
 use crate::cpu::registers::AllRegisters;
 use crate::emu_lib::io::IO;
