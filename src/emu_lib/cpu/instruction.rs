@@ -64,7 +64,7 @@ pub trait InstructionParser {
 //STACK PUSH/POP
 macro_rules! push_8 {
     ($val:expr, $memory:expr, $sp:expr) => {
-        $sp -= 1;
+        $sp = $sp.wrapping_sub(1);
         $memory
             .write_8($sp, $val)
             .map_err(|_| "Error pushing value to stack")?;
@@ -75,7 +75,7 @@ pub(crate) use push_8;
 
 macro_rules! push_16 {
     ($val:expr, $memory:expr, $sp:expr) => {
-        $sp -= 2;
+        $sp = $sp.wrapping_sub(2);
         $memory
             .write_16($sp, $val)
             .map_err(|_| "Error pushing value to stack")?;
@@ -89,7 +89,7 @@ macro_rules! pop_8 {
         let val = $memory
             .read_8($sp)
             .map_err(|_| "Error popping value from stack")?;
-        $sp += 1;
+        $sp += $sp.wrapping_add(1);
         val
     }};
 }
@@ -101,7 +101,7 @@ macro_rules! pop_16 {
         let val = $memory
             .read_16($sp)
             .map_err(|_| "Error popping value from stack")?;
-        $sp += 2;
+        $sp = $sp.wrapping_add(2);
         val
     }};
 }
