@@ -10,7 +10,7 @@ macro_rules! test_instruction_parse {
                 #[test]
                 fn [< test_ $instruction _as_bytes_and_back >]() {
                     let instruction = $instruction::new_with_value($($arg),*);
-                    let ins_as_bytes = instruction.to_bytes();
+                    let ins_as_bytes: Vec<u8> = instruction.to_bytes();
                     let ins_as_rom: ROM = ins_as_bytes.clone().into();
                     let new_instruction = Z80Parser::from_memdev(&ins_as_rom, 0).expect(&format!("Failed to parse instruction: {:?}", ins_as_bytes));
                     assert_eq!(ins_as_bytes, new_instruction.to_bytes());
