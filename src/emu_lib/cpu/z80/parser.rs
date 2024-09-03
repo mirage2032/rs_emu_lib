@@ -10,14 +10,9 @@ enum ImmediateValue {
     Val8(u8),
     Val16(u16),
     OffsetIX(u8),
+    OffsetIY(u8),
     Ptr(u16),
 }
-
-// #[derive(Debug, Clone)]
-// enum Number {
-//     U8(u8),
-//     U16(u16),
-// }
 
 fn is_num(number: &str) -> Result<u16, String> {
     let num = if number.starts_with("0x") && number.len() <= 6 {
@@ -47,7 +42,7 @@ fn is_val(number: &str) -> Result<ImmediateValue, String> {
                 "iy" => {
                     let offset = parsed.split("+").collect::<Vec<&str>>()[1];
                     let num = is_num(offset)?;
-                    return Ok(ImmediateValue::OffsetIX(num as u8))
+                    return Ok(ImmediateValue::OffsetIY(num as u8))
                 },
                 _ => (),
             };
@@ -107,12 +102,35 @@ impl Z80Parser {
             0x1F => Box::new(rra::RRA::new()),
             0x20 => Box::new(jump::jr::jr_nz_d::JR_NZ_D::new(memory, pos)?),
             0x21 => Box::new(ld::ld_hl_nn::LD_HL_NN::new(memory, pos)?),
+            0x22 => Box::new(ld::ld_pnn_hl::LD_PNN_HL::new(memory, pos)?),
             0x23 => Box::new(math::inc::inc_hl::INC_HL::new()),
+            0x24 => Box::new(math::inc::inc_h::INC_H::new()),
+            0x25 => Box::new(math::dec::dec_h::DEC_H::new()),
+            0x26 => Box::new(ld::ld_h_n::LD_H_N::new(memory, pos)?),
+            0x27 => Box::new(daa::DAA::new()),
+            // 0x28
+            // 0x29
             0x2A => Box::new(ld::ld_hl_pnn::LD_HL_PNN::new(memory, pos)?),
             0x2B => Box::new(math::dec::dec_hl::DEC_HL::new()),
+            // 0x2C
+            // 0x2D
+            // 0x2E
             0x30 => Box::new(jump::jr::jr_nc_d::JR_NC_D::new(memory, pos)?),
+            // 0x31
+            // 0x32
+            // 0x33
             0x34 => Box::new(math::inc::inc_phl::INC_PHL::new()),
+            // 0x35
             0x36 => Box::new(ld::ld_phl_n::LD_PHL_N::new(memory, pos)?),
+            // 0x37
+            // 0x38
+            // 0x39
+            // 0x3A
+            // 0x3B
+            // 0x3C
+            // 0x3D
+            // 0x3E
+            // 0x3F
             0x42 => Box::new(ld::ld_b_d::LD_B_D::new()),
             0x47 => Box::new(ld::ld_b_a::LD_B_A::new()),
             0x4b => Box::new(ld::ld_c_e::LD_C_E::new()),
@@ -175,6 +193,7 @@ impl Z80Parser {
                         "c" => Box::new(ld::ld_c_n::LD_C_N::new_with_value(val)),
                         "d" => Box::new(ld::ld_d_n::LD_D_N::new_with_value(val)),
                         "e" => Box::new(ld::ld_e_n::LD_E_N::new_with_value(val)),
+                        "h" => Box::new(ld::ld_h_n::LD_H_N::new_with_value(val)),
                         "(hl)" => Box::new(ld::ld_phl_n::LD_PHL_N::new_with_value(val)),
                         _ => {
                             return Err(format!(
@@ -211,7 +230,8 @@ impl Z80Parser {
                             destination, source
                         ))
                     }
-                    (Ok(ImmediateValue::Ptr(_)), Err(_)) => match source {
+                    (Ok(ImmediateValue::Ptr(val)), Err(_)) => match source {
+                        "hl" => Box::new(ld::ld_pnn_hl::LD_PNN_HL::new_with_value(val)),
                         _ => {
                             return Err(format!(
                                 "Invalid \"ld {0}, {1}\" source register {1}",
@@ -262,6 +282,7 @@ impl Z80Parser {
                     "c" => Box::new(math::inc::inc_c::INC_C::new()),
                     "d" => Box::new(math::inc::inc_d::INC_D::new()),
                     "e" => Box::new(math::inc::inc_e::INC_E::new()),
+                    "h" => Box::new(math::inc::inc_h::INC_H::new()),
                     "(hl)" => Box::new(math::inc::inc_phl::INC_PHL::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
@@ -276,6 +297,7 @@ impl Z80Parser {
                     "c" => Box::new(math::dec::dec_c::DEC_C::new()),
                     "d" => Box::new(math::dec::dec_d::DEC_D::new()),
                     "e" => Box::new(math::dec::dec_e::DEC_E::new()),
+                    "h" => Box::new(math::dec::dec_h::DEC_H::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
             }
@@ -409,6 +431,7 @@ impl Z80Parser {
                     _ => return Err("Invalid instruction".to_string()),
                 }
             }
+            "daa" => Box::new(daa::DAA::new()),
             _ => return Err("Invalid instruction".to_string()),
         };
         Ok(instruction)

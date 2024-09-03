@@ -5,6 +5,7 @@ pub mod dec_d;
 pub mod dec_de;
 pub mod dec_e;
 pub mod dec_hl;
+pub mod dec_h;
 
 macro_rules! dec_r {
     ($reg:expr, $flags:expr) => {

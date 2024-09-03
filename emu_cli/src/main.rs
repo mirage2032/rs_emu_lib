@@ -36,8 +36,9 @@ fn main() {
     println!("Creating emulator");
     let mut memory = Memory::new();
     let bank = RAM::new(0x10000 - dsp.size());
+    memory.add_device(Box::new(RAM::new(0x1000)));
     memory.add_device(Box::new(dsp));
-    memory.add_device(Box::new(bank));
+    memory.add_device(Box::new(RAM::new(0x10000-64*64-0x1000)));
     let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
     let rom_path: PathBuf = PathBuf::from("roms/fib.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
@@ -53,15 +54,15 @@ fn main() {
     };
     println!("Running emulator");
     print_registers(emulator.cpu.registers());
-    let err = emulator.run_w_cb(
-        2000.0,
+    let stop_reason = emulator.run_w_cb(
+        200.0,
         Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
             println!("{}", instruction);
             print_registers(emu.cpu.registers());
         }),
     );
     println!("Emulator stopped");
-    match err {
+    match stop_reason {
         emu_lib::emulator::StopReason::Breakpoint => println!("Breakpoint"),
         emu_lib::emulator::StopReason::Halt => println!("Halted"),
         emu_lib::emulator::StopReason::Error(e) => {
