@@ -27,3 +27,5 @@ pub mod ld_sp_hl;
 pub mod ld_sp_ix;
 pub mod ld_pnn_hl;
 pub mod ld_h_n;
+pub mod ld_l_n;
+pub mod ld_sp_nn;

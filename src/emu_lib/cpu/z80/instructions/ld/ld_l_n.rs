@@ -8,48 +8,44 @@ use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
 
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 12, true));
+const COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
 
 #[derive(Debug)]
-pub struct JR_D {
+pub struct LD_L_N {
     common: InstructionCommon,
-    d: i8,
+    n: u8,
 }
 
-impl JR_D {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JR_D, String> {
-        Ok(JR_D {
+impl LD_L_N {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_L_N, String> {
+        Ok(LD_L_N {
             common: *COMMON,
-            d: memory.read_8(pos.wrapping_add(1))? as i8,
+            n: memory.read_8(pos.wrapping_add(1))?,
         })
     }
-
-    pub fn new_with_value(d: u8) -> JR_D {
-        JR_D {
-            common: *COMMON,
-            d: d as i8,
-        }
+    pub fn new_with_value(n: u8) -> LD_L_N {
+        LD_L_N { common: *COMMON, n }
     }
 }
 
-impl Display for JR_D {
+impl Display for LD_L_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "JR 0x{:02x}", self.d)
+        write!(f, "LD L, 0x{:02x}", self.n)
     }
 }
 
-impl BaseInstruction for JR_D {
+impl BaseInstruction for LD_L_N {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0x18, self.d as u8]
+        vec![0x2e, self.n]
     }
 }
 
-impl ExecutableInstruction<Z80> for JR_D {
+impl ExecutableInstruction<Z80> for LD_L_N {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.pc = cpu.registers.pc.wrapping_add(self.d as u16);
+        cpu.registers.gp[0].l = self.n;
         Ok(())
     }
 }
@@ -59,6 +55,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("18.json");
-    test_instruction_parse!(JR_D, [0xbf]);
+    test_z80!("2e.json");
+    test_instruction_parse!(LD_L_N, [0xe0]);
 }

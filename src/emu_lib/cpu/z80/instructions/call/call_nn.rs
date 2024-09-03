@@ -20,7 +20,7 @@ impl CALL_NN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<CALL_NN, String> {
         Ok(CALL_NN {
             common: *COMMON,
-            nn: memory.read_16(pos + 1)?,
+            nn: memory.read_16(pos.wrapping_add(1))?,
         })
     }
 

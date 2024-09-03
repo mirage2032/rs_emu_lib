@@ -5,6 +5,7 @@ pub mod add_a_b;
 pub mod add_a_c;
 pub mod add_a_phl;
 pub mod add_a_e;
+pub mod add_hl_hl;
 
 macro_rules! add_rr_rr {
     ($reg1:expr, $reg2:expr, $flags:expr) => {

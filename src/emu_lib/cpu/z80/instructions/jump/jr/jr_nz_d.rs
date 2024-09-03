@@ -20,7 +20,7 @@ impl JR_NZ_D {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JR_NZ_D, String> {
         Ok(JR_NZ_D {
             common: *COMMON,
-            d: memory.read_8(pos + 1)? as i8,
+            d: memory.read_8(pos.wrapping_add(1))? as i8,
         })
     }
 

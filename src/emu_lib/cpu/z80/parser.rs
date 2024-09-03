@@ -33,17 +33,17 @@ fn is_val(number: &str) -> Result<ImmediateValue, String> {
     if number.starts_with("(") && number.ends_with(")") {
         let parsed = &number[1..number.len() - 1];
         if parsed.contains("+") {
-            match &parsed[0..2]{
+            match &parsed[0..2] {
                 "ix" => {
                     let offset = parsed.split("+").collect::<Vec<&str>>()[1];
                     let num = is_num(offset)?;
-                    return Ok(ImmediateValue::OffsetIX(num as u8))
-                },
+                    return Ok(ImmediateValue::OffsetIX(num as u8));
+                }
                 "iy" => {
                     let offset = parsed.split("+").collect::<Vec<&str>>()[1];
                     let num = is_num(offset)?;
-                    return Ok(ImmediateValue::OffsetIY(num as u8))
-                },
+                    return Ok(ImmediateValue::OffsetIY(num as u8));
+                }
                 _ => (),
             };
         }
@@ -108,15 +108,16 @@ impl Z80Parser {
             0x25 => Box::new(math::dec::dec_h::DEC_H::new()),
             0x26 => Box::new(ld::ld_h_n::LD_H_N::new(memory, pos)?),
             0x27 => Box::new(daa::DAA::new()),
-            // 0x28
-            // 0x29
+            0x28 => Box::new(jump::jr::jr_z_d::JR_Z_D::new(memory, pos)?),
+            0x29 => Box::new(math::add::add_hl_hl::ADD_HL_HL::new()),
             0x2A => Box::new(ld::ld_hl_pnn::LD_HL_PNN::new(memory, pos)?),
             0x2B => Box::new(math::dec::dec_hl::DEC_HL::new()),
-            // 0x2C
-            // 0x2D
-            // 0x2E
+            0x2C => Box::new(math::inc::inc_l::INC_L::new()),
+            0x2D => Box::new(math::dec::dec_l::DEC_L::new()),
+            0x2E => Box::new(ld::ld_l_n::LD_L_N::new(memory, pos)?),
+            0x2F => Box::new(cpl::CPL::new()),
             0x30 => Box::new(jump::jr::jr_nc_d::JR_NC_D::new(memory, pos)?),
-            // 0x31
+            0x31 => Box::new(ld::ld_sp_nn::LD_SP_NN::new(memory, pos)?),
             // 0x32
             // 0x33
             0x34 => Box::new(math::inc::inc_phl::INC_PHL::new()),
@@ -154,7 +155,7 @@ impl Z80Parser {
             0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
             0xCE => Box::new(math::adc::adc_a_n::ADC_A_N::new(memory, pos)?),
             0xD6 => Box::new(math::sub::sub_n::SUB_N::new(memory, pos)?),
-            0xDD =>  {
+            0xDD => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
                     0x21 => Box::new(ld::ld_ix_nn::LD_IX_NN::new(memory, pos)?),
@@ -165,7 +166,7 @@ impl Z80Parser {
                     0xf9 => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
                     _ => return Err(format!("Invalid IX instruction: 0x{:02x}", ins_byte1)),
                 }
-            },
+            }
             0xe1 => Box::new(stack::pop::pop_hl::POP_HL::new()),
             0xe5 => Box::new(stack::push::push_hl::PUSH_HL::new()),
             0xf5 => Box::new(stack::push::push_af::PUSH_AF::new()),
@@ -194,6 +195,7 @@ impl Z80Parser {
                         "d" => Box::new(ld::ld_d_n::LD_D_N::new_with_value(val)),
                         "e" => Box::new(ld::ld_e_n::LD_E_N::new_with_value(val)),
                         "h" => Box::new(ld::ld_h_n::LD_H_N::new_with_value(val)),
+                        "l" => Box::new(ld::ld_l_n::LD_L_N::new_with_value(val)),
                         "(hl)" => Box::new(ld::ld_phl_n::LD_PHL_N::new_with_value(val)),
                         _ => {
                             return Err(format!(
@@ -206,6 +208,7 @@ impl Z80Parser {
                         "bc" => Box::new(ld::ld_bc_nn::LD_BC_NN::new_with_value(val)),
                         "de" => Box::new(ld::ld_de_nn::LD_DE_NN::new_with_value(val)),
                         "hl" => Box::new(ld::ld_hl_nn::LD_HL_NN::new_with_value(val)),
+                        "sp" => Box::new(ld::ld_sp_nn::LD_SP_NN::new_with_value(val)),
                         "ix" => Box::new(ld::ld_ix_nn::LD_IX_NN::new_with_value(val)),
                         _ => {
                             return Err(format!(
@@ -283,6 +286,7 @@ impl Z80Parser {
                     "d" => Box::new(math::inc::inc_d::INC_D::new()),
                     "e" => Box::new(math::inc::inc_e::INC_E::new()),
                     "h" => Box::new(math::inc::inc_h::INC_H::new()),
+                    "l" => Box::new(math::inc::inc_l::INC_L::new()),
                     "(hl)" => Box::new(math::inc::inc_phl::INC_PHL::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
@@ -298,6 +302,7 @@ impl Z80Parser {
                     "d" => Box::new(math::dec::dec_d::DEC_D::new()),
                     "e" => Box::new(math::dec::dec_e::DEC_E::new()),
                     "h" => Box::new(math::dec::dec_h::DEC_H::new()),
+                    "l" => Box::new(math::dec::dec_l::DEC_L::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
             }
@@ -309,6 +314,7 @@ impl Z80Parser {
                         match source {
                             "bc" => Box::new(math::add::add_hl_bc::ADD_HL_BC::new()),
                             "de" => Box::new(math::add::add_hl_de::ADD_HL_DE::new()),
+                            "hl" => Box::new(math::add::add_hl_hl::ADD_HL_HL::new()),
                             _ => return Err("Invalid source".to_string()),
                         }
                     }
@@ -338,13 +344,13 @@ impl Z80Parser {
                     "a" => {
                         let source = op.get(3).unwrap().as_str();
                         match is_val(source) {
-                            Ok(ImmediateValue::Val8(val)) => Box::new(math::adc::adc_a_n::ADC_A_N::new_with_value(val)),
-                            _ => { 
-                                match source {
-                                    "b" => Box::new(math::adc::adc_a_b::ADC_A_B::new()),
-                                    "d" => Box::new(math::adc::adc_a_d::ADC_A_D::new()),
-                                    _ => return Err("Invalid source".to_string()),
-                                }
+                            Ok(ImmediateValue::Val8(val)) => {
+                                Box::new(math::adc::adc_a_n::ADC_A_N::new_with_value(val))
+                            }
+                            _ => match source {
+                                "b" => Box::new(math::adc::adc_a_b::ADC_A_B::new()),
+                                "d" => Box::new(math::adc::adc_a_d::ADC_A_D::new()),
+                                _ => return Err("Invalid source".to_string()),
                             },
                         }
                     }
@@ -354,7 +360,9 @@ impl Z80Parser {
             "sub" => {
                 let destination = op.get(2).unwrap().as_str();
                 match is_val(destination) {
-                    Ok(ImmediateValue::Val8(val)) => Box::new(math::sub::sub_n::SUB_N::new_with_value(val)),
+                    Ok(ImmediateValue::Val8(val)) => {
+                        Box::new(math::sub::sub_n::SUB_N::new_with_value(val))
+                    }
                     _ => return Err("Invalid destination".to_string()),
                 }
             }
@@ -392,8 +400,15 @@ impl Z80Parser {
                     (Some(op1_match), Some(op2_match)) => {
                         let op2_val = is_val(op2_match.as_str());
                         match (op1_match.as_str(), op2_val) {
-                            ("nz", Ok(ImmediateValue::Val8(val))) => Box::new(jump::jr::jr_nz_d::JR_NZ_D::new_with_value(val)),
-                            ("nc", Ok(ImmediateValue::Val8(val))) => Box::new(jump::jr::jr_nc_d::JR_NC_D::new_with_value(val)),
+                            ("z", Ok(ImmediateValue::Val8(val))) => {
+                                Box::new(jump::jr::jr_z_d::JR_Z_D::new_with_value(val))
+                            }
+                            ("nz", Ok(ImmediateValue::Val8(val))) => {
+                                Box::new(jump::jr::jr_nz_d::JR_NZ_D::new_with_value(val))
+                            }
+                            ("nc", Ok(ImmediateValue::Val8(val))) => {
+                                Box::new(jump::jr::jr_nc_d::JR_NC_D::new_with_value(val))
+                            }
                             _ => return Err("Invalid instruction".to_string()),
                         }
                     }
@@ -421,7 +436,7 @@ impl Z80Parser {
                     "ix" => Box::new(stack::push::push_ix::PUSH_IX::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
-            },
+            }
             "pop" => {
                 let destination = op.get(2).unwrap().as_str();
                 match destination {
@@ -432,6 +447,7 @@ impl Z80Parser {
                 }
             }
             "daa" => Box::new(daa::DAA::new()),
+            "cpl" => Box::new(cpl::CPL::new()),
             _ => return Err("Invalid instruction".to_string()),
         };
         Ok(instruction)

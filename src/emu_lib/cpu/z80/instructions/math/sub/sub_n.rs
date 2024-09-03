@@ -20,7 +20,7 @@ impl SUB_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SUB_N, String> {
         Ok(SUB_N {
             common: *COMMON,
-            n: memory.read_8(pos + 1)?,
+            n: memory.read_8(pos.wrapping_add(1))?,
         })
     }
 

@@ -20,7 +20,7 @@ impl LD_PHL_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_PHL_N, String> {
         Ok(LD_PHL_N {
             common: *COMMON,
-            n: memory.read_8(pos + 1)?,
+            n: memory.read_8(pos.wrapping_add(1))?,
         })
     }
     pub fn new_with_value(n: u8) -> LD_PHL_N {
