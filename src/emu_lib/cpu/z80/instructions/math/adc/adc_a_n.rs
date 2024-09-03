@@ -19,7 +19,7 @@ impl ADC_A_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<ADC_A_N, String> {
         Ok(ADC_A_N {
             common: *COMMON,
-            n: memory.read_8(pos + 1)?,
+            n: memory.read_8(pos.wrapping_add(1))?,
         })
     }
     

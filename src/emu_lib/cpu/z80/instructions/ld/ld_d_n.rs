@@ -20,7 +20,7 @@ impl LD_D_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_D_N, String> {
         Ok(LD_D_N {
             common: *COMMON,
-            n: memory.read_8(pos + 1)?,
+            n: memory.read_8(pos.wrapping_add(1))?,
         })
     }
 

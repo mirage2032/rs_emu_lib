@@ -27,7 +27,7 @@ pub trait MemoryDevice {
     fn write_16(&mut self, addr: u16, data: u16) -> Result<(), &'static str> {
         let bytes = data.to_le_bytes();
         self.write_8(addr, bytes[0])?;
-        self.write_8(addr + 1, bytes[1])?;
+        self.write_8(addr.wrapping_add(1), bytes[1])?;
         Ok(())
     }
 
@@ -35,7 +35,7 @@ pub trait MemoryDevice {
     fn write_16_force(&mut self, addr: u16, data: u16) -> Result<(), &'static str> {
         let bytes = data.to_le_bytes();
         self.write_8_force(addr, bytes[0])?;
-        self.write_8_force(addr + 1, bytes[1])?;
+        self.write_8_force(addr.wrapping_add(1), bytes[1])?;
         Ok(())
     }
 
