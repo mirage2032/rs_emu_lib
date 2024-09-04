@@ -4,3 +4,4 @@ pub mod dec;
 pub mod inc;
 pub mod sub;
 pub mod xor;
+pub mod sbc;

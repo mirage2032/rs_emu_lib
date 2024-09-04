@@ -10,6 +10,8 @@ use hex_literal::hex;
 use std::fmt;
 use std::fmt::Display;
 
+pub mod dec_sp;
+
 generics::dec_r::dec_r!(b, "05", "B");
 generics::dec_r::dec_r!(c, "0d", "C");
 generics::dec_r::dec_r!(d, "15", "D");

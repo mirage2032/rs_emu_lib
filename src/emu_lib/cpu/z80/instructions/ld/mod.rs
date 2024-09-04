@@ -24,12 +24,56 @@ generics::ld_r_r::ld_r_r!(a, d, "7a", "A", "D");
 generics::ld_r_r::ld_r_r!(a, e, "7b", "A", "E");
 generics::ld_r_r::ld_r_r!(a, h, "7c", "A", "H");
 generics::ld_r_r::ld_r_r!(a, l, "7d", "A", "L");
-generics::ld_r_r::ld_r_r!(b, a, "47", "B", "A");
+
+// generics::ld_r_r::ld_r_r!(b, b, "40", "B", "B");
+generics::ld_r_r::ld_r_r!(b, c, "41", "B", "C");
 generics::ld_r_r::ld_r_r!(b, d, "42", "B", "D");
-generics::ld_r_r::ld_r_r!(c, a, "4f", "C", "A");
+generics::ld_r_r::ld_r_r!(b, e, "43", "B", "E");
+generics::ld_r_r::ld_r_r!(b, h, "44", "B", "H");
+generics::ld_r_r::ld_r_r!(b, l, "45", "B", "L");
+generics::ld_r_r::ld_r_r!(b, a, "47", "B", "A");
+
+generics::ld_r_r::ld_r_r!(c, b, "48", "C", "B");
+// generics::ld_r_r::ld_r_r!(c, c "49", "C", "C");
+generics::ld_r_r::ld_r_r!(c, d, "4a", "C", "D");
 generics::ld_r_r::ld_r_r!(c, e, "4b", "C", "E");
+generics::ld_r_r::ld_r_r!(c, h, "4c", "C", "H");
+generics::ld_r_r::ld_r_r!(c, l, "4d", "C", "L");
+generics::ld_r_r::ld_r_r!(c, a, "4f", "C", "A");
+
+generics::ld_r_r::ld_r_r!(d, b, "50", "D", "B");
+generics::ld_r_r::ld_r_r!(d, c, "51", "D", "C");
+// generics::ld_r_r::ld_r_r!(d, d, "52", "D", "D");
+generics::ld_r_r::ld_r_r!(d, e, "53", "D", "E");
+generics::ld_r_r::ld_r_r!(d, h, "54", "D", "H");
+generics::ld_r_r::ld_r_r!(d, l, "55", "D", "L");
 generics::ld_r_r::ld_r_r!(d, a, "57", "D", "A");
+
+
+generics::ld_r_r::ld_r_r!(e, b, "58", "E", "B");
+generics::ld_r_r::ld_r_r!(e, c, "59", "E", "C");
+generics::ld_r_r::ld_r_r!(e, d, "5a", "E", "D");
+// generics::ld_r_r::ld_r_r!(e, e, "5b", "E", "E");
+generics::ld_r_r::ld_r_r!(e, h, "5c", "E", "H");
+generics::ld_r_r::ld_r_r!(e, l, "5d", "E", "L");
 generics::ld_r_r::ld_r_r!(e, a, "5f", "E", "A");
+
+generics::ld_r_r::ld_r_r!(h, b, "60", "H", "B");
+generics::ld_r_r::ld_r_r!(h, c, "61", "H", "C");
+generics::ld_r_r::ld_r_r!(h, d, "62", "H", "D");
+generics::ld_r_r::ld_r_r!(h, e, "63", "H", "E");
+// generics::ld_r_r::ld_r_r!(h, h, "64", "H", "H");
+generics::ld_r_r::ld_r_r!(h, l, "65", "H", "L");
+generics::ld_r_r::ld_r_r!(h, a, "67", "H", "A");
+
+
+generics::ld_r_r::ld_r_r!(l, b, "68", "L", "B");
+generics::ld_r_r::ld_r_r!(l, c, "69", "L", "C");
+generics::ld_r_r::ld_r_r!(l, d, "6a", "L", "D");
+generics::ld_r_r::ld_r_r!(l, e, "6b", "L", "E");
+generics::ld_r_r::ld_r_r!(l, h, "6c", "L", "H");
+// generics::ld_r_r::ld_r_r!(l, l, "6d", "L", "L");
+generics::ld_r_r::ld_r_r!(l, a, "6f", "L", "A");
 
 generics::ld_r_n::ld_r_n!(l, "2e", "L");
 generics::ld_r_n::ld_r_n!(b, "06", "B");
@@ -42,8 +86,14 @@ generics::ld_rr_pnn::ld_rr_pnn!(hl, "2a", "HL");
 
 generics::ld_r_prr::ld_r_prr!(a, bc, "0a", "A", "BC");
 generics::ld_r_prr::ld_r_prr!(a, de, "1a", "A", "DE");
+
 generics::ld_r_prr::ld_r_prr!(a, hl, "7e", "A", "HL");
+generics::ld_r_prr::ld_r_prr!(b, hl, "46", "B", "HL");
+generics::ld_r_prr::ld_r_prr!(c, hl, "4e", "C", "HL");
+generics::ld_r_prr::ld_r_prr!(d, hl, "56", "D", "HL");
 generics::ld_r_prr::ld_r_prr!(e, hl, "5e", "E", "HL");
+generics::ld_r_prr::ld_r_prr!(h, hl, "66", "H", "HL");
+generics::ld_r_prr::ld_r_prr!(l, hl, "6e", "L", "HL");
 
 generics::ld_rr_nn::ld_rr_nn!(bc, "01", "BC");
 generics::ld_rr_nn::ld_rr_nn!(de, "11", "DE");
