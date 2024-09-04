@@ -139,9 +139,20 @@ impl Z80Parser {
             0x57 => Box::new(ld::LD_D_A::new()),
             0x5E => Box::new(ld::LD_E_PHL::new()),
             0x5f => Box::new(ld::LD_E_A::new()),
+            0x70 => Box::new(ld::LD_PHL_B::new()),
+            0x71 => Box::new(ld::LD_PHL_C::new()),
+            0x72 => Box::new(ld::LD_PHL_D::new()),
+            0x73 => Box::new(ld::LD_PHL_E::new()),
+            0x74 => Box::new(ld::LD_PHL_H::new()),
+            0x75 => Box::new(ld::LD_PHL_L::new()),
             0x76 => Box::new(halt::Halt::new()),
             0x77 => Box::new(ld::LD_PHL_A::new()),
+            0x78 => Box::new(ld::LD_A_B::new()),
             0x79 => Box::new(ld::LD_A_C::new()),
+            0x7A => Box::new(ld::LD_A_D::new()),
+            0x7B => Box::new(ld::LD_A_E::new()),
+            0x7C => Box::new(ld::LD_A_H::new()),
+            0x7D => Box::new(ld::LD_A_L::new()),
             0x7E => Box::new(ld::LD_A_PHL::new()),
             0x80 => Box::new(math::add::ADD_A_B::new()),
             0x81 => Box::new(math::add::ADD_A_C::new()),
@@ -156,6 +167,13 @@ impl Z80Parser {
             0x8b => Box::new(math::adc::ADC_A_E::new()),
             0x8c => Box::new(math::adc::ADC_A_H::new()),
             0x8d => Box::new(math::adc::ADC_A_L::new()),
+            0xa8 => Box::new(math::xor::XOR_B::new()),
+            0xa9 => Box::new(math::xor::XOR_C::new()),
+            0xaa => Box::new(math::xor::XOR_D::new()),
+            0xab => Box::new(math::xor::XOR_E::new()),
+            0xac => Box::new(math::xor::XOR_H::new()),
+            0xad => Box::new(math::xor::XOR_L::new()),
+            0xaf => Box::new(math::xor::XOR_A::new()),
             0xC1 => Box::new(stack::pop::POP_BC::new()),
             0xC5 => Box::new(stack::push::PUSH_BC::new()),
             0xC9 => Box::new(ret::RET::new()),
@@ -178,6 +196,7 @@ impl Z80Parser {
             }
             0xe1 => Box::new(stack::pop::POP_HL::new()),
             0xe5 => Box::new(stack::push::PUSH_HL::new()),
+            0xee => Box::new(math::xor::xor_n::XOR_N::new(memory, pos)?),
             0xf5 => Box::new(stack::push::PUSH_AF::new()),
             0xF1 => Box::new(stack::pop::POP_AF::new()),
             0xF9 => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
@@ -268,13 +287,24 @@ impl Z80Parser {
                         ("(bc)", "a") => Box::new(ld::LD_PBC_A::new()),
                         ("(de)", "a") => Box::new(ld::LD_PDE_A::new()),
                         ("(hl)", "a") => Box::new(ld::LD_PHL_A::new()),
+                        ("(hl)","b") => Box::new(ld::LD_PHL_B::new()),
+                        ("(hl)","c") => Box::new(ld::LD_PHL_C::new()),
+                        ("(hl)","d") => Box::new(ld::LD_PHL_D::new()),
+                        ("(hl)","e") => Box::new(ld::LD_PHL_E::new()),
+                        ("(hl)","h") => Box::new(ld::LD_PHL_H::new()),
+                        ("(hl)","l") => Box::new(ld::LD_PHL_L::new()),
                         ("a", "(bc)") => Box::new(ld::LD_A_PBC::new()),
                         ("a", "(hl)") => Box::new(ld::LD_A_PHL::new()),
                         ("a", "(de)") => Box::new(ld::LD_A_PDE::new()),
+                        ("a", "b") => Box::new(ld::LD_A_B::new()),
+                        ("a", "c") => Box::new(ld::LD_A_C::new()),
+                        ("a", "d") => Box::new(ld::LD_A_D::new()),
+                        ("a", "e") => Box::new(ld::LD_A_E::new()),
+                        ("a", "h") => Box::new(ld::LD_A_H::new()),
+                        ("a", "l") => Box::new(ld::LD_A_L::new()),
                         ("e", "(hl)") => Box::new(ld::LD_E_PHL::new()),
                         ("sp", "hl") => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
                         ("sp", "ix") => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
-                        ("a", "c") => Box::new(ld::LD_A_C::new()),
                         ("c", "e") => Box::new(ld::LD_C_E::new()),
                         ("b", "d") => Box::new(ld::LD_B_D::new()),
                         ("c", "a") => Box::new(ld::LD_C_A::new()),
@@ -383,6 +413,26 @@ impl Z80Parser {
                         Box::new(math::sub::sub_n::SUB_N::new_with_value(val))
                     }
                     _ => return Err("Invalid destination".to_string()),
+                }
+            }
+            "xor" => {
+                let destination = op.get(2).unwrap().as_str();
+                match is_val(destination) {
+                    Ok(ImmediateValue::Val8(val)) => {
+                        Box::new(math::xor::xor_n::XOR_N::new_with_value(val))
+                    }
+                    _ => {
+                        match destination {
+                            "a" => Box::new(math::xor::XOR_A::new()),
+                            "b" => Box::new(math::xor::XOR_B::new()),
+                            "c" => Box::new(math::xor::XOR_C::new()),
+                            "d" => Box::new(math::xor::XOR_D::new()),
+                            "e" => Box::new(math::xor::XOR_E::new()),
+                            "h" => Box::new(math::xor::XOR_H::new()),
+                            "l" => Box::new(math::xor::XOR_L::new()),
+                            _ => return Err("Invalid destination".to_string()),
+                        }
+                    }
                 }
             }
             "rlca" => Box::new(rlca::RLCA::new()),

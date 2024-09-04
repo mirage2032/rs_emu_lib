@@ -18,7 +18,12 @@ pub mod ld_sp_hl;
 pub mod ld_sp_ix;
 pub mod ld_sp_nn;
 
+generics::ld_r_r::ld_r_r!(a, b, "78", "A", "B");
 generics::ld_r_r::ld_r_r!(a, c, "79", "A", "C");
+generics::ld_r_r::ld_r_r!(a, d, "7a", "A", "D");
+generics::ld_r_r::ld_r_r!(a, e, "7b", "A", "E");
+generics::ld_r_r::ld_r_r!(a, h, "7c", "A", "H");
+generics::ld_r_r::ld_r_r!(a, l, "7d", "A", "L");
 generics::ld_r_r::ld_r_r!(b, a, "47", "B", "A");
 generics::ld_r_r::ld_r_r!(b, d, "42", "B", "D");
 generics::ld_r_r::ld_r_r!(c, a, "4f", "C", "A");
@@ -46,7 +51,13 @@ generics::ld_rr_nn::ld_rr_nn!(hl, "21", "HL");
 
 generics::ld_prr_r::ld_prr_r!(bc, a, "02", "BC", "A");
 generics::ld_prr_r::ld_prr_r!(de, a, "12", "DE", "A");
-generics::ld_prr_r::ld_prr_r!(hl, a, "77", "HL", "A");
+generics::ld_prr_r::ld_prr_r!(hl, a, "71", "HL", "A");
+generics::ld_prr_r::ld_prr_r!(hl, b, "70", "HL", "B");
+generics::ld_prr_r::ld_prr_r!(hl, c, "71", "HL", "C");
+generics::ld_prr_r::ld_prr_r!(hl, d, "72", "HL", "D");
+generics::ld_prr_r::ld_prr_r!(hl, e, "73", "HL", "E");
+generics::ld_prr_r::ld_prr_r!(hl, h, "74", "HL", "H");
+generics::ld_prr_r::ld_prr_r!(hl, l, "75", "HL", "L");
 
 generics::ld_pnn_r::ld_pnn_r!(a, "32", "A");
 generics::ld_pnn_rr::ld_pnn_rr!(hl, "22", "HL");
