@@ -21,7 +21,7 @@ mod generics;
 // pub(crate) use adc_rr_rr;
 
 use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::instructions::math::adc::generics::{adc_r_r_setf};
+use crate::cpu::z80::instructions::math::adc::generics::adc_r_r_setf;
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;

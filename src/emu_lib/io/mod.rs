@@ -19,21 +19,22 @@ pub enum InterruptType {
 
 pub struct IO {
     pub port_map: HashMap<u8, Weak<RefCell<Box<dyn IODevice>>>>,
-    devices: Vec<Option<Rc<RefCell<Box<dyn IODevice>>>>>,
+    devices: Vec<Rc<RefCell<Box<dyn IODevice>>>>,
     pub iff1: bool,
     pub iff2: bool,
 }
 
 impl IO {
     pub fn new() -> IO {
-        let registers: Rc<RefCell<Box<dyn IODevice>>> = Rc::new(RefCell::new(Box::new(IORegister::default())));
+        let registers: Rc<RefCell<Box<dyn IODevice>>> =
+            Rc::new(RefCell::new(Box::new(IORegister::default())));
         let mut port_map = HashMap::new();
         for port in registers.borrow().ports() {
             port_map.insert(port, Rc::downgrade(&registers));
         }
         IO {
             port_map,
-            devices: vec![Some(registers)],
+            devices: vec![registers],
             iff1: false,
             iff2: false,
         }
@@ -42,14 +43,15 @@ impl IO {
 
 impl Default for IO {
     fn default() -> IO {
-        let registers: Rc<RefCell<Box<dyn IODevice>>> = Rc::new(RefCell::new(Box::new(IORegister::default())));
+        let registers: Rc<RefCell<Box<dyn IODevice>>> =
+            Rc::new(RefCell::new(Box::new(IORegister::default())));
         let mut port_map = HashMap::new();
         for port in registers.borrow().ports() {
             port_map.insert(port, Rc::downgrade(&registers));
         }
         IO {
             port_map,
-            devices: vec![Some(registers)],
+            devices: vec![registers],
             iff1: false,
             iff2: false,
         }
@@ -58,8 +60,16 @@ impl Default for IO {
 
 impl IO {
     pub fn read(&self, port: u8) -> Result<u8, &str> {
-        let device: Weak<RefCell<Box<dyn IODevice>>> = self.port_map.get(&port).ok_or("Attempting to read from unconnected port")?.clone();
-        device.upgrade().ok_or("Attempting to read from removed device")?.borrow().read(port)
+        let device: Weak<RefCell<Box<dyn IODevice>>> = self
+            .port_map
+            .get(&port)
+            .ok_or("Attempting to read from unconnected port")?
+            .clone();
+        device
+            .upgrade()
+            .ok_or("Attempting to read from removed device")?
+            .borrow()
+            .read(port)
     }
 
     pub fn write(&mut self, port: u8, data: u8) -> Result<(), &str> {
@@ -67,11 +77,15 @@ impl IO {
             .port_map
             .get(&port)
             .ok_or("Attempting to write to unconnected port")?;
-        device.upgrade().ok_or("Attempting to write to removed device")?.borrow_mut().write(port, data)
+        device
+            .upgrade()
+            .ok_or("Attempting to write to removed device")?
+            .borrow_mut()
+            .write(port, data)
     }
 
     pub fn step(&mut self) {
-        for device in self.devices.iter_mut().flatten() {
+        for device in self.devices.iter() {
             device.borrow_mut().step();
         }
     }
@@ -87,17 +101,15 @@ impl IO {
             }
             self.port_map.insert(port, Rc::downgrade(&dev));
         }
-        self.devices.push(Some(dev));
+        self.devices.push(dev);
         Ok(())
     }
 
     pub fn remove_dev_by_id(&mut self, device_id: usize) -> Result<(), &str> {
-        self
-            .devices
-            .remove(device_id);
+        self.devices.remove(device_id);
         Ok(())
     }
-    
+
     pub fn remove_dev_by_port(&mut self, port: u8) -> Result<(), &str> {
         let device = self
             .port_map
@@ -105,15 +117,13 @@ impl IO {
             .ok_or("Attempting to remove device from unconnected port")?;
         let mut found = false;
         for (i, dev) in self.devices.iter().enumerate() {
-            if let Some(dev) = dev {
-                if Rc::ptr_eq(&device.upgrade().unwrap(), dev) {
-                    self.devices[i] = None;
-                    found = true;
-                    break;
-                }
+            if Rc::ptr_eq(&device.upgrade().unwrap(), dev) {
+                self.devices.remove(i);
+                found = true;
+                break;
             }
         }
-        
+
         if !found {
             return Err("Attempting to remove device from unconnected port");
         }
@@ -123,16 +133,14 @@ impl IO {
     pub fn get_interrupt(&self) -> Option<(InterruptType, usize)> {
         let mut min_im = None;
         for (i, device) in self.devices.iter().enumerate() {
-            if let Some(dev) = device {
-                match (dev.borrow().will_interrupt(),&min_im) {
-                    (Some(InterruptType::NMI),_) => {
-                        return  Some((InterruptType::NMI, i));
-                    }
-                    (Some(val),None) if self.int_enabled() => {
-                        min_im = Some((val, i));
-                    }
-                    _ => {}
+            match (device.borrow().will_interrupt(), &min_im) {
+                (Some(InterruptType::NMI), _) => {
+                    return Some((InterruptType::NMI, i));
                 }
+                (Some(val), None) if self.int_enabled() => {
+                    min_im = Some((val, i));
+                }
+                _ => {}
             }
         }
         min_im
@@ -143,11 +151,7 @@ impl IO {
             .devices
             .get_mut(device_id)
             .ok_or("Attempting to acknowledge interrupt from non existent device")?;
-        if let Some(dev) = devopt {
-            dev.borrow_mut().ack_int()
-        } else {
-            Err("Attempting to acknowledge interrupt from removed device")
-        }
+        devopt.borrow_mut().ack_int()
     }
 
     pub fn int_enabled(&self) -> bool {

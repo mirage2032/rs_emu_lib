@@ -3,7 +3,7 @@ pub mod add_ix_sp;
 mod generics;
 
 use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::instructions::math::add::generics::{add_r_r_setf,add_rr_rr_setf};
+use crate::cpu::z80::instructions::math::add::generics::{add_r_r_setf, add_rr_rr_setf};
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;

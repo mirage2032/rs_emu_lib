@@ -1,5 +1,3 @@
-
-
 macro_rules! adc_r_r_setf {
     ($reg1:expr, $reg2:expr, $flags:expr) => {
         let value_before = *$reg1;

@@ -1,11 +1,11 @@
-use std::fmt;
-use std::fmt::Display;
 use crate::cpu::z80::instructions::math::add::generics::add_r_r_setf;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 use crate::memory::MemoryDevice;
+use std::fmt;
+use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct ADD_A_PHL {

@@ -1,11 +1,11 @@
-pub mod push_ix;
 mod generics;
+pub mod push_ix;
 use crate::cpu::instruction::push_16;
 use crate::cpu::instruction::InstructionCommon;
-use crate::emu_lib::memory::MemoryDevice;
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;
+use crate::emu_lib::memory::MemoryDevice;
 use crate::io::IO;
 use crate::memory::Memory;
 use hex_literal::hex;
