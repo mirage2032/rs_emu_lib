@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
 
 use iodevice::IODevice;
 use iodevice::IORegister;
@@ -18,18 +18,18 @@ pub enum InterruptType {
 }
 
 pub struct IO {
-    pub port_map: HashMap<u8, Rc<RefCell<dyn IODevice>>>,
-    devices: Vec<Option<Rc<RefCell<dyn IODevice>>>>,
+    pub port_map: HashMap<u8, Weak<RefCell<Box<dyn IODevice>>>>,
+    devices: Vec<Option<Rc<RefCell<Box<dyn IODevice>>>>>,
     pub iff1: bool,
     pub iff2: bool,
 }
 
 impl IO {
     pub fn new() -> IO {
-        let registers: Rc<RefCell<dyn IODevice>> = Rc::new(RefCell::new(IORegister::default()));
+        let registers: Rc<RefCell<Box<dyn IODevice>>> = Rc::new(RefCell::new(Box::new(IORegister::default())));
         let mut port_map = HashMap::new();
         for port in registers.borrow().ports() {
-            port_map.insert(port, registers.clone());
+            port_map.insert(port, Rc::downgrade(&registers));
         }
         IO {
             port_map,
@@ -42,10 +42,10 @@ impl IO {
 
 impl Default for IO {
     fn default() -> IO {
-        let registers: Rc<RefCell<dyn IODevice>> = Rc::new(RefCell::new(IORegister::default()));
+        let registers: Rc<RefCell<Box<dyn IODevice>>> = Rc::new(RefCell::new(Box::new(IORegister::default())));
         let mut port_map = HashMap::new();
         for port in registers.borrow().ports() {
-            port_map.insert(port, registers.clone());
+            port_map.insert(port, Rc::downgrade(&registers));
         }
         IO {
             port_map,
@@ -58,11 +58,8 @@ impl Default for IO {
 
 impl IO {
     pub fn read(&self, port: u8) -> Result<u8, &str> {
-        let device = self
-            .port_map
-            .get(&port)
-            .ok_or("Attempting to read from unconnected port")?;
-        device.borrow().read(port)
+        let device: Weak<RefCell<Box<dyn IODevice>>> = self.port_map.get(&port).ok_or("Attempting to read from unconnected port")?.clone();
+        device.upgrade().ok_or("Attempting to read from removed device")?.borrow().read(port)
     }
 
     pub fn write(&mut self, port: u8, data: u8) -> Result<(), &str> {
@@ -70,7 +67,7 @@ impl IO {
             .port_map
             .get(&port)
             .ok_or("Attempting to write to unconnected port")?;
-        device.borrow_mut().write(port, data)
+        device.upgrade().ok_or("Attempting to write to removed device")?.borrow_mut().write(port, data)
     }
 
     pub fn step(&mut self) {
@@ -79,34 +76,48 @@ impl IO {
         }
     }
 
-    pub fn add_device(&mut self, device: Rc<RefCell<dyn IODevice>>) -> Result<(), &'static str> {
-        let ports = device.borrow().ports();
+    pub fn add_device(&mut self, device: Box<dyn IODevice>) -> Result<(), &'static str> {
+        let dev: Rc<RefCell<Box<dyn IODevice>>> = Rc::new(RefCell::new(device));
+        let ports = dev.borrow().ports();
         for port in ports {
             if self.port_map.contains_key(&port) {
                 return Err(
                     "Attempting to add a device with a port already in use by other device",
                 );
             }
-            self.port_map.insert(port, device.clone());
+            self.port_map.insert(port, Rc::downgrade(&dev));
         }
-        self.devices.push(Some(device));
+        self.devices.push(Some(dev));
         Ok(())
     }
 
-    pub fn remove_device(&mut self, device_id: usize) -> Result<(), &str> {
-        let devopt = self
+    pub fn remove_dev_by_id(&mut self, device_id: usize) -> Result<(), &str> {
+        self
             .devices
-            .get_mut(device_id)
-            .ok_or("Attempting to remove non existent device")?;
-        if let Some(dev) = devopt.take() {
-            let ports = dev.borrow().ports();
-            for port in ports {
-                self.port_map.remove(&port);
+            .remove(device_id);
+        Ok(())
+    }
+    
+    pub fn remove_dev_by_port(&mut self, port: u8) -> Result<(), &str> {
+        let device = self
+            .port_map
+            .get(&port)
+            .ok_or("Attempting to remove device from unconnected port")?;
+        let mut found = false;
+        for (i, dev) in self.devices.iter().enumerate() {
+            if let Some(dev) = dev {
+                if Rc::ptr_eq(&device.upgrade().unwrap(), dev) {
+                    self.devices[i] = None;
+                    found = true;
+                    break;
+                }
             }
-            Ok(())
-        } else {
-            Err("Attempting to remove already removed device")
         }
+        
+        if !found {
+            return Err("Attempting to remove device from unconnected port");
+        }
+        Ok(())
     }
 
     pub fn get_interrupt(&self) -> Option<(InterruptType, usize)> {
