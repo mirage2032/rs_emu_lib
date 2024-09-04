@@ -24,6 +24,22 @@ pub struct IO {
     pub iff2: bool,
 }
 
+impl IO {
+    pub fn new() -> IO {
+        let registers: Rc<RefCell<dyn IODevice>> = Rc::new(RefCell::new(IORegister::default()));
+        let mut port_map = HashMap::new();
+        for port in registers.borrow().ports() {
+            port_map.insert(port, registers.clone());
+        }
+        IO {
+            port_map,
+            devices: vec![Some(registers)],
+            iff1: false,
+            iff2: false,
+        }
+    }
+}
+
 impl Default for IO {
     fn default() -> IO {
         let registers: Rc<RefCell<dyn IODevice>> = Rc::new(RefCell::new(IORegister::default()));
@@ -94,20 +110,21 @@ impl IO {
     }
 
     pub fn get_interrupt(&self) -> Option<(InterruptType, usize)> {
+        let mut min_im = None;
         for (i, device) in self.devices.iter().enumerate() {
             if let Some(dev) = device {
-                match dev.borrow().will_interrupt() {
-                    Some(InterruptType::NMI) => {
-                        return Some((InterruptType::NMI, i));
+                match (dev.borrow().will_interrupt(),&min_im) {
+                    (Some(InterruptType::NMI),_) => {
+                        return  Some((InterruptType::NMI, i));
                     }
-                    Some(val) if self.int_enabled() => {
-                        return Some((val, i));
+                    (Some(val),None) if self.int_enabled() => {
+                        min_im = Some((val, i));
                     }
                     _ => {}
                 }
             }
         }
-        None
+        min_im
     }
 
     pub fn ack_int(&mut self, device_id: usize) -> Result<(), &str> {

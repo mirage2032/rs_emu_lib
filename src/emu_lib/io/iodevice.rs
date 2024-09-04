@@ -4,7 +4,7 @@ use super::InterruptType;
 
 pub trait IODevice: Send {
     fn ports(&self) -> Vec<u8>;
-    fn read(&self, pin: u8) -> Result<u8, &'static str>;
+    fn read(&self, port: u8) -> Result<u8, &'static str>;
     fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str>;
     fn step(&mut self);
     fn will_interrupt(&self) -> Option<InterruptType>;
@@ -29,14 +29,14 @@ impl IODevice for IORegister {
     fn ports(&self) -> Vec<u8> {
         self.registers.keys().copied().collect()
     }
-    fn read(&self, pin: u8) -> Result<u8, &'static str> {
+    fn read(&self, port: u8) -> Result<u8, &'static str> {
         self.registers
-            .get(&pin)
+            .get(&port)
             .copied()
             .ok_or("Attempting to read port not mapped to this device")
     }
-    fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str> {
-        *self.registers.get_mut(&pin).unwrap() = data;
+    fn write(&mut self, port: u8, data: u8) -> Result<(), &'static str> {
+        *self.registers.get_mut(&port).unwrap() = data;
         Ok(())
     }
 
