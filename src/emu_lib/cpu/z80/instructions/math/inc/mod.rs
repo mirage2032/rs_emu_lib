@@ -13,11 +13,11 @@ use std::fmt;
 use std::fmt::Display;
 
 generics::inc_r::inc_r!(b, "04", "B");
-generics::inc_r::inc_r!(c, "0C", "C");
+generics::inc_r::inc_r!(c, "0c", "C");
 generics::inc_r::inc_r!(d, "14", "D");
-generics::inc_r::inc_r!(e, "1C", "E");
+generics::inc_r::inc_r!(e, "1c", "E");
 generics::inc_r::inc_r!(h, "24", "H");
-generics::inc_r::inc_r!(l, "2C", "L");
+generics::inc_r::inc_r!(l, "2c", "L");
 
 generics::inc_rr::inc_rr!(bc, "03", "BC");
 generics::inc_rr::inc_rr!(de, "13", "DE");

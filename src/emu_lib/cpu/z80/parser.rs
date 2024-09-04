@@ -156,11 +156,13 @@ impl Z80Parser {
             0x8b => Box::new(math::adc::ADC_A_E::new()),
             0x8c => Box::new(math::adc::ADC_A_H::new()),
             0x8d => Box::new(math::adc::ADC_A_L::new()),
-            0xC1 => Box::new(stack::pop::pop_bc::POP_BC::new()),
-            0xC5 => Box::new(stack::push::push_bc::PUSH_BC::new()),
+            0xC1 => Box::new(stack::pop::POP_BC::new()),
+            0xC5 => Box::new(stack::push::PUSH_BC::new()),
             0xC9 => Box::new(ret::RET::new()),
             0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
             0xCE => Box::new(math::adc::adc_a_n::ADC_A_N::new(memory, pos)?),
+            0xD1 => Box::new(stack::pop::POP_DE::new()),
+            0xD5 => Box::new(stack::push::PUSH_DE::new()),
             0xD6 => Box::new(math::sub::sub_n::SUB_N::new(memory, pos)?),
             0xDD => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
@@ -174,9 +176,10 @@ impl Z80Parser {
                     _ => return Err(format!("Invalid IX instruction: 0x{:02x}", ins_byte1)),
                 }
             }
-            0xe1 => Box::new(stack::pop::pop_hl::POP_HL::new()),
-            0xe5 => Box::new(stack::push::push_hl::PUSH_HL::new()),
-            0xf5 => Box::new(stack::push::push_af::PUSH_AF::new()),
+            0xe1 => Box::new(stack::pop::POP_HL::new()),
+            0xe5 => Box::new(stack::push::PUSH_HL::new()),
+            0xf5 => Box::new(stack::push::PUSH_AF::new()),
+            0xF1 => Box::new(stack::pop::POP_AF::new()),
             0xF9 => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
             _ => return Err(format!("Invalid instruction: 0x{:02x}", ins_byte0)),
         };
@@ -446,9 +449,10 @@ impl Z80Parser {
             "push" => {
                 let destination = op.get(2).unwrap().as_str();
                 match destination {
-                    "bc" => Box::new(stack::push::push_bc::PUSH_BC::new()),
-                    "af" => Box::new(stack::push::push_af::PUSH_AF::new()),
-                    "hl" => Box::new(stack::push::push_hl::PUSH_HL::new()),
+                    "af" => Box::new(stack::push::PUSH_AF::new()),
+                    "bc" => Box::new(stack::push::PUSH_BC::new()),
+                    "de" => Box::new(stack::push::PUSH_DE::new()),
+                    "hl" => Box::new(stack::push::PUSH_HL::new()),
                     "ix" => Box::new(stack::push::push_ix::PUSH_IX::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
@@ -456,8 +460,10 @@ impl Z80Parser {
             "pop" => {
                 let destination = op.get(2).unwrap().as_str();
                 match destination {
-                    "bc" => Box::new(stack::pop::pop_bc::POP_BC::new()),
-                    "hl" => Box::new(stack::pop::pop_hl::POP_HL::new()),
+                    "af" => Box::new(stack::pop::POP_AF::new()),
+                    "bc" => Box::new(stack::pop::POP_BC::new()),
+                    "de" => Box::new(stack::pop::POP_DE::new()),
+                    "hl" => Box::new(stack::pop::POP_HL::new()),
                     "ix" => Box::new(stack::pop::pop_ix::POP_IX::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
