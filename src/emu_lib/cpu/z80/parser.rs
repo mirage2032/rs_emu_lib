@@ -150,8 +150,12 @@ impl Z80Parser {
             0x83 => Box::new(math::add::ADD_A_E::new()),
             0x84 => Box::new(math::add::ADD_A_H::new()),
             0x85 => Box::new(math::add::ADD_A_L::new()),
-            0x88 => Box::new(math::adc::adc_a_b::ADC_A_B::new()),
-            0x8a => Box::new(math::adc::adc_a_d::ADC_A_D::new()),
+            0x88 => Box::new(math::adc::ADC_A_B::new()),
+            0x89 => Box::new(math::adc::ADC_A_C::new()),
+            0x8a => Box::new(math::adc::ADC_A_D::new()),
+            0x8b => Box::new(math::adc::ADC_A_E::new()),
+            0x8c => Box::new(math::adc::ADC_A_H::new()),
+            0x8d => Box::new(math::adc::ADC_A_L::new()),
             0xC1 => Box::new(stack::pop::pop_bc::POP_BC::new()),
             0xC5 => Box::new(stack::push::push_bc::PUSH_BC::new()),
             0xC9 => Box::new(ret::RET::new()),
@@ -356,8 +360,12 @@ impl Z80Parser {
                                 Box::new(math::adc::adc_a_n::ADC_A_N::new_with_value(val))
                             }
                             _ => match source {
-                                "b" => Box::new(math::adc::adc_a_b::ADC_A_B::new()),
-                                "d" => Box::new(math::adc::adc_a_d::ADC_A_D::new()),
+                                "b" => Box::new(math::adc::ADC_A_B::new()),
+                                "c" => Box::new(math::adc::ADC_A_C::new()),
+                                "d" => Box::new(math::adc::ADC_A_D::new()),
+                                "e" => Box::new(math::adc::ADC_A_E::new()),
+                                "h" => Box::new(math::adc::ADC_A_H::new()),
+                                "l" => Box::new(math::adc::ADC_A_L::new()),
                                 _ => return Err("Invalid source".to_string()),
                             },
                         }
