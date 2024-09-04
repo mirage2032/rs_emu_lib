@@ -1,57 +1,56 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::cpu::instruction::push_16;
+use once_cell::sync::Lazy;
+
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
-use once_cell::sync::Lazy;
 
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(3, 17, false));
+static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(3, 13, true));
 
 #[derive(Debug)]
-pub struct CALL_NN {
+pub struct LD_PNN_A {
     common: InstructionCommon,
     nn: u16,
 }
 
-impl CALL_NN {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<CALL_NN, String> {
-        Ok(CALL_NN {
+impl LD_PNN_A {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_PNN_A, String> {
+        Ok(LD_PNN_A {
             common: *COMMON,
             nn: memory.read_16(pos.wrapping_add(1))?,
         })
     }
 
-    pub fn new_with_value(nn: u16) -> CALL_NN {
-        CALL_NN {
+    pub fn new_with_value(nn: u16) -> LD_PNN_A {
+        LD_PNN_A {
             common: *COMMON,
             nn,
         }
     }
 }
 
-impl Display for CALL_NN {
+impl Display for LD_PNN_A {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "CALL 0x{:04x}", self.nn)
+        write!(f, "LD (0x{:02x}), HL", self.nn)
     }
 }
 
-impl BaseInstruction for CALL_NN {
+impl BaseInstruction for LD_PNN_A {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
         let nn_lsb = self.nn.to_le_bytes();
-        vec![0xcd, nn_lsb[0], nn_lsb[1]]
+        vec![0x32, nn_lsb[0], nn_lsb[1]]
     }
 }
 
-impl ExecutableInstruction<Z80> for CALL_NN {
+impl ExecutableInstruction<Z80> for LD_PNN_A {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        push_16!(cpu.registers.pc.wrapping_add(3), memory, cpu.registers.sp);
-        cpu.registers.pc = self.nn;
+        memory.write_8(self.nn, cpu.registers.gp[0].a)?;
         Ok(())
     }
 }
@@ -61,6 +60,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("cd.json");
-    test_instruction_parse!(CALL_NN, [0xbeef]);
+    test_z80!("32.json");
+    test_instruction_parse!(LD_PNN_A, [0xbeef]);
 }

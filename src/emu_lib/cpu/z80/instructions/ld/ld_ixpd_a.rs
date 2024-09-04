@@ -20,7 +20,7 @@ impl LD_IXPD_A {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_IXPD_A, String> {
         Ok(LD_IXPD_A {
             common: *COMMON,
-            d: memory.read_8(pos + 2)? as i8,
+            d: memory.read_8(pos.wrapping_add(2))? as i8,
         })
     }
 

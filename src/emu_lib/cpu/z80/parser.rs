@@ -118,8 +118,8 @@ impl Z80Parser {
             0x2F => Box::new(cpl::CPL::new()),
             0x30 => Box::new(jump::jr::jr_nc_d::JR_NC_D::new(memory, pos)?),
             0x31 => Box::new(ld::ld_sp_nn::LD_SP_NN::new(memory, pos)?),
-            // 0x32
-            // 0x33
+            0x32 => Box::new(ld::ld_pnn_a::LD_PNN_A::new(memory, pos)?),
+            0x33 => Box::new(math::inc::inc_sp::INC_SP::new()),
             0x34 => Box::new(math::inc::inc_phl::INC_PHL::new()),
             // 0x35
             0x36 => Box::new(ld::ld_phl_n::LD_PHL_N::new(memory, pos)?),
@@ -235,6 +235,7 @@ impl Z80Parser {
                     }
                     (Ok(ImmediateValue::Ptr(val)), Err(_)) => match source {
                         "hl" => Box::new(ld::ld_pnn_hl::LD_PNN_HL::new_with_value(val)),
+                        "a" => Box::new(ld::ld_pnn_a::LD_PNN_A::new_with_value(val)),
                         _ => {
                             return Err(format!(
                                 "Invalid \"ld {0}, {1}\" source register {1}",
@@ -281,6 +282,7 @@ impl Z80Parser {
                     "bc" => Box::new(math::inc::inc_bc::INC_BC::new()),
                     "de" => Box::new(math::inc::inc_de::INC_DE::new()),
                     "hl" => Box::new(math::inc::inc_hl::INC_HL::new()),
+                    "sp" => Box::new(math::inc::inc_sp::INC_SP::new()),
                     "b" => Box::new(math::inc::inc_b::INC_B::new()),
                     "c" => Box::new(math::inc::inc_c::INC_C::new()),
                     "d" => Box::new(math::inc::inc_d::INC_D::new()),
