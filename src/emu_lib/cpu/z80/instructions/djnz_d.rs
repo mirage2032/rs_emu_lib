@@ -1,14 +1,10 @@
 use std::fmt;
 use std::fmt::Display;
 
-use once_cell::sync::Lazy;
-
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 8, true));
 
 #[derive(Debug)]
 pub struct DJNZ_D {
@@ -19,14 +15,14 @@ pub struct DJNZ_D {
 impl DJNZ_D {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<DJNZ_D, String> {
         Ok(DJNZ_D {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 8, true),
             d: memory.read_8(pos.wrapping_add(1))? as i8,
         })
     }
 
     pub fn new_with_value(d: u8) -> DJNZ_D {
         DJNZ_D {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 8, true),
             d: d as i8,
         }
     }
@@ -62,6 +58,7 @@ impl ExecutableInstruction<Z80> for DJNZ_D {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("10");
     test_instruction_parse!(DJNZ_D, [0xbf]);
 }

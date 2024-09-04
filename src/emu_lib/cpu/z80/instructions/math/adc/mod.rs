@@ -1,10 +1,12 @@
 pub mod adc_a_b;
-pub mod adc_a_n;
 pub mod adc_a_d;
+pub mod adc_a_n;
 
 macro_rules! adc_rr_rr {
     ($reg1:expr, $reg2:expr, $flags:expr) => {
-        let result = $reg1.wrapping_add($reg2).wrapping_add($flags.carry() as u16);
+        let result = $reg1
+            .wrapping_add($reg2)
+            .wrapping_add($flags.carry() as u16);
         let carry = result < *$reg1;
         // check for carry between bits 11 and 12
         let half_carry = ((*$reg1 & 0x0fff) + ($reg2 & 0x0fff)) > 0x0fff;
@@ -21,17 +23,19 @@ macro_rules! adc_rr_rr {
 pub(crate) use adc_rr_rr;
 
 macro_rules! adc_r_r {
-
     ($reg1:expr, $reg2:expr, $flags:expr) => {
         let value_before = *$reg1;
-        let result = value_before.wrapping_add($reg2).wrapping_add($flags.carry() as u8);
+        let result = value_before
+            .wrapping_add($reg2)
+            .wrapping_add($flags.carry() as u8);
 
         // calculate flags
         let carry = (value_before as u16 + $reg2 as u16 + $flags.carry() as u16) > 0xFF;
         let half_carry = (value_before & 0x0f) + ($reg2 & 0x0f) + $flags.carry() as u8 > 0x0f;
         let zero = result == 0;
         let sign = (result & 0x80) != 0;
-        let overflow = (value_before & 0x80) == ($reg2 & 0x80) && (value_before & 0x80) != (result & 0x80);
+        let overflow =
+            (value_before & 0x80) == ($reg2 & 0x80) && (value_before & 0x80) != (result & 0x80);
         *$reg1 = result;
 
         // set flags
@@ -49,5 +53,3 @@ macro_rules! adc_r_r {
 }
 
 pub(crate) use adc_r_r;
-
-

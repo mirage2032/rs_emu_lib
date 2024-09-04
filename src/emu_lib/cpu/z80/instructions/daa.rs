@@ -1,14 +1,10 @@
 use std::fmt;
 use std::fmt::Display;
 
-use once_cell::sync::Lazy;
-
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(1, 4, true));
 
 #[derive(Debug)]
 pub struct DAA {
@@ -17,7 +13,9 @@ pub struct DAA {
 
 impl DAA {
     pub fn new() -> DAA {
-        DAA { common: *COMMON }
+        DAA {
+            common: InstructionCommon::new(1, 4, true),
+        }
     }
 }
 
@@ -83,13 +81,12 @@ impl ExecutableInstruction<Z80> for DAA {
         cpu.registers.gp[0].f.set_parity_overflow(parity_flag);
         cpu.registers.gp[0].f.set_zero(a == 0);
         cpu.registers.gp[0].f.set_sign(a & 0x80 != 0);
-        
+
         cpu.registers.gp[0].f.set_bit3((a >> 3) & 1 == 1);
         cpu.registers.gp[0].f.set_bit5((a >> 5) & 1 == 1);
 
         Ok(())
     }
-
 }
 
 #[cfg(test)]

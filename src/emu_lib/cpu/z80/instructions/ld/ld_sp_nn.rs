@@ -1,14 +1,10 @@
 use std::fmt;
 use std::fmt::Display;
 
-use once_cell::sync::Lazy;
-
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(3, 10, true));
 
 #[derive(Debug)]
 pub struct LD_SP_NN {
@@ -19,14 +15,14 @@ pub struct LD_SP_NN {
 impl LD_SP_NN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_SP_NN, String> {
         Ok(LD_SP_NN {
-            common: *COMMON,
+            common: InstructionCommon::new(3, 10, true),
             nn: memory.read_16(pos.wrapping_add(1))?,
         })
     }
 
     pub fn new_with_value(nn: u16) -> LD_SP_NN {
         LD_SP_NN {
-            common: *COMMON,
+            common: InstructionCommon::new(3, 10, true),
             nn,
         }
     }

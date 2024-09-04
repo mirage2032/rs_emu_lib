@@ -1,14 +1,11 @@
 use std::fmt;
 use std::fmt::Display;
 
-use once_cell::sync::Lazy;
 use crate::cpu::z80::instructions::math::sub::sub_r;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
 
 #[derive(Debug)]
 pub struct SUB_N {
@@ -19,14 +16,14 @@ pub struct SUB_N {
 impl SUB_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SUB_N, String> {
         Ok(SUB_N {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 7, true),
             n: memory.read_8(pos.wrapping_add(1))?,
         })
     }
 
     pub fn new_with_value(n: u8) -> SUB_N {
         SUB_N {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 7, true),
             n,
         }
     }
@@ -58,6 +55,7 @@ impl ExecutableInstruction<Z80> for SUB_N {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("d6");
     test_instruction_parse!(SUB_N, [0xbf]);
 }

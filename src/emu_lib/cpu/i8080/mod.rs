@@ -1,6 +1,6 @@
 use crate::cpu::registers::AllRegisters;
+use crate::emu_lib::cpu::{Cpu, CPUType};
 use crate::emu_lib::cpu::instruction::{BaseInstruction, InstructionParser};
-use crate::emu_lib::cpu::{CPUType, Cpu};
 use crate::emu_lib::io::IO;
 
 use super::super::memory::Memory;

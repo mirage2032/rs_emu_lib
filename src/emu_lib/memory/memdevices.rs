@@ -62,7 +62,7 @@ impl MemoryDevice for ROM {
     }
     fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
         match self.data.get(addr as usize) {
-            None => Err("Address out of boundsX"),
+            None => Err("Address out of bounds"),
             Some(val) => Ok(*val),
         }
     }

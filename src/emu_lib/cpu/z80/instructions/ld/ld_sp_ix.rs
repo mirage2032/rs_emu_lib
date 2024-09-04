@@ -1,14 +1,11 @@
 use std::fmt;
 use std::fmt::Display;
 
-use once_cell::sync::Lazy;
 use crate::cpu::registers::BaseRegister;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 10, true));
 
 #[derive(Debug)]
 pub struct LD_SP_IX {
@@ -18,7 +15,7 @@ pub struct LD_SP_IX {
 impl LD_SP_IX {
     pub fn new() -> LD_SP_IX {
         LD_SP_IX {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 10, true),
         }
     }
 }
@@ -34,7 +31,7 @@ impl BaseInstruction for LD_SP_IX {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xdd,0xf9]
+        vec![0xdd, 0xf9]
     }
 }
 
@@ -46,7 +43,9 @@ impl ExecutableInstruction<Z80> for LD_SP_IX {
             return Err("IX register not found".to_string());
         }
         match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => { *val = val.wrapping_add(1) % 128; },
+            Some(BaseRegister::Bit8(val)) => {
+                *val = val.wrapping_add(1) % 128;
+            }
             _ => return Err("Invalid register".to_string()),
         }
         Ok(())

@@ -38,10 +38,10 @@ impl BaseInstruction for ADD_A_PHL {
 impl ExecutableInstruction<Z80> for ADD_A_PHL {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         super::add_r_r!(
-                    &mut cpu.registers.gp[0].a,
-                    memory.read_8(cpu.registers.gp[0].hl)?,
-                    cpu.registers.gp[0].f
-                );
+            &mut cpu.registers.gp[0].a,
+            memory.read_8(cpu.registers.gp[0].hl)?,
+            cpu.registers.gp[0].f
+        );
         Ok(())
     }
 }

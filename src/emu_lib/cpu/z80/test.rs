@@ -153,8 +153,8 @@ macro_rules! test_z80 {
     ($test_data_path:literal) => {
         // use crate::emu_lib::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
-                    const TEST_PATH: &str = (concat!($test_data_path, ".json"));
-                }
+            const TEST_PATH: &str = (concat!($test_data_path, ".json"));
+        }
         paste::item! {
             #[allow(non_snake_case)]
             #[test]

@@ -1,10 +1,11 @@
+use std::fmt;
+use std::fmt::Display;
+
 use crate::cpu::instruction::push_16;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
-use std::fmt;
-use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct PUSH_AF {

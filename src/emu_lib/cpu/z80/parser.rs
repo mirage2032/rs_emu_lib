@@ -50,7 +50,7 @@ fn is_val(number: &str) -> Result<ImmediateValue, String> {
         Ok(ImmediateValue::Ptr(is_num(parsed)?))
     } else {
         let num = is_num(number)?;
-        if num <= 0xFF {
+        if number.len() != 6 {
             Ok(ImmediateValue::Val8(num as u8))
         } else {
             Ok(ImmediateValue::Val16(num))
@@ -69,60 +69,60 @@ impl Z80Parser {
         let ins_byte0 = memory.read_8(pos)?;
         let instruction: Box<dyn ExecutableInstruction<Z80>> = match ins_byte0 {
             0x00u8 => Box::new(nop::NOP::new()),
-            0x01 => Box::new(ld::ld_bc_nn::LD_BC_NN::new(memory, pos)?),
-            0x02 => Box::new(ld::ld_pbc_a::LD_PBC_A::new()),
+            0x01 => Box::new(ld::LD_BC_NN::new(memory, pos)?),
+            0x02 => Box::new(ld::LD_PBC_A::new()),
             0x03 => Box::new(math::inc::inc_bc::INC_BC::new()),
             0x04 => Box::new(math::inc::inc_b::INC_B::new()),
             0x05 => Box::new(math::dec::dec_b::DEC_B::new()),
-            0x06 => Box::new(ld::ld_b_n::LD_B_N::new(memory, pos)?),
+            0x06 => Box::new(ld::LD_B_N::new(memory, pos)?),
             0x07 => Box::new(rlca::RLCA::new()),
             0x08 => Box::new(ex::ex_af_saf::EX_AF_SAF::new()),
             0x09 => Box::new(math::add::add_hl_bc::ADD_HL_BC::new()),
-            0x0A => Box::new(ld::ld_a_pbc::LD_A_PBC::new()),
+            0x0A => Box::new(ld::LD_A_PBC::new()),
             0x0B => Box::new(math::dec::dec_bc::DEC_BC::new()),
             0x0C => Box::new(math::inc::inc_c::INC_C::new()),
             0x0D => Box::new(math::dec::dec_c::DEC_C::new()),
-            0x0E => Box::new(ld::ld_c_n::LD_C_N::new(memory, pos)?),
+            0x0E => Box::new(ld::LD_C_N::new(memory, pos)?),
             0x0F => Box::new(rrca::RRCA::new()),
             0x10 => Box::new(djnz_d::DJNZ_D::new(memory, pos)?),
-            0x11 => Box::new(ld::ld_de_nn::LD_DE_NN::new(memory, pos)?),
-            0x12 => Box::new(ld::ld_pde_a::LD_PDE_A::new()),
+            0x11 => Box::new(ld::LD_DE_NN::new(memory, pos)?),
+            0x12 => Box::new(ld::LD_PDE_A::new()),
             0x13 => Box::new(math::inc::inc_de::INC_DE::new()),
             0x14 => Box::new(math::inc::inc_d::INC_D::new()),
             0x15 => Box::new(math::dec::dec_d::DEC_D::new()),
-            0x16 => Box::new(ld::ld_d_n::LD_D_N::new(memory, pos)?),
+            0x16 => Box::new(ld::LD_D_N::new(memory, pos)?),
             0x17 => Box::new(rla::RLA::new()),
             0x18 => Box::new(jump::jr::jr_d::JR_D::new(memory, pos)?),
             0x19 => Box::new(math::add::add_hl_de::ADD_HL_DE::new()),
-            0x1A => Box::new(ld::ld_a_pde::LD_A_PDE::new()),
+            0x1A => Box::new(ld::LD_A_PDE::new()),
             0x1B => Box::new(math::dec::dec_de::DEC_DE::new()),
             0x1C => Box::new(math::inc::inc_e::INC_E::new()),
             0x1D => Box::new(math::dec::dec_e::DEC_E::new()),
-            0x1E => Box::new(ld::ld_e_n::LD_E_N::new(memory, pos)?),
+            0x1E => Box::new(ld::LD_E_N::new(memory, pos)?),
             0x1F => Box::new(rra::RRA::new()),
             0x20 => Box::new(jump::jr::jr_nz_d::JR_NZ_D::new(memory, pos)?),
-            0x21 => Box::new(ld::ld_hl_nn::LD_HL_NN::new(memory, pos)?),
-            0x22 => Box::new(ld::ld_pnn_hl::LD_PNN_HL::new(memory, pos)?),
+            0x21 => Box::new(ld::LD_HL_NN::new(memory, pos)?),
+            0x22 => Box::new(ld::LD_PNN_HL::new(memory, pos)?),
             0x23 => Box::new(math::inc::inc_hl::INC_HL::new()),
             0x24 => Box::new(math::inc::inc_h::INC_H::new()),
             0x25 => Box::new(math::dec::dec_h::DEC_H::new()),
-            0x26 => Box::new(ld::ld_h_n::LD_H_N::new(memory, pos)?),
+            0x26 => Box::new(ld::LD_H_N::new(memory, pos)?),
             0x27 => Box::new(daa::DAA::new()),
             0x28 => Box::new(jump::jr::jr_z_d::JR_Z_D::new(memory, pos)?),
             0x29 => Box::new(math::add::add_hl_hl::ADD_HL_HL::new()),
-            0x2A => Box::new(ld::ld_hl_pnn::LD_HL_PNN::new(memory, pos)?),
+            0x2A => Box::new(ld::LD_HL_PNN::new(memory, pos)?),
             0x2B => Box::new(math::dec::dec_hl::DEC_HL::new()),
             0x2C => Box::new(math::inc::inc_l::INC_L::new()),
             0x2D => Box::new(math::dec::dec_l::DEC_L::new()),
-            0x2E => Box::new(ld::ld_l_n::LD_L_N::new(memory, pos)?),
+            0x2E => Box::new(ld::LD_L_N::new(memory, pos)?),
             0x2F => Box::new(cpl::CPL::new()),
             0x30 => Box::new(jump::jr::jr_nc_d::JR_NC_D::new(memory, pos)?),
             0x31 => Box::new(ld::ld_sp_nn::LD_SP_NN::new(memory, pos)?),
-            0x32 => Box::new(ld::ld_pnn_a::LD_PNN_A::new(memory, pos)?),
+            0x32 => Box::new(ld::LD_PNN_A::new(memory, pos)?),
             0x33 => Box::new(math::inc::inc_sp::INC_SP::new()),
             0x34 => Box::new(math::inc::inc_phl::INC_PHL::new()),
             // 0x35
-            0x36 => Box::new(ld::ld_phl_n::LD_PHL_N::new(memory, pos)?),
+            0x36 => Box::new(ld::LD_PHL_N::new(memory, pos)?),
             // 0x37
             // 0x38
             // 0x39
@@ -132,17 +132,17 @@ impl Z80Parser {
             // 0x3D
             // 0x3E
             // 0x3F
-            0x42 => Box::new(ld::ld_b_d::LD_B_D::new()),
-            0x47 => Box::new(ld::ld_b_a::LD_B_A::new()),
-            0x4b => Box::new(ld::ld_c_e::LD_C_E::new()),
-            0x4f => Box::new(ld::ld_c_a::LD_C_A::new()),
-            0x57 => Box::new(ld::ld_d_a::LD_D_A::new()),
-            0x5E => Box::new(ld::ld_e_phl::LD_E_PHL::new()),
-            0x5f => Box::new(ld::ld_e_a::LD_E_A::new()),
+            0x42 => Box::new(ld::LD_B_D::new()),
+            0x47 => Box::new(ld::LD_B_A::new()),
+            0x4b => Box::new(ld::LD_C_E::new()),
+            0x4f => Box::new(ld::LD_C_A::new()),
+            0x57 => Box::new(ld::LD_D_A::new()),
+            0x5E => Box::new(ld::LD_E_PHL::new()),
+            0x5f => Box::new(ld::LD_E_A::new()),
             0x76 => Box::new(halt::Halt::new()),
-            0x77 => Box::new(ld::ld_phl_a::LD_PHL_A::new()),
-            0x79 => Box::new(ld::ld_a_c::LD_A_C::new()),
-            0x7E => Box::new(ld::ld_a_phl::LD_A_PHL::new()),
+            0x77 => Box::new(ld::LD_PHL_A::new()),
+            0x79 => Box::new(ld::LD_A_C::new()),
+            0x7E => Box::new(ld::LD_A_PHL::new()),
             0x80 => Box::new(math::add::add_a_b::ADD_A_B::new()),
             0x81 => Box::new(math::add::add_a_c::ADD_A_C::new()),
             0x86 => Box::new(math::add::add_a_phl::ADD_A_PHL::new()),
@@ -190,13 +190,13 @@ impl Z80Parser {
                 let source = op.get(3).unwrap().as_str();
                 match (is_val(destination), is_val(source)) {
                     (Err(_), Ok(ImmediateValue::Val8(val))) => match destination {
-                        "b" => Box::new(ld::ld_b_n::LD_B_N::new_with_value(val)),
-                        "c" => Box::new(ld::ld_c_n::LD_C_N::new_with_value(val)),
-                        "d" => Box::new(ld::ld_d_n::LD_D_N::new_with_value(val)),
-                        "e" => Box::new(ld::ld_e_n::LD_E_N::new_with_value(val)),
-                        "h" => Box::new(ld::ld_h_n::LD_H_N::new_with_value(val)),
-                        "l" => Box::new(ld::ld_l_n::LD_L_N::new_with_value(val)),
-                        "(hl)" => Box::new(ld::ld_phl_n::LD_PHL_N::new_with_value(val)),
+                        "b" => Box::new(ld::LD_B_N::new_with_value(val)),
+                        "c" => Box::new(ld::LD_C_N::new_with_value(val)),
+                        "d" => Box::new(ld::LD_D_N::new_with_value(val)),
+                        "e" => Box::new(ld::LD_E_N::new_with_value(val)),
+                        "h" => Box::new(ld::LD_H_N::new_with_value(val)),
+                        "l" => Box::new(ld::LD_L_N::new_with_value(val)),
+                        "(hl)" => Box::new(ld::LD_PHL_N::new_with_value(val)),
                         _ => {
                             return Err(format!(
                                 "Invalid \"ld {0}, {1}\" destination register {0}",
@@ -205,9 +205,9 @@ impl Z80Parser {
                         }
                     },
                     (Err(_), Ok(ImmediateValue::Val16(val))) => match destination {
-                        "bc" => Box::new(ld::ld_bc_nn::LD_BC_NN::new_with_value(val)),
-                        "de" => Box::new(ld::ld_de_nn::LD_DE_NN::new_with_value(val)),
-                        "hl" => Box::new(ld::ld_hl_nn::LD_HL_NN::new_with_value(val)),
+                        "bc" => Box::new(ld::LD_BC_NN::new_with_value(val)),
+                        "de" => Box::new(ld::LD_DE_NN::new_with_value(val)),
+                        "hl" => Box::new(ld::LD_HL_NN::new_with_value(val)),
                         "sp" => Box::new(ld::ld_sp_nn::LD_SP_NN::new_with_value(val)),
                         "ix" => Box::new(ld::ld_ix_nn::LD_IX_NN::new_with_value(val)),
                         _ => {
@@ -218,7 +218,7 @@ impl Z80Parser {
                         }
                     },
                     (Err(_), Ok(ImmediateValue::Ptr(val))) => match destination {
-                        "hl" => Box::new(ld::ld_hl_pnn::LD_HL_PNN::new_with_value(val)),
+                        "hl" => Box::new(ld::LD_HL_PNN::new_with_value(val)),
                         _ => {
                             return Err(format!(
                                 "Invalid \"ld {0}, {1}\" destination register {0}",
@@ -234,8 +234,8 @@ impl Z80Parser {
                         ))
                     }
                     (Ok(ImmediateValue::Ptr(val)), Err(_)) => match source {
-                        "hl" => Box::new(ld::ld_pnn_hl::LD_PNN_HL::new_with_value(val)),
-                        "a" => Box::new(ld::ld_pnn_a::LD_PNN_A::new_with_value(val)),
+                        "hl" => Box::new(ld::LD_PNN_HL::new_with_value(val)),
+                        "a" => Box::new(ld::LD_PNN_A::new_with_value(val)),
                         _ => {
                             return Err(format!(
                                 "Invalid \"ld {0}, {1}\" source register {1}",
@@ -255,22 +255,22 @@ impl Z80Parser {
                         _ => return Err("Invalid operands".to_string()),
                     },
                     (Err(_), Err(_)) => match (destination, source) {
-                        ("(bc)", "a") => Box::new(ld::ld_pbc_a::LD_PBC_A::new()),
-                        ("(de)", "a") => Box::new(ld::ld_pde_a::LD_PDE_A::new()),
-                        ("(hl)", "a") => Box::new(ld::ld_phl_a::LD_PHL_A::new()),
-                        ("a", "(bc)") => Box::new(ld::ld_a_pbc::LD_A_PBC::new()),
-                        ("a", "(hl)") => Box::new(ld::ld_a_phl::LD_A_PHL::new()),
-                        ("a", "(de)") => Box::new(ld::ld_a_pde::LD_A_PDE::new()),
-                        ("e", "(hl)") => Box::new(ld::ld_e_phl::LD_E_PHL::new()),
+                        ("(bc)", "a") => Box::new(ld::LD_PBC_A::new()),
+                        ("(de)", "a") => Box::new(ld::LD_PDE_A::new()),
+                        ("(hl)", "a") => Box::new(ld::LD_PHL_A::new()),
+                        ("a", "(bc)") => Box::new(ld::LD_A_PBC::new()),
+                        ("a", "(hl)") => Box::new(ld::LD_A_PHL::new()),
+                        ("a", "(de)") => Box::new(ld::LD_A_PDE::new()),
+                        ("e", "(hl)") => Box::new(ld::LD_E_PHL::new()),
                         ("sp", "hl") => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
                         ("sp", "ix") => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
-                        ("a", "c") => Box::new(ld::ld_a_c::LD_A_C::new()),
-                        ("c", "e") => Box::new(ld::ld_c_e::LD_C_E::new()),
-                        ("b", "d") => Box::new(ld::ld_b_d::LD_B_D::new()),
-                        ("c", "a") => Box::new(ld::ld_c_a::LD_C_A::new()),
-                        ("b", "a") => Box::new(ld::ld_b_a::LD_B_A::new()),
-                        ("e", "a") => Box::new(ld::ld_e_a::LD_E_A::new()),
-                        ("d", "a") => Box::new(ld::ld_d_a::LD_D_A::new()),
+                        ("a", "c") => Box::new(ld::LD_A_C::new()),
+                        ("c", "e") => Box::new(ld::LD_C_E::new()),
+                        ("b", "d") => Box::new(ld::LD_B_D::new()),
+                        ("c", "a") => Box::new(ld::LD_C_A::new()),
+                        ("b", "a") => Box::new(ld::LD_B_A::new()),
+                        ("e", "a") => Box::new(ld::LD_E_A::new()),
+                        ("d", "a") => Box::new(ld::LD_D_A::new()),
                         _ => return Err("Invalid operands".to_string()),
                     },
                     _ => return Err("Invalid instruction".to_string()),

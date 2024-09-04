@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
-use errors::{FileError, MemWriteError, MemoryError};
+use errors::{FileError, MemoryError, MemWriteError};
 
 pub mod errors;
 pub mod memdevices;
@@ -20,7 +20,7 @@ pub trait MemoryDevice {
     fn read_8(&self, addr: u16) -> Result<u8, &'static str>;
     fn read_16(&self, addr: u16) -> Result<u16, &'static str> {
         let lsb = self.read_8(addr)?;
-        let msb = self.read_8(addr.wrapping_add(1) )?;
+        let msb = self.read_8(addr.wrapping_add(1))?;
         Ok(u16::from_le_bytes([lsb, msb]))
     }
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str>;

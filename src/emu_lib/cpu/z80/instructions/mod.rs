@@ -1,6 +1,8 @@
 #![allow(non_camel_case_types)]
 
 pub mod call;
+pub mod cpl;
+pub mod daa;
 pub mod djnz_d;
 pub mod ex;
 pub mod halt;
@@ -14,5 +16,3 @@ pub mod rlca;
 pub mod rra;
 pub mod rrca;
 pub mod stack;
-pub mod daa;
-pub mod cpl;

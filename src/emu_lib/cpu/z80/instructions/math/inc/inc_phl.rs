@@ -42,8 +42,12 @@ impl ExecutableInstruction<Z80> for INC_PHL {
         memory.write_8(cpu.registers.gp[0].hl, result)?;
         // Update flags
         cpu.registers.gp[0].f.set_sign((result & (1 << 7)) != 0);
-        cpu.registers.gp[0].f.set_parity_overflow(value_before == 0x7F);
-        cpu.registers.gp[0].f.set_half_carry((value_before & 0x0F) == 0x0F);
+        cpu.registers.gp[0]
+            .f
+            .set_parity_overflow(value_before == 0x7F);
+        cpu.registers.gp[0]
+            .f
+            .set_half_carry((value_before & 0x0F) == 0x0F);
         cpu.registers.gp[0].f.set_zero(result == 0);
         cpu.registers.gp[0].f.set_add_sub(false);
 

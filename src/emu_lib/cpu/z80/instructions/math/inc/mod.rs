@@ -4,10 +4,10 @@ pub mod inc_c;
 pub mod inc_d;
 pub mod inc_de;
 pub mod inc_e;
-pub mod inc_hl;
-pub mod inc_phl;
 pub mod inc_h;
+pub mod inc_hl;
 pub mod inc_l;
+pub mod inc_phl;
 pub mod inc_sp;
 
 macro_rules! inc_r {

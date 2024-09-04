@@ -6,9 +6,6 @@ use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, I
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
-use once_cell::sync::Lazy;
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(3, 17, false));
 
 #[derive(Debug)]
 pub struct CALL_NN {
@@ -19,14 +16,14 @@ pub struct CALL_NN {
 impl CALL_NN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<CALL_NN, String> {
         Ok(CALL_NN {
-            common: *COMMON,
+            common: InstructionCommon::new(3, 17, false),
             nn: memory.read_16(pos.wrapping_add(1))?,
         })
     }
 
     pub fn new_with_value(nn: u16) -> CALL_NN {
         CALL_NN {
-            common: *COMMON,
+            common: InstructionCommon::new(3, 17, false),
             nn,
         }
     }

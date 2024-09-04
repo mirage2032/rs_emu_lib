@@ -1,14 +1,11 @@
 use std::fmt;
 use std::fmt::Display;
 
-use once_cell::sync::Lazy;
 use crate::cpu::registers::BaseRegister;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(4, 14, true));
 
 #[derive(Debug)]
 pub struct LD_IX_NN {
@@ -17,17 +14,16 @@ pub struct LD_IX_NN {
 }
 
 impl LD_IX_NN {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_IX_NN, String>
-    {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_IX_NN, String> {
         Ok(LD_IX_NN {
-            common: *COMMON,
+            common: InstructionCommon::new(4, 14, true),
             nn: memory.read_16(pos.wrapping_add(2))?,
         })
     }
 
     pub fn new_with_value(nn: u16) -> LD_IX_NN {
         LD_IX_NN {
-            common: *COMMON,
+            common: InstructionCommon::new(4, 14, true),
             nn,
         }
     }
@@ -45,18 +41,22 @@ impl BaseInstruction for LD_IX_NN {
     }
     fn to_bytes(&self) -> Vec<u8> {
         let nn_lsb = self.nn.to_le_bytes();
-        vec![0xDD,0x21, nn_lsb[0], nn_lsb[1]]
+        vec![0xDD, 0x21, nn_lsb[0], nn_lsb[1]]
     }
 }
 
 impl ExecutableInstruction<Z80> for LD_IX_NN {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        match cpu.registers.other.get_mut("ix"){
-            Some(BaseRegister::Bit16(val)) => { *val = self.nn; },
+        match cpu.registers.other.get_mut("ix") {
+            Some(BaseRegister::Bit16(val)) => {
+                *val = self.nn;
+            }
             _ => return Err("Invalid register".to_string()),
         }
         match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => { *val = val.wrapping_add(1) % 128; },
+            Some(BaseRegister::Bit8(val)) => {
+                *val = val.wrapping_add(1) % 128;
+            }
             _ => return Err("Invalid register".to_string()),
         }
         Ok(())

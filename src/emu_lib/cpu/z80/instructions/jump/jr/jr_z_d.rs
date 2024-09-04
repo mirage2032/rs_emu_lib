@@ -1,14 +1,10 @@
 use std::fmt;
 use std::fmt::Display;
 
-use once_cell::sync::Lazy;
-
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
 
 #[derive(Debug)]
 pub struct JR_Z_D {
@@ -19,14 +15,14 @@ pub struct JR_Z_D {
 impl JR_Z_D {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JR_Z_D, String> {
         Ok(JR_Z_D {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 7, true),
             d: memory.read_8(pos.wrapping_add(1))? as i8,
         })
     }
 
     pub fn new_with_value(d: u8) -> JR_Z_D {
         JR_Z_D {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 7, true),
             d: d as i8,
         }
     }
@@ -61,6 +57,7 @@ impl ExecutableInstruction<Z80> for JR_Z_D {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
+
     test_z80!("28");
     test_instruction_parse!(JR_Z_D, [0xbf]);
 }

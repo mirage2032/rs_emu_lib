@@ -1,22 +1,7 @@
 macro_rules! ld_r_r {
-    ($dest:ident,$src:ident,$opcode:literal,$cdest:literal,$csrc:literal) => {
-        use core::fmt;
-        use std::fmt::Display;
-
-        use once_cell::sync::Lazy;
-
-        use crate::emu_lib::cpu::instruction::InstructionCommon;
-        use crate::emu_lib::cpu::BaseInstruction;
-        use crate::cpu::z80::ExecutableInstruction;
-        use crate::cpu::z80::Z80;
-        use crate::memory::Memory;
-        use crate::io::IO;
-
-        static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(1, 4, true));
-
+        ($dest:expr,$src:expr,$opcode:literal,$cdest:literal,$csrc:literal) => {
         // use crate::emu_lib::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
-        paste::item! {
-            const [<opcode_ $opcode _num>]: u8 = u8::from_str_radix($opcode, 16).unwrap();
+        paste::paste! {
             #[derive(Debug)]
             pub struct [<LD_ $cdest _ $csrc>] {
                 common: InstructionCommon,
@@ -25,7 +10,7 @@ macro_rules! ld_r_r {
             impl [<LD_ $cdest _ $csrc>] {
                 pub fn new() -> [<LD_ $cdest _ $csrc>] {
                     [<LD_ $cdest _ $csrc>] {
-                        common: *COMMON,
+                        common: InstructionCommon::new(1, 4, true),
                     }
                 }
             }
@@ -41,7 +26,7 @@ macro_rules! ld_r_r {
                     &self.common
                 }
                 fn to_bytes(&self) -> Vec<u8> {
-                    vec![[<opcode_ $opcode _num>]]
+                    vec![hex!( $opcode )[0]]
                 }
             }
 
@@ -52,12 +37,13 @@ macro_rules! ld_r_r {
                 }
             }
 
+            #[allow(non_snake_case)]
             #[cfg(test)]
-            mod tests {
+            mod [<TEST_LD_ $cdest _ $csrc>] {
                 use crate::emu_lib::cpu::test::*;
                 use crate::emu_lib::cpu::z80::test::*;
 
-                test_z80!([<"4f">]);
+                test_z80!($opcode);
 
                 test_instruction_parse!([<LD_ $cdest _ $csrc>]);
             }

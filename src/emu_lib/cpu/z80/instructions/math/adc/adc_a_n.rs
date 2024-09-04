@@ -1,13 +1,11 @@
 use std::fmt;
 use std::fmt::Display;
-use once_cell::sync::Lazy;
+
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 use crate::memory::MemoryDevice;
-
-static COMMON: Lazy<InstructionCommon> = Lazy::new(|| InstructionCommon::new(2, 7, true));
 
 #[derive(Debug)]
 pub struct ADC_A_N {
@@ -18,14 +16,14 @@ pub struct ADC_A_N {
 impl ADC_A_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<ADC_A_N, String> {
         Ok(ADC_A_N {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 7, true),
             n: memory.read_8(pos.wrapping_add(1))?,
         })
     }
-    
+
     pub fn new_with_value(n: u8) -> ADC_A_N {
         ADC_A_N {
-            common: *COMMON,
+            common: InstructionCommon::new(2, 7, true),
             n,
         }
     }
@@ -48,11 +46,7 @@ impl BaseInstruction for ADC_A_N {
 
 impl ExecutableInstruction<Z80> for ADC_A_N {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        super::adc_r_r!(
-            &mut cpu.registers.gp[0].a,
-            self.n,
-            cpu.registers.gp[0].f
-        );
+        super::adc_r_r!(&mut cpu.registers.gp[0].a, self.n, cpu.registers.gp[0].f);
         Ok(())
     }
 }
