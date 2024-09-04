@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
 use crate::cpu::registers::{AllRegisters, BaseRegister, GPByteRegisters};
-use crate::emu_lib::cpu::{Cpu, CPUType};
 use crate::emu_lib::cpu::instruction::{
-    BaseInstruction, ExecutableInstruction, InstructionParser, push_16,
+    push_16, BaseInstruction, ExecutableInstruction, InstructionParser,
 };
+use crate::emu_lib::cpu::{CPUType, Cpu};
 use crate::emu_lib::io::{InterruptType, IO};
 
 use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};

@@ -1,8 +1,8 @@
 #![allow(unused)]
 use std::fmt::{Debug, Display};
 
-use crate::cpu::Cpu;
 use crate::cpu::registers::BaseRegister;
+use crate::cpu::Cpu;
 use crate::io::IO;
 use crate::memory::Memory;
 

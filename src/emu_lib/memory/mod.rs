@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
-use errors::{FileError, MemoryError, MemWriteError};
+use errors::{FileError, MemWriteError, MemoryError};
 
 pub mod errors;
 pub mod memdevices;

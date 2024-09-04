@@ -1,35 +1,24 @@
-pub mod inc_b;
-pub mod inc_bc;
-pub mod inc_c;
-pub mod inc_d;
-pub mod inc_de;
-pub mod inc_e;
-pub mod inc_h;
-pub mod inc_hl;
-pub mod inc_l;
+mod generics;
 pub mod inc_phl;
 pub mod inc_sp;
+use crate::cpu::instruction::InstructionCommon;
+use crate::cpu::z80::instructions::math::inc::generics::inc_r_setf;
+use crate::cpu::z80::ExecutableInstruction;
+use crate::cpu::z80::Z80;
+use crate::cpu::BaseInstruction;
+use crate::io::IO;
+use crate::memory::Memory;
+use hex_literal::hex;
+use std::fmt;
+use std::fmt::Display;
 
-macro_rules! inc_r {
-    ($reg:expr, $flags:expr) => {
-        let value_before = *$reg;
-        let result = value_before.wrapping_add(1);
-        *$reg = result;
+generics::inc_r::inc_r!(b, "04", "B");
+generics::inc_r::inc_r!(c, "0C", "C");
+generics::inc_r::inc_r!(d, "14", "D");
+generics::inc_r::inc_r!(e, "1C", "E");
+generics::inc_r::inc_r!(h, "24", "H");
+generics::inc_r::inc_r!(l, "2C", "L");
 
-        let sign = (result & (1 << 7)) != 0;
-        let half_carry = (value_before & 0x0F) == 0x0F;
-        let pv_flag = value_before == 0x7F;
-
-        // Update flags
-        $flags.set_zero(result == 0);
-        $flags.set_parity_overflow(pv_flag); // Correctly combine parity and overflow
-        $flags.set_sign(sign);
-        $flags.set_half_carry(half_carry);
-        $flags.set_add_sub(false); // INC is an addition, so set to false
-
-        // Set undocumented flags
-        $flags.set_bit3((result >> 3) & 1 == 1);
-        $flags.set_bit5((result >> 5) & 1 == 1);
-    };
-}
-pub(crate) use inc_r;
+generics::inc_rr::inc_rr!(bc, "03", "BC");
+generics::inc_rr::inc_rr!(de, "13", "DE");
+generics::inc_rr::inc_rr!(hl, "23", "HL");

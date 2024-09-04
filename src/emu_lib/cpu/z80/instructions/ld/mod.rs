@@ -5,8 +5,8 @@ use hex_literal::hex;
 
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
-use crate::emu_lib::cpu::BaseInstruction;
 use crate::emu_lib::cpu::instruction::InstructionCommon;
+use crate::emu_lib::cpu::BaseInstruction;
 use crate::io::IO;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;

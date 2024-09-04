@@ -1,6 +1,6 @@
 use std::fmt;
 use std::fmt::Display;
-
+use crate::cpu::z80::instructions::math::add::generics::add_r_r_setf;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
@@ -37,7 +37,7 @@ impl BaseInstruction for ADD_A_PHL {
 
 impl ExecutableInstruction<Z80> for ADD_A_PHL {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        super::add_r_r!(
+        add_r_r_setf!(
             &mut cpu.registers.gp[0].a,
             memory.read_8(cpu.registers.gp[0].hl)?,
             cpu.registers.gp[0].f
