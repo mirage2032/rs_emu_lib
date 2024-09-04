@@ -48,6 +48,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("08.json");
+    test_z80!("08");
     test_instruction_parse!(EX_AF_SAF);
 }

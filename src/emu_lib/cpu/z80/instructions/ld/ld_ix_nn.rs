@@ -17,7 +17,8 @@ pub struct LD_IX_NN {
 }
 
 impl LD_IX_NN {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_IX_NN, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_IX_NN, String>
+    {
         Ok(LD_IX_NN {
             common: *COMMON,
             nn: memory.read_16(pos.wrapping_add(2))?,
@@ -67,6 +68,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("dd 21.json");
+    test_z80!("dd 21");
     test_instruction_parse!(LD_IX_NN, [0xbeef]);
 }

@@ -46,6 +46,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("03.json");
+    test_z80!("03");
     test_instruction_parse!(INC_BC);
 }

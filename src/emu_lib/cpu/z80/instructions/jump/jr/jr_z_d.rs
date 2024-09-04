@@ -61,6 +61,6 @@ impl ExecutableInstruction<Z80> for JR_Z_D {
 mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
-    test_z80!("28.json");
+    test_z80!("28");
     test_instruction_parse!(JR_Z_D, [0xbf]);
 }

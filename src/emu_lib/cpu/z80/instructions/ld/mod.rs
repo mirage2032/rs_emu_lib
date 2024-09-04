@@ -27,6 +27,10 @@ pub mod ld_sp_hl;
 pub mod ld_sp_ix;
 pub mod ld_pnn_hl;
 pub mod ld_h_n;
-pub mod ld_l_n;
 pub mod ld_sp_nn;
 pub mod ld_pnn_a;
+pub mod ld_r_r;
+
+pub mod ld_l_n;
+
+ld_r_r::ld_r_r!(d, a, "57", "D", "A");

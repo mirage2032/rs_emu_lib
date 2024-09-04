@@ -59,6 +59,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("18.json");
+    test_z80!("18");
     test_instruction_parse!(JR_D, [0xbf]);
 }

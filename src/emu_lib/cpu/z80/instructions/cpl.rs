@@ -53,6 +53,6 @@ mod tests {
     use crate::emu_lib::cpu::test::test_instruction_parse;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("1f.json");
+    test_z80!("1f");
     test_instruction_parse!(CPL);
 }

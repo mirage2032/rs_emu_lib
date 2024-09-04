@@ -129,7 +129,7 @@ pub fn test_z80_w_data(test_data_vec: Vec<TestData>) {
     }
 }
 macro_rules! include_test_data {
-    ($test_data_path:literal ) => {{
+    ($test_data_path:expr ) => {{
         use std::fs::read_to_string;
         use std::path::PathBuf;
         let mut full_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -152,11 +152,14 @@ pub(crate) use include_test_data;
 macro_rules! test_z80 {
     ($test_data_path:literal) => {
         // use crate::emu_lib::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
+        paste::paste! {
+                    const TEST_PATH: &str = (concat!($test_data_path, ".json"));
+                }
         paste::item! {
             #[allow(non_snake_case)]
             #[test]
             fn [< test_json >]() {
-                let test_data = include_test_data!($test_data_path);
+                let test_data = include_test_data!(TEST_PATH);
                 test_z80_w_data(test_data);
             }
         }

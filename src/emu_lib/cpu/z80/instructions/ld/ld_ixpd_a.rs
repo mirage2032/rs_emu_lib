@@ -71,6 +71,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("dd 77.json");
+    test_z80!("dd 77");
     test_instruction_parse!(LD_IXPD_A, [0x44]);
 }

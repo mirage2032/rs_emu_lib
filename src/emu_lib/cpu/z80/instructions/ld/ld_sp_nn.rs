@@ -60,6 +60,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("31.json");
+    test_z80!("31");
     test_instruction_parse!(LD_SP_NN, [0xbeef]);
 }
