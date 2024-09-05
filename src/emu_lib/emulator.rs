@@ -13,36 +13,28 @@ pub enum StopReason {
     Error(String),
 }
 
-pub struct Emulator {
+pub struct Emulator<T:Cpu+Default> {
     pub memory: Memory,
-    pub cpu: Box<dyn Cpu>,
+    pub cpu: T,
     pub breakpoints: Vec<u16>,
     pub io: IO,
     pub cycles: usize,
 }
 
-impl Emulator {
-    pub fn new(cpu_type: CPUType) -> Emulator {
-        let cpu: Box<dyn Cpu> = match cpu_type {
-            CPUType::Z80 => Box::<Z80>::default(),
-            CPUType::I8080 => Box::<I8080>::default(),
-        };
+impl<T:Cpu+Default> Emulator<T> {
+    pub fn new() -> Emulator<T> {
         Emulator {
             memory: Memory::default(),
-            cpu,
+            cpu: T::default(),
             breakpoints: Vec::new(),
             io: IO::default(),
             cycles: 0,
         }
     }
-    pub fn new_w_mem(cpu_type: CPUType, memory: Memory) -> Emulator {
-        let cpu: Box<dyn Cpu> = match cpu_type {
-            CPUType::Z80 => Box::<Z80>::default(),
-            CPUType::I8080 => Box::<I8080>::default(),
-        };
+    pub fn new_w_mem(memory: Memory) -> Emulator<T> {
         Emulator {
             memory,
-            cpu,
+            cpu: T::default(),
             breakpoints: Vec::new(),
             io: IO::default(),
             cycles: 0,
@@ -60,10 +52,10 @@ impl Emulator {
         instruction
     }
 
-    pub fn run_w_cb<T: Fn(&mut Self, &dyn BaseInstruction)>(
+    pub fn run_w_cb<CB: Fn(&mut Self, &dyn BaseInstruction)>(
         &mut self,
         frequency: f32,
-        callback: Option<T>,
+        callback: Option<CB>,
         ticks_per_chunk: usize,
     ) -> StopReason {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
@@ -105,14 +97,5 @@ impl Emulator {
 
     pub fn run(&mut self, frequency: f32,ticks_per_chunk:usize) -> StopReason {
         self.run_w_cb(frequency, None::<fn(&mut Self, &dyn BaseInstruction)>,ticks_per_chunk)
-    }
-    pub fn set_cpu_type(&mut self, cpu_type: CPUType) {
-        if self.cpu.type_of() == cpu_type {
-            return;
-        }
-        self.cpu = match cpu_type {
-            CPUType::Z80 => Box::<Z80>::default(),
-            CPUType::I8080 => Box::<I8080>::default(),
-        };
     }
 }

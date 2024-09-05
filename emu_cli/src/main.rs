@@ -1,11 +1,11 @@
 use std::path::PathBuf;
-use std::thread;
-use std::time::Duration;
+use emu_lib::cpu::Cpu;
 
 use emu_lib::cpu::{
     instruction::BaseInstruction,
     registers::{AllRegisters, GPByteRegisters},
 };
+use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use emu_lib::memory::{errors::MemoryError, memdevices::RAM, Memory, MemoryDevice};
 
@@ -39,7 +39,7 @@ fn main() {
     memory.add_device(Box::new(RAM::new(0x1000)));
     memory.add_device(Box::new(dsp));
     memory.add_device(Box::new(RAM::new(0x10000 - 64 * 64 - 0x1000)));
-    let mut emulator = Emulator::new_w_mem(emu_lib::cpu::CPUType::Z80, memory);
+    let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
     let rom_path: PathBuf = PathBuf::from("roms/color.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
     match emulator.memory.load_file(&rom_path) {
@@ -57,7 +57,7 @@ fn main() {
     let freq = 600_000.0;
     let stop_reason = emulator.run_w_cb(
         freq,
-        Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
+        Some(|emu: &mut Emulator<_>, instruction: &dyn BaseInstruction| {
             // println!("{}", instruction);
             // print_registers(emu.cpu.registers());
         }),
