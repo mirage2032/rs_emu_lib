@@ -1,6 +1,3 @@
-pub mod add_a_phl;
-pub mod add_ix_sp;
-mod generics;
 
 use crate::cpu::instruction::InstructionCommon;
 use crate::cpu::z80::instructions::math::add::generics::{add_r_r_setf, add_rr_rr_setf};
@@ -12,7 +9,10 @@ use crate::memory::Memory;
 use hex_literal::hex;
 use std::fmt;
 use std::fmt::Display;
-
+mod generics;
+pub mod add_a_phl;
+pub mod add_ix_sp;
+pub mod add_a_pixd;
 generics::add_r_r::add_r_r!(a, b, "80", "A", "B");
 generics::add_r_r::add_r_r!(a, c, "81", "A", "C");
 generics::add_r_r::add_r_r!(a, d, "82", "A", "D");

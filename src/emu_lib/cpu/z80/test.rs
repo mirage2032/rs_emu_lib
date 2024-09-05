@@ -150,12 +150,25 @@ macro_rules! include_test_data {
 pub(crate) use include_test_data;
 
 macro_rules! test_z80 {
-    ($test_data_path:literal) => {
-        // use crate::emu_lib::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
+    // Case for a single parameter
+    ($test_data_path:expr) => {
         paste::paste! {
-            const TEST_PATH: &str = (concat!($test_data_path, ".json"));
+            const TEST_PATH: &str = concat!($test_data_path, ".json");
+
+            #[allow(non_snake_case)]
+            #[test]
+            fn [< test_json >]() {
+                let test_data = include_test_data!(TEST_PATH);
+                test_z80_w_data(test_data);
+            }
         }
-        paste::item! {
+    };
+    // Case for multiple parameters
+    ($test_data_path_b0:expr,$test_data_path_b1:expr) => {
+        paste::paste! {
+            // Create a single concatenated path with spaces and append `.json`
+            const TEST_PATH: &str = concat!($test_data_path_b0," ", $test_data_path_b1, ".json");
+
             #[allow(non_snake_case)]
             #[test]
             fn [< test_json >]() {
@@ -165,5 +178,6 @@ macro_rules! test_z80 {
         }
     };
 }
+
 
 pub(crate) use test_z80;

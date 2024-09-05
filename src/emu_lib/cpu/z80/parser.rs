@@ -126,7 +126,7 @@ impl Z80Parser {
             // 0x37
             // 0x38
             // 0x39
-            // 0x3A
+            0x3A => Box::new(ld::LD_A_PNN::new(memory, pos)?),
             0x3B => Box::new(math::dec::dec_sp::DEC_SP::new()),
             // 0x3C
             // 0x3D
@@ -148,7 +148,7 @@ impl Z80Parser {
             0x4d => Box::new(ld::LD_C_L::new()),
             0x4e => Box::new(ld::LD_C_PHL::new()),
             0x4f => Box::new(ld::LD_C_A::new()),
-            
+
             0x50 => Box::new(ld::LD_D_B::new()),
             0x51 => Box::new(ld::LD_D_C::new()),
             // 0x52 => Box::new(ld::LD_D_D::new()),
@@ -157,7 +157,7 @@ impl Z80Parser {
             0x55 => Box::new(ld::LD_D_L::new()),
             0x56 => Box::new(ld::LD_D_PHL::new()),
             0x57 => Box::new(ld::LD_D_A::new()),
-            
+
             0x58 => Box::new(ld::LD_E_B::new()),
             0x59 => Box::new(ld::LD_E_C::new()),
             0x5A => Box::new(ld::LD_E_D::new()),
@@ -166,7 +166,7 @@ impl Z80Parser {
             0x5D => Box::new(ld::LD_E_L::new()),
             0x5E => Box::new(ld::LD_E_PHL::new()),
             0x5f => Box::new(ld::LD_E_A::new()),
-            
+
             0x60 => Box::new(ld::LD_H_B::new()),
             0x61 => Box::new(ld::LD_H_C::new()),
             0x62 => Box::new(ld::LD_H_D::new()),
@@ -175,7 +175,7 @@ impl Z80Parser {
             0x65 => Box::new(ld::LD_H_L::new()),
             0x66 => Box::new(ld::LD_H_PHL::new()),
             0x67 => Box::new(ld::LD_H_A::new()),
-            
+
             0x68 => Box::new(ld::LD_L_B::new()),
             0x69 => Box::new(ld::LD_L_C::new()),
             0x6A => Box::new(ld::LD_L_D::new()),
@@ -184,7 +184,7 @@ impl Z80Parser {
             // 0x6D => Box::new(ld::LD_L_L::new()),
             0x6E => Box::new(ld::LD_L_PHL::new()),
             0x6F => Box::new(ld::LD_L_A::new()),
-            
+
             0x70 => Box::new(ld::LD_PHL_B::new()),
             0x71 => Box::new(ld::LD_PHL_C::new()),
             0x72 => Box::new(ld::LD_PHL_D::new()),
@@ -213,6 +213,7 @@ impl Z80Parser {
             0x8b => Box::new(math::adc::ADC_A_E::new()),
             0x8c => Box::new(math::adc::ADC_A_H::new()),
             0x8d => Box::new(math::adc::ADC_A_L::new()),
+            0x8e => Box::new(math::adc::adc_a_phl::ADC_A_PHL::new()),
             0xa8 => Box::new(math::xor::XOR_B::new()),
             0xa9 => Box::new(math::xor::XOR_C::new()),
             0xaa => Box::new(math::xor::XOR_D::new()),
@@ -225,6 +226,16 @@ impl Z80Parser {
             0xC9 => Box::new(ret::RET::new()),
             0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
             0xCE => Box::new(math::adc::adc_a_n::ADC_A_N::new(memory, pos)?),
+            0xED => {
+                let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
+                match ins_byte1 {
+                    0x4B => Box::new(ld::LD_MISC_BC_PNN::new(memory, pos)?),
+                    0x5B => Box::new(ld::LD_MISC_DE_PNN::new(memory, pos)?),
+                    0x6B => Box::new(ld::LD_MISC_HL_PNN::new(memory, pos)?),
+                    0x7b => Box::new(ld::ld_misc_sp_pnn::LD_MISC_SP_PNN::new(memory, pos)?),
+                    _ => return Err(format!("Invalid MISC instruction: 0x{:02x}", ins_byte1)),
+                }
+            }
             0xD1 => Box::new(stack::pop::POP_DE::new()),
             0xD5 => Box::new(stack::push::PUSH_DE::new()),
             0xD6 => Box::new(math::sub::sub_n::SUB_N::new(memory, pos)?),
@@ -234,6 +245,7 @@ impl Z80Parser {
                     0x21 => Box::new(ld::ld_ix_nn::LD_IX_NN::new(memory, pos)?),
                     0x39 => Box::new(math::add::add_ix_sp::ADD_IX_SP::new()),
                     0x77 => Box::new(ld::ld_ixpd_a::LD_IXPD_A::new(memory, pos)?),
+                    0x86 => Box::new(math::add::add_a_pixd::ADD_A_PIXD::new(memory, pos)?),
                     0xe1 => Box::new(stack::pop::pop_ix::POP_IX::new()),
                     0xe5 => Box::new(stack::push::push_ix::PUSH_IX::new()),
                     0xf9 => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
@@ -256,7 +268,7 @@ impl Z80Parser {
     ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
         let filtered = instruction.to_lowercase().replace(",", " ");
         //regex
-        let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9+)]+)(?: ?+,? ?+([(a-z0-9')]+))?)?$")
+        let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
             .expect("Error building Z80 instruction parsing regex");
         let op = re.captures(&filtered).expect("Invalid instruction");
         let instruction: Box<dyn ExecutableInstruction<Z80>> = match op.get(1).unwrap().as_str() {
@@ -294,7 +306,11 @@ impl Z80Parser {
                         }
                     },
                     (Err(_), Ok(ImmediateValue::Ptr(val))) => match destination {
+                        "a" => Box::new(ld::LD_A_PNN::new_with_value(val)),
+                        "bc" => Box::new(ld::LD_MISC_BC_PNN::new_with_value(val)),
+                        "de" => Box::new(ld::LD_MISC_DE_PNN::new_with_value(val)),
                         "hl" => Box::new(ld::LD_HL_PNN::new_with_value(val)),
+                        "sp" => Box::new(ld::ld_misc_sp_pnn::LD_MISC_SP_PNN::new_with_value(val)),
                         _ => {
                             return Err(format!(
                                 "Invalid \"ld {0}, {1}\" destination register {0}",
@@ -459,14 +475,18 @@ impl Z80Parser {
                     }
                     "a" => {
                         let source = op.get(3).unwrap().as_str();
-                        match source {
-                            "b" => Box::new(math::add::ADD_A_B::new()),
-                            "c" => Box::new(math::add::ADD_A_C::new()),
-                            "d" => Box::new(math::add::ADD_A_D::new()),
-                            "e" => Box::new(math::add::ADD_A_E::new()),
-                            "h" => Box::new(math::add::ADD_A_H::new()),
-                            "l" => Box::new(math::add::ADD_A_L::new()),
-                            "(hl)" => Box::new(math::add::add_a_phl::ADD_A_PHL::new()),
+                        match is_val(source) {
+                            Err(_)=> match source {
+                                "b" => Box::new(math::add::ADD_A_B::new()),
+                                "c" => Box::new(math::add::ADD_A_C::new()),
+                                "d" => Box::new(math::add::ADD_A_D::new()),
+                                "e" => Box::new(math::add::ADD_A_E::new()),
+                                "h" => Box::new(math::add::ADD_A_H::new()),
+                                "l" => Box::new(math::add::ADD_A_L::new()),
+                                "(hl)" => Box::new(math::add::add_a_phl::ADD_A_PHL::new()),
+                                _ => return Err("Invalid source".to_string()),
+                            }
+                            Ok(ImmediateValue::OffsetIX(offset)) => Box::new(math::add::add_a_pixd::ADD_A_PIXD::new_with_value(offset)),
                             _ => return Err("Invalid source".to_string()),
                         }
                     }
@@ -489,6 +509,7 @@ impl Z80Parser {
                                 "e" => Box::new(math::adc::ADC_A_E::new()),
                                 "h" => Box::new(math::adc::ADC_A_H::new()),
                                 "l" => Box::new(math::adc::ADC_A_L::new()),
+                                "(hl)" => Box::new(math::adc::adc_a_phl::ADC_A_PHL::new()),
                                 _ => return Err("Invalid source".to_string()),
                             },
                         }

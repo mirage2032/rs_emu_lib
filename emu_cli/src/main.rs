@@ -55,7 +55,7 @@ fn main() {
     println!("Running emulator");
     print_registers(emulator.cpu.registers());
     let stop_reason = emulator.run_w_cb(
-        200000.0,
+        12_000_000.0,
         Some(|emu: &mut Emulator, instruction: &dyn BaseInstruction| {
             println!("{}", instruction);
             // print_registers(emu.cpu.registers());

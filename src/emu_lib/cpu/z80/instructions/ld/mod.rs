@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use hex_literal::hex;
 
+use crate::cpu::z80::BaseRegister;
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
 use crate::emu_lib::cpu::instruction::InstructionCommon;
@@ -17,6 +18,7 @@ pub mod ld_ixpd_a;
 pub mod ld_sp_hl;
 pub mod ld_sp_ix;
 pub mod ld_sp_nn;
+pub mod ld_misc_sp_pnn;
 
 generics::ld_r_r::ld_r_r!(a, b, "78", "A", "B");
 generics::ld_r_r::ld_r_r!(a, c, "79", "A", "C");
@@ -83,6 +85,12 @@ generics::ld_r_n::ld_r_n!(e, "1e", "E");
 generics::ld_r_n::ld_r_n!(h, "26", "H");
 
 generics::ld_rr_pnn::ld_rr_pnn!(hl, "2a", "HL");
+
+generics::ld_misc_rr_pnn::ld_misc_rr_pnn!(bc, "4b", "BC");
+generics::ld_misc_rr_pnn::ld_misc_rr_pnn!(de, "5b", "DE");
+generics::ld_misc_rr_pnn::ld_misc_rr_pnn!(hl, "6b", "HL"); //undoc
+
+generics::ld_r_pnn::ld_r_pnn!(a, "3a", "A");
 
 generics::ld_r_prr::ld_r_prr!(a, bc, "0a", "A", "BC");
 generics::ld_r_prr::ld_r_prr!(a, de, "1a", "A", "DE");

@@ -31,6 +31,7 @@ use hex_literal::hex;
 use std::fmt;
 use std::fmt::Display;
 pub mod adc_a_n;
+pub mod adc_a_phl;
 
 generics::adc_r_r::adc_r_r!(a, b, "88", "A", "B");
 generics::adc_r_r::adc_r_r!(a, c, "89", "A", "C");
