@@ -92,7 +92,7 @@ impl Emulator {
             let exec_duration = tick_duration * current_ticks as u32;
             let expected_finish = time_before + exec_duration;
             let time_after = SystemTime::now();
-            current_ticks -= ticks_per_chunk;
+            current_ticks = current_ticks % ticks_per_chunk;
             if let Ok(difference) = expected_finish.duration_since(time_after) {
                 // println!("Sleeping for {:?}", difference);
                 std::thread::sleep(difference)

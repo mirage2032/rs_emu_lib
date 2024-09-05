@@ -17,7 +17,7 @@ macro_rules! dec_rr {
 
             impl Display for [<DEC_ $cdest>] {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    write!(f, "INC {}", $cdest)
+                    write!(f, "DEC {}", $cdest)
                 }
             }
 

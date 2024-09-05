@@ -125,12 +125,12 @@ impl Z80Parser {
             0x36 => Box::new(ld::LD_PHL_N::new(memory, pos)?),
             // 0x37
             // 0x38
-            // 0x39
+            0x39 => Box::new(math::add::add_hl_sp::ADD_HL_SP::new()),
             0x3A => Box::new(ld::LD_A_PNN::new(memory, pos)?),
             0x3B => Box::new(math::dec::dec_sp::DEC_SP::new()),
-            // 0x3C
-            // 0x3D
-            // 0x3E
+            0x3C => Box::new(math::inc::INC_A::new()),
+            0x3D=> Box::new(math::dec::DEC_A::new()),
+            0x3E => Box::new(ld::LD_A_N::new(memory, pos)?),
             // 0x3F
             0x41 => Box::new(ld::LD_B_C::new()),
             0x42 => Box::new(ld::LD_B_D::new()),
@@ -215,6 +215,14 @@ impl Z80Parser {
             0x8c => Box::new(math::adc::ADC_A_H::new()),
             0x8d => Box::new(math::adc::ADC_A_L::new()),
             0x8e => Box::new(math::adc::adc_a_phl::ADC_A_PHL::new()),
+            0xa0 => Box::new(math::and::AND_B::new()),
+            0xa1 => Box::new(math::and::AND_C::new()),
+            0xa2 => Box::new(math::and::AND_D::new()),
+            0xa3 => Box::new(math::and::AND_E::new()),
+            0xa4 => Box::new(math::and::AND_H::new()),
+            0xa5 => Box::new(math::and::AND_L::new()),
+            0xa6 => Box::new(math::and::and_phl::AND_PHL::new()),
+            0xa7 => Box::new(math::and::AND_A::new()),
             0xa8 => Box::new(math::xor::XOR_B::new()),
             0xa9 => Box::new(math::xor::XOR_C::new()),
             0xaa => Box::new(math::xor::XOR_D::new()),
@@ -222,6 +230,14 @@ impl Z80Parser {
             0xac => Box::new(math::xor::XOR_H::new()),
             0xad => Box::new(math::xor::XOR_L::new()),
             0xaf => Box::new(math::xor::XOR_A::new()),
+            0xb0 => Box::new(math::or::OR_B::new()),
+            0xb1 => Box::new(math::or::OR_C::new()),
+            0xb2 => Box::new(math::or::OR_D::new()),
+            0xb3 => Box::new(math::or::OR_E::new()),
+            0xb4 => Box::new(math::or::OR_H::new()),
+            0xb5 => Box::new(math::or::OR_L::new()),
+            0xb6 => Box::new(math::or::or_phl::OR_PHL::new()),
+            0xb7 => Box::new(math::or::OR_A::new()),
             0xb8 => Box::new(math::cp::CP_B::new()),
             0xb9 => Box::new(math::cp::CP_C::new()),
             0xba => Box::new(math::cp::CP_D::new()),
@@ -233,8 +249,47 @@ impl Z80Parser {
             0xC1 => Box::new(stack::pop::POP_BC::new()),
             0xC5 => Box::new(stack::push::PUSH_BC::new()),
             0xC9 => Box::new(ret::RET::new()),
+            0xCB => {
+                let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
+                match ins_byte1 {
+                    0x10 => Box::new(bit::rl::RL_B::new()),
+                    0x11 => Box::new(bit::rl::RL_C::new()),
+                    0x12 => Box::new(bit::rl::RL_D::new()),
+                    0x13 => Box::new(bit::rl::RL_E::new()),
+                    0x14 => Box::new(bit::rl::RL_H::new()),
+                    0x15 => Box::new(bit::rl::RL_L::new()),
+                    0x16 => Box::new(bit::rl::rl_phl::RL_PHL::new()),
+                    0x17 => Box::new(bit::rl::RL_A::new()),
+                    0x18 => Box::new(bit::rr::RR_B::new()),
+                    0x19 => Box::new(bit::rr::RR_C::new()),
+                    0x1A => Box::new(bit::rr::RR_D::new()),
+                    0x1B => Box::new(bit::rr::RR_E::new()),
+                    0x1C => Box::new(bit::rr::RR_H::new()),
+                    0x1D => Box::new(bit::rr::RR_L::new()),
+                    0x1E => Box::new(bit::rr::rr_phl::RR_PHL::new()),
+                    0x1F => Box::new(bit::rr::RR_A::new()),
+                    0x20 => Box::new(bit::sla::SLA_B::new()),
+                    0x21 => Box::new(bit::sla::SLA_C::new()),
+                    0x22 => Box::new(bit::sla::SLA_D::new()),
+                    0x23 => Box::new(bit::sla::SLA_E::new()),
+                    0x24 => Box::new(bit::sla::SLA_H::new()),
+                    0x25 => Box::new(bit::sla::SLA_L::new()),
+                    0x26 => Box::new(bit::sla::sla_phl::SLA_PHL::new()),
+                    0x27 => Box::new(bit::sla::SLA_A::new()),
+                    0x28 => Box::new(bit::sra::SRA_B::new()),
+                    0x29 => Box::new(bit::sra::SRA_C::new()),
+                    0x2A => Box::new(bit::sra::SRA_D::new()),
+                    0x2B => Box::new(bit::sra::SRA_E::new()),
+                    0x2C => Box::new(bit::sra::SRA_H::new()),
+                    0x2D => Box::new(bit::sra::SRA_L::new()),
+                    0x2E => Box::new(bit::sra::sra_phl::SRA_PHL::new()),
+                    0x2F => Box::new(bit::sra::SRA_A::new()),
+                    _ => return Err(format!("Invalid BIT instruction: 0x{:02x}", ins_byte1)),
+                }
+            }
             0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
             0xCE => Box::new(math::adc::adc_a_n::ADC_A_N::new(memory, pos)?),
+            0xE6 => Box::new(math::and::and_n::AND_N::new(memory, pos)?),
             0xEB => Box::new(ex::ex_de_hl::EX_DE_HL::new()),
             0xED => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
@@ -252,10 +307,38 @@ impl Z80Parser {
             0xDD => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
+                    0x46 => Box::new(ld::LD_B_PIXD::new(memory, pos)?),
+                    0x4e => Box::new(ld::LD_C_PIXD::new(memory, pos)?),
+                    0x56 => Box::new(ld::LD_D_PIXD::new(memory, pos)?),
+                    0x5e => Box::new(ld::LD_E_PIXD::new(memory, pos)?),
+                    0x66 => Box::new(ld::LD_H_PIXD::new(memory, pos)?),
+                    0x6e => Box::new(ld::LD_L_PIXD::new(memory, pos)?),
+                    0x7e => Box::new(ld::LD_A_PIXD::new(memory, pos)?),
+
                     0x21 => Box::new(ld::ld_ix_nn::LD_IX_NN::new(memory, pos)?),
+                    0x36 => Box::new(ld::ld_pixd_n::LD_PIXD_N::new(memory, pos)?),
                     0x39 => Box::new(math::add::add_ix_sp::ADD_IX_SP::new()),
-                    0x77 => Box::new(ld::ld_ixpd_a::LD_IXPD_A::new(memory, pos)?),
+                    0x70 => Box::new(ld::LD_PIXD_B::new(memory, pos)?),
+                    0x71 => Box::new(ld::LD_PIXD_C::new(memory, pos)?),
+                    0x72 => Box::new(ld::LD_PIXD_D::new(memory, pos)?),
+                    0x73 => Box::new(ld::LD_PIXD_E::new(memory, pos)?),
+                    0x74 => Box::new(ld::LD_PIXD_H::new(memory, pos)?),
+                    0x75 => Box::new(ld::LD_PIXD_L::new(memory, pos)?),
+                    0x77 => Box::new(ld::LD_PIXD_A::new(memory, pos)?),
                     0x86 => Box::new(math::add::add_a_pixd::ADD_A_PIXD::new(memory, pos)?),
+                    0xa6 => Box::new(math::and::and_ixd::AND_IXD::new(memory, pos)?),
+                    0xb6 => Box::new(math::or::or_ixd::OR_IXD::new(memory, pos)?),
+                    0xcb => {
+                        let d = memory.read_8(pos.wrapping_add(2))?;
+                        let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
+                        match ins_byte3 {
+                            0x16 => Box::new(bit::rl::rl_pixd::RL_PIXD::new(memory, pos)?),
+                            0x1e => Box::new(bit::rr::rr_pixd::RR_PIXD::new(memory, pos)?),
+                            0x26 => Box::new(bit::sla::sla_pixd::SLA_PIXD::new(memory, pos)?),
+                            0x2e => Box::new(bit::sra::sra_pixd::SRA_PIXD::new(memory, pos)?),
+                            _ => return Err(format!("Invalid IX BIT instruction: 0x{:02x}", ins_byte3)),
+                        }
+                    }
                     0xe1 => Box::new(stack::pop::pop_ix::POP_IX::new()),
                     0xe5 => Box::new(stack::push::push_ix::PUSH_IX::new()),
                     0xf9 => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
@@ -268,6 +351,7 @@ impl Z80Parser {
             0xee => Box::new(math::xor::xor_n::XOR_N::new(memory, pos)?),
             0xf5 => Box::new(stack::push::PUSH_AF::new()),
             0xF1 => Box::new(stack::pop::POP_AF::new()),
+            0xf6 => Box::new(math::or::or_n::OR_N::new(memory, pos)?),
             0xF9 => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
             0xFE => Box::new(math::cp::cp_n::CP_N::new(memory, pos)?),
             _ => return Err(format!("Invalid instruction: 0x{:02x}", ins_byte0)),
@@ -295,6 +379,7 @@ impl Z80Parser {
                         "e" => Box::new(ld::LD_E_N::new_with_value(val)),
                         "h" => Box::new(ld::LD_H_N::new_with_value(val)),
                         "l" => Box::new(ld::LD_L_N::new_with_value(val)),
+                        "a" => Box::new(ld::LD_A_N::new_with_value(val)),
                         "(hl)" => Box::new(ld::LD_PHL_N::new_with_value(val)),
                         _ => {
                             return Err(format!(
@@ -350,11 +435,25 @@ impl Z80Parser {
                     //     match source {
                     //         _ => return Err(format!("Invalid \"ld {0}, {1}\" source register {1}", destination, source))
                     //     },
-                    (Ok(_), Ok(_)) => {
-                        return Err("Invalid operands".to_string());
-                    }
+                    (Ok(ImmediateValue::OffsetIX(offset)),Ok(ImmediateValue::Val8(val))) => Box::new(ld::ld_pixd_n::LD_PIXD_N::new_with_value(offset,val)),
                     (Ok(ImmediateValue::OffsetIX(offset)), Err(_)) => match source {
-                        "a" => Box::new(ld::ld_ixpd_a::LD_IXPD_A::new_with_value(offset)),
+                        "b" => Box::new(ld::LD_PIXD_B::new_with_value(offset)),
+                        "c" => Box::new(ld::LD_PIXD_C::new_with_value(offset)),
+                        "d" => Box::new(ld::LD_PIXD_D::new_with_value(offset)),
+                        "e" => Box::new(ld::LD_PIXD_E::new_with_value(offset)),
+                        "h" => Box::new(ld::LD_PIXD_H::new_with_value(offset)),
+                        "l" => Box::new(ld::LD_PIXD_L::new_with_value(offset)),
+                        "a" => Box::new(ld::LD_PIXD_A::new_with_value(offset)),
+                        _ => return Err("Invalid operands".to_string()),
+                    },
+                    (Err(_),Ok(ImmediateValue::OffsetIX(offset))) => match destination {
+                        "a" => Box::new(ld::LD_A_PIXD::new_with_value(offset)),
+                        "b" => Box::new(ld::LD_B_PIXD::new_with_value(offset)),
+                        "c" => Box::new(ld::LD_C_PIXD::new_with_value(offset)),
+                        "d" => Box::new(ld::LD_D_PIXD::new_with_value(offset)),
+                        "e" => Box::new(ld::LD_E_PIXD::new_with_value(offset)),
+                        "h" => Box::new(ld::LD_H_PIXD::new_with_value(offset)),
+                        "l" => Box::new(ld::LD_L_PIXD::new_with_value(offset)),
                         _ => return Err("Invalid operands".to_string()),
                     },
                     (Err(_), Err(_)) => match (destination, source) {
@@ -445,6 +544,7 @@ impl Z80Parser {
                     "e" => Box::new(math::inc::INC_E::new()),
                     "h" => Box::new(math::inc::INC_H::new()),
                     "l" => Box::new(math::inc::INC_L::new()),
+                    "a" => Box::new(math::inc::INC_A::new()),
                     "(hl)" => Box::new(math::inc::inc_phl::INC_PHL::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
@@ -462,6 +562,7 @@ impl Z80Parser {
                     "e" => Box::new(math::dec::DEC_E::new()),
                     "h" => Box::new(math::dec::DEC_H::new()),
                     "l" => Box::new(math::dec::DEC_L::new()),
+                    "a" => Box::new(math::dec::DEC_A::new()),
                     _ => return Err("Invalid instruction".to_string()),
                 }
             }
@@ -474,6 +575,7 @@ impl Z80Parser {
                             "bc" => Box::new(math::add::ADD_HL_BC::new()),
                             "de" => Box::new(math::add::ADD_HL_DE::new()),
                             "hl" => Box::new(math::add::ADD_HL_HL::new()),
+                            "sp" => Box::new(math::add::add_hl_sp::ADD_HL_SP::new()),
                             _ => return Err("Invalid source".to_string()),
                         }
                     }
@@ -597,6 +699,44 @@ impl Z80Parser {
                     _ => return Err("Invalid destination".to_string()),
                 }
             }
+            "and" => {
+                let operator = op.get(2).unwrap().as_str();
+                match is_val(operator) {
+                    Err(_)=> match operator{
+                        "a" => Box::new(math::and::AND_A::new()),
+                        "b" => Box::new(math::and::AND_B::new()),
+                        "c" => Box::new(math::and::AND_C::new()),
+                        "d" => Box::new(math::and::AND_D::new()),
+                        "e" => Box::new(math::and::AND_E::new()),
+                        "h" => Box::new(math::and::AND_H::new()),
+                        "l" => Box::new(math::and::AND_L::new()),
+                        "(hl)" => Box::new(math::and::and_phl::AND_PHL::new()),
+                        _ => return Err("Invalid destination".to_string()),
+                    }
+                    Ok(ImmediateValue::Val8(val)) => Box::new(math::and::and_n::AND_N::new_with_value(val)),
+                    Ok(ImmediateValue::OffsetIX(offset)) => Box::new(math::and::and_ixd::AND_IXD::new_with_value(offset)),
+                    _ => return Err("Invalid destination".to_string()),
+                }
+            }
+            "or" => {
+                let operator = op.get(2).unwrap().as_str();
+                match is_val(operator) {
+                    Err(_)=> match operator{
+                        "a" => Box::new(math::or::OR_A::new()),
+                        "b" => Box::new(math::or::OR_B::new()),
+                        "c" => Box::new(math::or::OR_C::new()),
+                        "d" => Box::new(math::or::OR_D::new()),
+                        "e" => Box::new(math::or::OR_E::new()),
+                        "h" => Box::new(math::or::OR_H::new()),
+                        "l" => Box::new(math::or::OR_L::new()),
+                        "(hl)" => Box::new(math::or::or_phl::OR_PHL::new()),
+                        _ => return Err("Invalid destination".to_string()),
+                    }
+                    Ok(ImmediateValue::Val8(val)) => Box::new(math::or::or_n::OR_N::new_with_value(val)),
+                    Ok(ImmediateValue::OffsetIX(offset)) => Box::new(math::or::or_ixd::OR_IXD::new_with_value(offset)),
+                    _ => return Err("Invalid destination".to_string()),
+                }
+            }
             "rrca" => Box::new(rrca::RRCA::new()),
             "djnz" => {
                 let destination = is_val(op.get(2).unwrap().as_str());
@@ -668,6 +808,83 @@ impl Z80Parser {
                     "de" => Box::new(stack::pop::POP_DE::new()),
                     "hl" => Box::new(stack::pop::POP_HL::new()),
                     "ix" => Box::new(stack::pop::pop_ix::POP_IX::new()),
+                    _ => return Err("Invalid instruction".to_string()),
+                }
+            }
+            "rr" => {
+                let destination = op.get(2).unwrap().as_str();
+                match is_val(destination) {
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(bit::rr::rr_pixd::RR_PIXD::new_with_value(offset))
+                    },
+                    _ => match destination {
+                        "b" => Box::new(bit::rr::RR_B::new()),
+                        "c" => Box::new(bit::rr::RR_C::new()),
+                        "d" => Box::new(bit::rr::RR_D::new()),
+                        "e" => Box::new(bit::rr::RR_E::new()),
+                        "h" => Box::new(bit::rr::RR_H::new()),
+                        "l" => Box::new(bit::rr::RR_L::new()),
+                        "a" => Box::new(bit::rr::RR_A::new()),
+                        "(hl)" => Box::new(bit::rr::rr_phl::RR_PHL::new()),
+                        _ => return Err("Invalid instruction".to_string()),
+                    }
+                }
+            }
+            "rl" => {
+                let destination = op.get(2).unwrap().as_str();
+                match is_val(destination) {
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(bit::rl::rl_pixd::RL_PIXD::new_with_value(offset))
+                    },
+                    _ => match destination {
+                        "b" => Box::new(bit::rl::RL_B::new()),
+                        "c" => Box::new(bit::rl::RL_C::new()),
+                        "d" => Box::new(bit::rl::RL_D::new()),
+                        "e" => Box::new(bit::rl::RL_E::new()),
+                        "h" => Box::new(bit::rl::RL_H::new()),
+                        "l" => Box::new(bit::rl::RL_L::new()),
+                        "a" => Box::new(bit::rl::RL_A::new()),
+                        "(hl)" => Box::new(bit::rl::rl_phl::RL_PHL::new()),
+                        _ => return Err("Invalid instruction".to_string()),
+                    }
+                }
+            }
+            "sra" => {
+                let destination = op.get(2).unwrap().as_str();
+                match is_val(destination) {
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(bit::sra::sra_pixd::SRA_PIXD::new_with_value(offset))
+                    },
+                    _ => match destination {
+                        "b" => Box::new(bit::sra::SRA_B::new()),
+                        "c" => Box::new(bit::sra::SRA_C::new()),
+                        "d" => Box::new(bit::sra::SRA_D::new()),
+                        "e" => Box::new(bit::sra::SRA_E::new()),
+                        "h" => Box::new(bit::sra::SRA_H::new()),
+                        "l" => Box::new(bit::sra::SRA_L::new()),
+                        "a" => Box::new(bit::sra::SRA_A::new()),
+                        "(hl)" => Box::new(bit::sra::sra_phl::SRA_PHL::new()),
+                        _ => return Err("Invalid instruction".to_string()),
+                    }
+                }
+            }
+            "sla" => {
+                let destination = op.get(2).unwrap().as_str();
+                match is_val(destination) {
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(bit::sla::sla_pixd::SLA_PIXD::new_with_value(offset))
+                    },
+                    Err(_) => match destination {
+                        "b" => Box::new(bit::sla::SLA_B::new()),
+                        "c" => Box::new(bit::sla::SLA_C::new()),
+                        "d" => Box::new(bit::sla::SLA_D::new()),
+                        "e" => Box::new(bit::sla::SLA_E::new()),
+                        "h" => Box::new(bit::sla::SLA_H::new()),
+                        "l" => Box::new(bit::sla::SLA_L::new()),
+                        "a" => Box::new(bit::sla::SLA_A::new()),
+                        "(hl)" => Box::new(bit::sla::sla_phl::SLA_PHL::new()),
+                        _ => return Err("Invalid instruction".to_string()),
+                    }
                     _ => return Err("Invalid instruction".to_string()),
                 }
             }

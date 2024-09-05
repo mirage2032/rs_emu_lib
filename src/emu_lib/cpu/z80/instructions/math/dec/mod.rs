@@ -18,6 +18,7 @@ generics::dec_r::dec_r!(d, "15", "D");
 generics::dec_r::dec_r!(e, "1d", "E");
 generics::dec_r::dec_r!(h, "25", "H");
 generics::dec_r::dec_r!(l, "2d", "L");
+generics::dec_r::dec_r!(a, "3d", "A");
 
 generics::dec_rr::dec_rr!(bc, "0b", "BC");
 generics::dec_rr::dec_rr!(de, "1b", "DE");

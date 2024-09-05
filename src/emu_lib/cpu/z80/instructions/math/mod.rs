@@ -6,3 +6,5 @@ pub mod sbc;
 pub mod sub;
 pub mod xor;
 pub mod cp;
+pub mod and;
+pub mod or;

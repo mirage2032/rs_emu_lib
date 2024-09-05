@@ -11,6 +11,7 @@ use std::fmt::Display;
 pub mod add_a_phl;
 pub mod add_a_pixd;
 pub mod add_ix_sp;
+pub mod add_hl_sp;
 mod generics;
 generics::add_r_r::add_r_r!(a, b, "80", "A", "B");
 generics::add_r_r::add_r_r!(a, c, "81", "A", "C");

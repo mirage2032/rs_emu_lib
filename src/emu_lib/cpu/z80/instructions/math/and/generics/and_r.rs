@@ -1,27 +1,27 @@
-macro_rules! dec_r {
-        ($dest:expr,$opcode:literal,$cdest:literal) => {
+macro_rules! and_r {
+        ($src:expr,$opcode:literal,$sdest:literal) => {
         // use crate::emu_lib::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
-            pub struct [<DEC_ $cdest>] {
+            pub struct [<AND_ $sdest>] {
                 common: InstructionCommon,
             }
 
-            impl [<DEC_ $cdest>] {
-                pub fn new() -> [<DEC_ $cdest>] {
-                    [<DEC_ $cdest>] {
+            impl [<AND_ $sdest>] {
+                pub fn new() -> [<AND_ $sdest>] {
+                    [<AND_ $sdest>] {
                         common: InstructionCommon::new(1, 4, true),
                     }
                 }
             }
 
-            impl Display for [<DEC_ $cdest>] {
+            impl Display for [<AND_ $sdest>] {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    write!(f, "DEC {}", $cdest)
+                    write!(f, "AND {}", $sdest)
                 }
             }
 
-            impl BaseInstruction for [<DEC_ $cdest>] {
+            impl BaseInstruction for [<AND_ $sdest>] {
                 fn common(&self) -> &InstructionCommon {
                     &self.common
                 }
@@ -30,26 +30,27 @@ macro_rules! dec_r {
                 }
             }
 
-            impl ExecutableInstruction<Z80> for [<DEC_ $cdest>] {
+            impl ExecutableInstruction<Z80> for [<AND_ $sdest>] {
                 fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp[0];
-                    dec_r_setf!(&mut gp.[<$dest>], &mut gp.f);
+                    and_r_setf!(gp.a, gp.$src, gp.f);
+                    
                     Ok(())
                 }
             }
 
             #[allow(non_snake_case)]
             #[cfg(test)]
-            mod [<TEST_DEC_ $cdest>] {
+            mod [<TEST_AND_ $sdest>] {
                 use crate::emu_lib::cpu::test::*;
                 use crate::emu_lib::cpu::z80::test::*;
 
                 test_z80!($opcode);
 
-                test_instruction_parse!([<DEC_ $cdest>]);
+                test_instruction_parse!([<AND_ $sdest>]);
             }
         }
     }
 }
 
-pub(crate) use dec_r;
+pub(crate) use and_r;

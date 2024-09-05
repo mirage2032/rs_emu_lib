@@ -1,55 +1,58 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::cpu::registers::BaseRegister;
+use crate::cpu::z80::instructions::bit::sra::generics::sra_r_setf;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::{Memory, MemoryDevice};
+use crate::cpu::z80::BaseRegister;
 
 #[derive(Debug)]
-pub struct LD_IXPD_A {
+pub struct SRA_PIXD {
     common: InstructionCommon,
     d: i8,
 }
 
-impl LD_IXPD_A {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_IXPD_A, String> {
-        Ok(LD_IXPD_A {
-            common: InstructionCommon::new(3, 19, true),
+impl SRA_PIXD {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SRA_PIXD,String> {
+        Ok(SRA_PIXD {
+            common: InstructionCommon::new(4, 23, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,
         })
     }
 
-    pub fn new_with_value(d: u8) -> LD_IXPD_A {
-        LD_IXPD_A {
-            common: InstructionCommon::new(3, 19, true),
+    pub fn new_with_value(d: u8) -> SRA_PIXD {
+        SRA_PIXD {
+            common: InstructionCommon::new(4, 23, true),
             d: d as i8,
         }
     }
 }
 
-impl Display for LD_IXPD_A {
+impl Display for SRA_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD (IX+0x{:02x}), A", self.d)
+        write!(f, "SRA (IX+0x{:02X})",self.d)
     }
 }
 
-impl BaseInstruction for LD_IXPD_A {
+impl BaseInstruction for SRA_PIXD {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xDD, 0x77, self.d as u8]
+        vec![0xdd, 0xcb,self.d as u8, 0x2e]
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_IXPD_A {
+impl ExecutableInstruction<Z80> for SRA_PIXD {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         match cpu.registers.other.get("ix") {
             Some(BaseRegister::Bit16(ix)) => {
                 let addr = ix.wrapping_add(self.d as u16);
-                memory.write_8(addr, cpu.registers.gp[0].a)?;
+                let mut value = memory.read_8(addr)?;
+                sra_r_setf!(value, cpu.registers.gp[0].f);
+                memory.write_8(addr, value)?;
             }
             _ => {
                 return Err("IX register not found".to_string());
@@ -70,6 +73,6 @@ mod tests {
     use crate::emu_lib::cpu::test::*;
     use crate::emu_lib::cpu::z80::test::*;
 
-    test_z80!("dd 77");
-    test_instruction_parse!(LD_IXPD_A, [0x44]);
+    test_z80!("dd cb __ 2e");
+    test_instruction_parse!(SRA_PIXD, [0xbe]);
 }

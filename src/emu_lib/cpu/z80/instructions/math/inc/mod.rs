@@ -18,6 +18,7 @@ generics::inc_r::inc_r!(d, "14", "D");
 generics::inc_r::inc_r!(e, "1c", "E");
 generics::inc_r::inc_r!(h, "24", "H");
 generics::inc_r::inc_r!(l, "2c", "L");
+generics::inc_r::inc_r!(a, "3c", "A");
 
 generics::inc_rr::inc_rr!(bc, "03", "BC");
 generics::inc_rr::inc_rr!(de, "13", "DE");

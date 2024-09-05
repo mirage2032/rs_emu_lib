@@ -14,11 +14,11 @@ use crate::memory::MemoryDevice;
 
 pub mod generics;
 pub mod ld_ix_nn;
-pub mod ld_ixpd_a;
 pub mod ld_misc_sp_pnn;
 pub mod ld_sp_hl;
 pub mod ld_sp_ix;
 pub mod ld_sp_nn;
+pub mod ld_pixd_n;
 
 generics::ld_r_r::ld_r_r!(a, b, "78", "A", "B");
 generics::ld_r_r::ld_r_r!(a, c, "79", "A", "C");
@@ -75,12 +75,13 @@ generics::ld_r_r::ld_r_r!(l, h, "6c", "L", "H");
 // generics::ld_r_r::ld_r_r!(l, l, "6d", "L", "L");
 generics::ld_r_r::ld_r_r!(l, a, "6f", "L", "A");
 
-generics::ld_r_n::ld_r_n!(l, "2e", "L");
 generics::ld_r_n::ld_r_n!(b, "06", "B");
 generics::ld_r_n::ld_r_n!(c, "0e", "C");
 generics::ld_r_n::ld_r_n!(d, "16", "D");
 generics::ld_r_n::ld_r_n!(e, "1e", "E");
 generics::ld_r_n::ld_r_n!(h, "26", "H");
+generics::ld_r_n::ld_r_n!(l, "2e", "L");
+generics::ld_r_n::ld_r_n!(a, "3e", "A");
 
 generics::ld_rr_pnn::ld_rr_pnn!(hl, "2a", "HL");
 
@@ -119,3 +120,19 @@ generics::ld_pnn_r::ld_pnn_r!(a, "32", "A");
 generics::ld_pnn_rr::ld_pnn_rr!(hl, "22", "HL");
 
 generics::ld_prr_n::ld_prr_n!(hl, "36", "HL");
+
+generics::ld_pixd_r::ld_pixd_r!(b, "70", "B");
+generics::ld_pixd_r::ld_pixd_r!(c, "71", "C");
+generics::ld_pixd_r::ld_pixd_r!(d, "72", "D");
+generics::ld_pixd_r::ld_pixd_r!(e, "73", "E");
+generics::ld_pixd_r::ld_pixd_r!(h, "74", "H");
+generics::ld_pixd_r::ld_pixd_r!(l, "75", "L");
+generics::ld_pixd_r::ld_pixd_r!(a, "77", "A");
+
+generics::ld_r_pixd::ld_r_pixd!(b, "46", "B");
+generics::ld_r_pixd::ld_r_pixd!(c, "4e", "C");
+generics::ld_r_pixd::ld_r_pixd!(d, "56", "D");
+generics::ld_r_pixd::ld_r_pixd!(e, "5e", "E");
+generics::ld_r_pixd::ld_r_pixd!(h, "66", "H");
+generics::ld_r_pixd::ld_r_pixd!(l, "6e", "L");
+generics::ld_r_pixd::ld_r_pixd!(a, "7e", "A");
