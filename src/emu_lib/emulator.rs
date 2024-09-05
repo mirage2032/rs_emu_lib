@@ -64,37 +64,47 @@ impl Emulator {
         &mut self,
         frequency: f32,
         callback: Option<T>,
+        ticks_per_chunk: usize,
     ) -> StopReason {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
 
+        let mut current_ticks = 0;
         loop {
             let time_before = SystemTime::now();
-            let instruction = match self.step() {
-                Ok(instructions) => instructions,
-                Err(e) => return StopReason::Error(e),
-            };
-            if let Some(cb) = &callback {
-                cb(self, instruction.as_ref());
-            }
+            while current_ticks < ticks_per_chunk {
+                let instruction = match self.step() {
+                    Ok(instructions) => instructions,
+                    Err(e) => return StopReason::Error(e),
+                };
+                current_ticks += instruction.common().get_cycles() as usize;
+                if let Some(cb) = &callback {
+                    cb(self, instruction.as_ref());
+                }
 
-            if self.cpu.halted() {
-                return StopReason::Halt;
-            }
+                if self.cpu.halted() {
+                    return StopReason::Halt;
+                }
 
-            if self.breakpoints.contains(&self.cpu.registers().pc) {
-                return StopReason::Breakpoint;
+                if self.breakpoints.contains(&self.cpu.registers().pc) {
+                    return StopReason::Breakpoint;
+                }
             }
-            let exec_duration = tick_duration * instruction.common().get_cycles() as u32;
+            let exec_duration = tick_duration * current_ticks as u32;
             let expected_finish = time_before + exec_duration;
             let time_after = SystemTime::now();
+            current_ticks -= ticks_per_chunk;
             if let Ok(difference) = expected_finish.duration_since(time_after) {
+                // println!("Sleeping for {:?}", difference);
                 std::thread::sleep(difference)
+            }
+            else {
+                // println!("Warning: Emulator is running too slow");
             }
         }
     }
 
-    pub fn run(&mut self, frequency: f32) -> StopReason {
-        self.run_w_cb(frequency, None::<fn(&mut Self, &dyn BaseInstruction)>)
+    pub fn run(&mut self, frequency: f32,ticks_per_chunk:usize) -> StopReason {
+        self.run_w_cb(frequency, None::<fn(&mut Self, &dyn BaseInstruction)>,ticks_per_chunk)
     }
     pub fn set_cpu_type(&mut self, cpu_type: CPUType) {
         if self.cpu.type_of() == cpu_type {

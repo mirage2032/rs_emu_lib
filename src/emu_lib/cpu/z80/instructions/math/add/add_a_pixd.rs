@@ -16,13 +16,13 @@ pub struct ADD_A_PIXD {
 }
 
 impl ADD_A_PIXD {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<ADD_A_PIXD,String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<ADD_A_PIXD, String> {
         Ok(ADD_A_PIXD {
             common: InstructionCommon::new(3, 19, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,
         })
     }
-    
+
     pub fn new_with_value(d: u8) -> ADD_A_PIXD {
         ADD_A_PIXD {
             common: InstructionCommon::new(3, 19, true),
@@ -52,7 +52,11 @@ impl ExecutableInstruction<Z80> for ADD_A_PIXD {
             Some(crate::cpu::registers::BaseRegister::Bit16(val)) => {
                 let offset = val.wrapping_add(self.d as u16);
                 let value = memory.read_8(offset as u16)?;
-                add_r_r_setf!(&mut cpu.registers.gp[0].a, value, &mut cpu.registers.gp[0].f);
+                add_r_r_setf!(
+                    &mut cpu.registers.gp[0].a,
+                    value,
+                    &mut cpu.registers.gp[0].f
+                );
             }
             _ => return Err("Invalid register".to_string()),
         }

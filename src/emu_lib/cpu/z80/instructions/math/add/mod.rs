@@ -1,4 +1,3 @@
-
 use crate::cpu::instruction::InstructionCommon;
 use crate::cpu::z80::instructions::math::add::generics::{add_r_r_setf, add_rr_rr_setf};
 use crate::cpu::z80::ExecutableInstruction;
@@ -9,16 +8,17 @@ use crate::memory::Memory;
 use hex_literal::hex;
 use std::fmt;
 use std::fmt::Display;
-mod generics;
 pub mod add_a_phl;
-pub mod add_ix_sp;
 pub mod add_a_pixd;
+pub mod add_ix_sp;
+mod generics;
 generics::add_r_r::add_r_r!(a, b, "80", "A", "B");
 generics::add_r_r::add_r_r!(a, c, "81", "A", "C");
 generics::add_r_r::add_r_r!(a, d, "82", "A", "D");
 generics::add_r_r::add_r_r!(a, e, "83", "A", "E");
 generics::add_r_r::add_r_r!(a, h, "84", "A", "H");
 generics::add_r_r::add_r_r!(a, l, "85", "A", "L");
+generics::add_r_r::add_r_r!(a, a, "87", "A", "A");
 
 generics::add_rr_rr::add_rr_rr!(hl, bc, "09", "HL", "BC");
 generics::add_rr_rr::add_rr_rr!(hl, de, "19", "HL", "DE");
