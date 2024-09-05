@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
-
+use crate::emu_lib::cpu::Cpu;
 use crate::cpu::registers::BaseRegister;
-use crate::cpu::CPUType;
 use crate::emulator::Emulator;
 use crate::memory::memdevices::RAM;
 use crate::memory::{Memory, MemoryDevice};
@@ -44,7 +43,7 @@ pub struct TestData {
     cycles: Vec<(u16, Option<u8>, String)>,
 }
 
-fn setup_z80(emulator: &mut Emulator, state: &TestState) -> Result<(), &'static str> {
+fn setup_z80(emulator: &mut Emulator<Z80>, state: &TestState) -> Result<(), &'static str> {
     let registers = emulator.cpu.registers_mut();
     registers.pc = state.pc;
     registers.sp = state.sp;
@@ -77,7 +76,7 @@ fn setup_z80(emulator: &mut Emulator, state: &TestState) -> Result<(), &'static 
     Ok(())
 }
 
-fn assert_z80(emulator: &mut Emulator, test_state: &TestState) {
+fn assert_z80(emulator: &mut Emulator<Z80>, test_state: &TestState) {
     let registers = emulator.cpu.registers();
     assert_eq!(registers.gp[0].a, test_state.a);
     assert_eq!(registers.gp[0].b, test_state.b);
@@ -120,7 +119,7 @@ pub fn test_z80_w_data(test_data_vec: Vec<TestData>) {
         let mut memory = Memory::new();
         let rom = RAM::new(0x10000);
         memory.add_device(Box::new(rom));
-        let mut emulator = Emulator::new_w_mem(CPUType::Z80, memory);
+        let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
         // println!("Running test: {}",test_data.name);
         setup_z80(&mut emulator, &test_data.initial_state).expect("Failed to setup Z80");
         emulator.step().expect("Failed to step");
@@ -180,3 +179,4 @@ macro_rules! test_z80 {
 }
 
 pub(crate) use test_z80;
+use crate::cpu::z80::Z80;

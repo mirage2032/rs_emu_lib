@@ -4,7 +4,7 @@ use crate::cpu::registers::{AllRegisters, BaseRegister, GPByteRegisters};
 use crate::emu_lib::cpu::instruction::{
     push_16, BaseInstruction, ExecutableInstruction, InstructionParser,
 };
-use crate::emu_lib::cpu::{CPUType, Cpu};
+use crate::emu_lib::cpu::Cpu;
 use crate::emu_lib::io::{InterruptType, IO};
 
 use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
@@ -104,9 +104,6 @@ impl Cpu for Z80 {
         instruction.execute(memory, self, io)?;
         // println!("Executing: {:?}", self.registers.gp[0].f);
         Ok(instruction)
-    }
-    fn type_of(&self) -> CPUType {
-        CPUType::Z80
     }
     fn parser(&self) -> &dyn InstructionParser {
         &self.parser

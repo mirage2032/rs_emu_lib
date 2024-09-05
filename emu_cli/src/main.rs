@@ -55,7 +55,7 @@ fn main() {
     println!("Running emulator");
     // print_registers(emulator.cpu.registers());
     let freq = 600_000.0;
-    let stop_reason = emulator.run_w_cb(
+    let stop_reason = emulator.run_with_callback(
         freq,
         Some(|emu: &mut Emulator<_>, instruction: &dyn BaseInstruction| {
             // println!("{}", instruction);

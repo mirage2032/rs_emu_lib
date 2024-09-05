@@ -3,7 +3,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::registers::BaseRegister;
-use crate::cpu::z80::instructions::math::add::generics::{add_r_r_setf, add_rr_rr_setf};
+use crate::cpu::z80::instructions::math::add::generics::add_r_r_setf;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;

@@ -1,9 +1,7 @@
 use std::time::{Duration, SystemTime};
 
-use crate::emu_lib::cpu::i8080::I8080;
 use crate::emu_lib::cpu::instruction::BaseInstruction;
-use crate::emu_lib::cpu::z80::Z80;
-use crate::emu_lib::cpu::{CPUType, Cpu};
+use crate::emu_lib::cpu::Cpu;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
 
@@ -52,7 +50,7 @@ impl<T:Cpu+Default> Emulator<T> {
         instruction
     }
 
-    pub fn run_w_cb<CB: Fn(&mut Self, &dyn BaseInstruction)>(
+    pub fn run_with_callback<CB: Fn(&mut Self, &dyn BaseInstruction)>(
         &mut self,
         frequency: f32,
         callback: Option<CB>,
@@ -96,6 +94,6 @@ impl<T:Cpu+Default> Emulator<T> {
     }
 
     pub fn run(&mut self, frequency: f32,ticks_per_chunk:usize) -> StopReason {
-        self.run_w_cb(frequency, None::<fn(&mut Self, &dyn BaseInstruction)>,ticks_per_chunk)
+        self.run_with_callback(frequency, None::<fn(&mut Self, &dyn BaseInstruction)>, ticks_per_chunk)
     }
 }

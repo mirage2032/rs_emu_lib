@@ -1,7 +1,6 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::cpu::z80::instructions::math::sbc::sbc_r_r;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;

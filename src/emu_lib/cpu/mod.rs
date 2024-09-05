@@ -11,19 +11,12 @@ pub mod registers;
 pub mod test;
 pub mod z80;
 
-#[derive(PartialEq, Copy, Clone)]
-pub enum CPUType {
-    Z80,
-    I8080,
-}
-
 pub trait Cpu: Send {
     fn step(
         &mut self,
         memory: &mut Memory,
         io: &mut IO,
     ) -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn type_of(&self) -> CPUType;
     fn parser(&self) -> &dyn InstructionParser;
     fn registers(&self) -> &AllRegisters;
     fn registers_mut(&mut self) -> &mut AllRegisters;

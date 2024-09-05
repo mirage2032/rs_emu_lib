@@ -1,6 +1,6 @@
 use crate::cpu::registers::AllRegisters;
 use crate::emu_lib::cpu::instruction::{BaseInstruction, InstructionParser};
-use crate::emu_lib::cpu::{CPUType, Cpu};
+use crate::emu_lib::cpu::Cpu;
 use crate::emu_lib::io::IO;
 
 use super::super::memory::Memory;
@@ -18,9 +18,6 @@ impl Default for I8080 {
 impl Cpu for I8080 {
     fn step(&mut self, _: &mut Memory, _: &mut IO) -> Result<Box<dyn BaseInstruction>, String> {
         unimplemented!()
-    }
-    fn type_of(&self) -> CPUType {
-        CPUType::I8080
     }
     fn parser(&self) -> &dyn InstructionParser {
         unimplemented!()

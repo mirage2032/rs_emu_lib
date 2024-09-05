@@ -27,6 +27,4 @@ macro_rules! sbc_r_r {
     };
 }
 
-pub(crate) use sbc_r_r;
-
 pub mod sbc_a_n;

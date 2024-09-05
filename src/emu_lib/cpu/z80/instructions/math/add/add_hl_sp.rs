@@ -3,7 +3,6 @@ use crate::emu_lib::cpu::instruction::{BaseInstruction, ExecutableInstruction, I
 use crate::emu_lib::cpu::z80::Z80;
 use crate::emu_lib::io::IO;
 use crate::emu_lib::memory::Memory;
-use crate::memory::MemoryDevice;
 use std::fmt;
 use std::fmt::Display;
 
@@ -36,7 +35,7 @@ impl BaseInstruction for ADD_HL_SP {
 }
 
 impl ExecutableInstruction<Z80> for ADD_HL_SP {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         add_rr_rr_setf!(
             &mut cpu.registers.gp[0].hl,
             cpu.registers.sp,
