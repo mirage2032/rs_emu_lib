@@ -35,7 +35,6 @@ fn main() {
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
     let mut memory = Memory::new();
-    let bank = RAM::new(0x10000 - dsp.size());
     memory.add_device(Box::new(RAM::new(0x1000)));
     memory.add_device(Box::new(dsp));
     memory.add_device(Box::new(RAM::new(0x10000 - 64 * 64 - 0x1000)));

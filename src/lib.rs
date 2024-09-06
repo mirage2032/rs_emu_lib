@@ -1,7 +1,7 @@
 #![feature(trait_upcasting)]
-#![feature(unboxed_closures)]
+#![allow(dead_code)]
 
-pub use emu_lib::*;
-
-#[allow(dead_code)]
-mod emu_lib;
+pub mod cpu;
+pub mod emulator;
+pub mod io;
+pub mod memory;
