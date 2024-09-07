@@ -1,5 +1,5 @@
 use instruction::{BaseInstruction, InstructionParser};
-
+use crate::cpu::instruction::ExecutableInstruction;
 use crate::cpu::registers::AllRegisters;
 use crate::io::IO;
 use crate::memory::Memory;
@@ -16,7 +16,7 @@ pub trait Cpu: Send {
         &mut self,
         memory: &mut Memory,
         io: &mut IO,
-    ) -> Result<Box<(dyn BaseInstruction)>, String>;
+    ) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
     fn parser(&self) -> &dyn InstructionParser;
     fn registers(&self) -> &AllRegisters;
     fn registers_mut(&mut self) -> &mut AllRegisters;

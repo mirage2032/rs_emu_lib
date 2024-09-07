@@ -5,6 +5,7 @@ use emu_lib::cpu::{
     instruction::BaseInstruction,
     registers::{AllRegisters, GPByteRegisters},
 };
+use emu_lib::cpu::instruction::ExecutableInstruction;
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use emu_lib::memory::{errors::MemoryError, memdevices::RAM, Memory, MemoryDevice};
@@ -56,8 +57,9 @@ fn main() {
     let freq = 600_000.0;
     let stop_reason = emulator.run_with_callback(
         freq,
-        Some(|emu: &mut Emulator<_>, instruction: &dyn BaseInstruction| {
+        Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {
             // println!("{}", instruction);
+            //
             // print_registers(emu.cpu.registers());
         }),
         // 1

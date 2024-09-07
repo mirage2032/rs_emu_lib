@@ -1,6 +1,6 @@
 use std::time::{Duration, SystemTime};
 
-use crate::cpu::instruction::BaseInstruction;
+use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction};
 use crate::cpu::Cpu;
 use crate::io::IO;
 use crate::memory::Memory;
@@ -38,7 +38,7 @@ impl<T: Cpu + Default> Emulator<T> {
             cycles: 0,
         }
     }
-    pub fn step(&mut self) -> Result<Box<dyn BaseInstruction>, String> {
+    pub fn step(&mut self) -> Result<Box<dyn ExecutableInstruction<T>>, String> {
         if self.cpu.halted() {
             return Err("CPU is halted".to_string());
         }
@@ -50,7 +50,25 @@ impl<T: Cpu + Default> Emulator<T> {
         instruction
     }
 
-    pub fn run_with_callback<CB: Fn(&mut Self, &dyn BaseInstruction)>(
+    pub fn run_ticks<CB: Fn(&mut Self, &dyn ExecutableInstruction<T>)>(&mut self, ticks: usize, callback: &Option<CB>) -> Result<usize,StopReason> {
+        let mut current_ticks = 0;
+        while current_ticks < ticks {
+            let instruction = self.step().map_err(|e| StopReason::Error(e))?;
+            current_ticks += instruction.common().get_cycles() as usize;
+            if let Some(callback) = &callback {
+                callback(self, &*instruction);
+            }
+            if self.cpu.halted() {
+                return Err(StopReason::Halt);
+            }
+            if self.breakpoints.contains(&self.cpu.registers().pc) {
+                return Err(StopReason::Breakpoint);
+            }
+        }
+        Ok(current_ticks)
+    }
+
+    pub fn run_with_callback<CB: Fn(&mut Self, &dyn ExecutableInstruction<T>)>(
         &mut self,
         frequency: f32,
         callback: Option<CB>,
@@ -58,31 +76,20 @@ impl<T: Cpu + Default> Emulator<T> {
     ) -> StopReason {
         let tick_duration = Duration::from_secs_f32(1.0 / frequency);
 
-        let mut current_ticks = 0;
         loop {
             let time_before = SystemTime::now();
-            while current_ticks < ticks_per_chunk {
-                let instruction = match self.step() {
-                    Ok(instructions) => instructions,
-                    Err(e) => return StopReason::Error(e),
-                };
-                current_ticks += instruction.common().get_cycles() as usize;
-                if let Some(cb) = &callback {
-                    cb(self, instruction.as_ref());
+            let res = self.run_ticks(ticks_per_chunk,&callback);
+            let ticks =match res {
+                Ok(ticks) => {
+                    ticks
                 }
-
-                if self.cpu.halted() {
-                    return StopReason::Halt;
+                Err(e) => {
+                    return e;
                 }
-
-                if self.breakpoints.contains(&self.cpu.registers().pc) {
-                    return StopReason::Breakpoint;
-                }
-            }
-            let exec_duration = tick_duration * current_ticks as u32;
+            };
+            let exec_duration = tick_duration * ticks as u32;
             let expected_finish = time_before + exec_duration;
             let time_after = SystemTime::now();
-            current_ticks = current_ticks % ticks_per_chunk;
             if let Ok(difference) = expected_finish.duration_since(time_after) {
                 // println!("Sleeping for {:?}", difference);
                 std::thread::sleep(difference)
@@ -95,7 +102,7 @@ impl<T: Cpu + Default> Emulator<T> {
     pub fn run(&mut self, frequency: f32, ticks_per_chunk: usize) -> StopReason {
         self.run_with_callback(
             frequency,
-            None::<fn(&mut Self, &dyn BaseInstruction)>,
+            None::<fn(&mut Self, &dyn ExecutableInstruction<T>)>,
             ticks_per_chunk,
         )
     }

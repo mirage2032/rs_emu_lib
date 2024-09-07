@@ -91,7 +91,7 @@ impl Cpu for Z80 {
         &mut self,
         memory: &mut Memory,
         io: &mut IO,
-    ) -> Result<Box<(dyn BaseInstruction)>, String> {
+    ) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
         let res = self.handle_interrupt(memory, io)?; // If IM1 interrupt it will be returned and executed
         let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
             Some(instruction) => instruction,
