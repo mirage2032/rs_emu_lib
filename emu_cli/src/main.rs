@@ -54,7 +54,7 @@ fn main() {
     };
     println!("Running emulator");
     // print_registers(emulator.cpu.registers());
-    let freq = 600_000.0;
+    let freq = 3_500_000.0;
     let stop_reason = emulator.run_with_callback(
         freq,
         Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {
@@ -63,7 +63,7 @@ fn main() {
             // print_registers(emu.cpu.registers());
         }),
         // 1
-        freq as usize / 60,
+        freq as f64 / 50.08,
     );
     println!("Emulator stopped");
     match stop_reason {

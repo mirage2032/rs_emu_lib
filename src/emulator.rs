@@ -52,13 +52,13 @@ impl<T: Cpu + Default> Emulator<T> {
 
     pub fn run_ticks<CB: Fn(&mut Self, &dyn ExecutableInstruction<T>)>(
         &mut self,
-        ticks: usize,
+        ticks: f64,
         callback: &Option<CB>,
-    ) -> Result<usize, StopReason> {
-        let mut current_ticks = 0;
-        while current_ticks < ticks {
+    ) -> Result<f64, StopReason> {
+        let mut current_ticks = 0.0;
+        while current_ticks < ticks  {
             let instruction = self.step().map_err(|e| StopReason::Error(e))?;
-            current_ticks += instruction.common().get_cycles() as usize;
+            current_ticks += instruction.common().get_cycles() as f64;
             if let Some(callback) = &callback {
                 callback(self, &*instruction);
             }
@@ -76,9 +76,9 @@ impl<T: Cpu + Default> Emulator<T> {
         &mut self,
         frequency: f32,
         callback: Option<CB>,
-        ticks_per_chunk: usize,
+        ticks_per_chunk: f64,
     ) -> StopReason {
-        let tick_duration = Duration::from_secs_f32(1.0 / frequency);
+        let tick_duration = Duration::from_secs_f64(1.0 / frequency as f64);
 
         loop {
             let time_before = SystemTime::now();
@@ -96,12 +96,12 @@ impl<T: Cpu + Default> Emulator<T> {
                 // println!("Sleeping for {:?}", difference);
                 std::thread::sleep(difference)
             } else {
-                // println!("Warning: Emulator is running too slow");
+                println!("Warning: Emulator is running too slow");
             }
         }
     }
 
-    pub fn run(&mut self, frequency: f32, ticks_per_chunk: usize) -> StopReason {
+    pub fn run(&mut self, frequency: f32, ticks_per_chunk: f64) -> StopReason {
         self.run_with_callback(
             frequency,
             None::<fn(&mut Self, &dyn ExecutableInstruction<T>)>,
