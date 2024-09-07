@@ -913,23 +913,26 @@ impl Z80Parser {
     }
 }
 
-impl InstructionParser for Z80Parser {
+impl InstructionParser<Z80> for Z80Parser {
     fn ins_from_mem(
         &self,
         memory: &Memory,
         pos: u16,
-    ) -> Result<Box<(dyn BaseInstruction)>, String> {
-        Z80Parser::from_memdev(memory, pos).map(|x| x as Box<dyn BaseInstruction>)
+    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
+        Z80Parser::from_memdev(memory, pos).map(|x| x)
     }
     fn ins_from_vec(
         &self,
-        memory: Vec<u8>,
+        memory: &Vec<u8>,
         pos: u16,
-    ) -> Result<Box<(dyn BaseInstruction)>, String> {
-        let rom: ROM = memory.into();
-        Z80Parser::from_memdev(&rom, pos).map(|x| x as Box<dyn BaseInstruction>)
+    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
+        let rom: ROM = memory.clone().into();
+        Z80Parser::from_memdev(&rom, pos).map(|x| x)
     }
-    fn ins_from_string(&self, instruction: &String) -> Result<Box<(dyn BaseInstruction)>, String> {
-        Z80Parser::from_string(instruction).map(|x| x as Box<dyn BaseInstruction>)
+    fn ins_from_string(
+        &self,
+        instruction: &String,
+    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
+        Z80Parser::from_string(instruction).map(|x| x)
     }
 }

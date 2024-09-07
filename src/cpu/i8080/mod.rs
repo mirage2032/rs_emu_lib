@@ -16,10 +16,14 @@ impl Default for I8080 {
 }
 
 impl Cpu for I8080 {
-    fn step(&mut self, _: &mut Memory, _: &mut IO) -> Result<Box<dyn ExecutableInstruction<Self>>, String> {
+    fn step(
+        &mut self,
+        _: &mut Memory,
+        _: &mut IO,
+    ) -> Result<Box<dyn ExecutableInstruction<Self>>, String> {
         unimplemented!()
     }
-    fn parser(&self) -> &dyn InstructionParser {
+    fn parser(&self) -> &dyn InstructionParser<I8080> {
         unimplemented!()
     }
 

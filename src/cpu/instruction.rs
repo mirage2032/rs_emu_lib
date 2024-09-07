@@ -53,12 +53,21 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
     }
 }
 
-pub trait InstructionParser {
-    fn ins_from_mem(&self, memory: &Memory, pos: u16)
-        -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn ins_from_vec(&self, memory: Vec<u8>, pos: u16)
-        -> Result<Box<(dyn BaseInstruction)>, String>;
-    fn ins_from_string(&self, instruction: &String) -> Result<Box<(dyn BaseInstruction)>, String>;
+pub trait InstructionParser<T: Cpu> {
+    fn ins_from_mem(
+        &self,
+        memory: &Memory,
+        pos: u16,
+    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
+    fn ins_from_vec(
+        &self,
+        memory: &Vec<u8>,
+        pos: u16,
+    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
+    fn ins_from_string(
+        &self,
+        instruction: &String,
+    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
 }
 //MACROS
 //STACK PUSH/POP
@@ -106,4 +115,5 @@ macro_rules! pop_16 {
     }};
 }
 
+use crate::cpu::z80::Z80;
 pub(crate) use pop_16;

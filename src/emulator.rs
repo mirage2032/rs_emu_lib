@@ -50,7 +50,11 @@ impl<T: Cpu + Default> Emulator<T> {
         instruction
     }
 
-    pub fn run_ticks<CB: Fn(&mut Self, &dyn ExecutableInstruction<T>)>(&mut self, ticks: usize, callback: &Option<CB>) -> Result<usize,StopReason> {
+    pub fn run_ticks<CB: Fn(&mut Self, &dyn ExecutableInstruction<T>)>(
+        &mut self,
+        ticks: usize,
+        callback: &Option<CB>,
+    ) -> Result<usize, StopReason> {
         let mut current_ticks = 0;
         while current_ticks < ticks {
             let instruction = self.step().map_err(|e| StopReason::Error(e))?;
@@ -78,11 +82,9 @@ impl<T: Cpu + Default> Emulator<T> {
 
         loop {
             let time_before = SystemTime::now();
-            let res = self.run_ticks(ticks_per_chunk,&callback);
-            let ticks =match res {
-                Ok(ticks) => {
-                    ticks
-                }
+            let res = self.run_ticks(ticks_per_chunk, &callback);
+            let ticks = match res {
+                Ok(ticks) => ticks,
                 Err(e) => {
                     return e;
                 }

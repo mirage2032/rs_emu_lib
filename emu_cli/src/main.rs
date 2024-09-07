@@ -31,7 +31,7 @@ fn print_registers(registers: &AllRegisters) {
 }
 
 fn main() {
-    let mut dsp = MemViz::new(64 * 64, 64, 10.0);
+    let dsp = MemViz::new(64 * 64, 64, 10.0);
     // dsp.randomize();
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");

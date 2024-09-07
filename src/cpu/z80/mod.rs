@@ -103,7 +103,7 @@ impl Cpu for Z80 {
         // println!("Executing: {:?}", self.registers.gp[0].f);
         Ok(instruction)
     }
-    fn parser(&self) -> &dyn InstructionParser {
+    fn parser(&self) -> &dyn InstructionParser<Z80> {
         &self.parser
     }
 
