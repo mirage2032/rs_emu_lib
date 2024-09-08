@@ -3,6 +3,7 @@ use regex::Regex;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionParser};
 use crate::cpu::z80::instructions::*;
 use crate::cpu::z80::Z80;
+use crate::io::InterruptType;
 use crate::memory::{memdevices::ROM, Memory, MemoryDevice};
 
 #[derive(Debug, Clone)]
@@ -62,8 +63,8 @@ fn is_val(number: &str) -> Result<ImmediateValue, String> {
 pub struct Z80Parser {}
 
 impl Z80Parser {
-    pub fn from_memdev(
-        memory: &dyn MemoryDevice,
+    pub fn from_memdev<M:MemoryDevice>(
+        memory: &M,
         pos: u16,
     ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
         let ins_byte0 = memory.read_8(pos)?;
@@ -929,6 +930,7 @@ impl InstructionParser<Z80> for Z80Parser {
         let rom: ROM = memory.clone().into();
         Z80Parser::from_memdev(&rom, pos).map(|x| x)
     }
+
     fn ins_from_string(
         &self,
         instruction: &String,

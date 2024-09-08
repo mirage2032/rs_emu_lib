@@ -8,7 +8,7 @@ use crate::io::{InterruptType, IO};
 use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
 
 pub mod instructions;
-mod parser;
+pub mod parser;
 
 #[cfg(test)]
 mod test;
