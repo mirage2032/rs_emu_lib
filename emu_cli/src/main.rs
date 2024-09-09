@@ -34,16 +34,17 @@ fn print_registers(registers: &AllRegisters) {
 }
 
 fn main() {
-    let dsp = MemViz::new(64 * 64, 64, 10.0);
+    let res = (256,192);
+    let dsp = MemViz::new(res.0 * res.1, res.0, 4.0);
     // dsp.randomize();
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
     let mut memory = Memory::new();
     memory.add_device(Box::new(RAM::new(0x1000)));
     memory.add_device(Box::new(dsp));
-    memory.add_device(Box::new(RAM::new(0x10000 - 64 * 64 - 0x1000)));
+    memory.add_device(Box::new(RAM::new(0x10000 - res.0*res.1 - 0x1000)));
     let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
-    let rom_path: PathBuf = PathBuf::from("roms/color.bin");
+    let rom_path: PathBuf = PathBuf::from("roms/color2.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
     match emulator.memory.load_file(&rom_path) {
         Ok(_) => {}
@@ -66,7 +67,7 @@ fn main() {
             // print_registers(emu.cpu.registers());
         }),
         // 1
-        freq as f64 / 50.08,
+        freq as f64 / 60.08,
     );
     println!("Emulator stopped");
     match stop_reason {

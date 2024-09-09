@@ -124,7 +124,7 @@ impl Z80Parser {
             // 0x35
             0x36 => Box::new(ld::LD_PHL_N::new(memory, pos)?),
             // 0x37
-            // 0x38
+            0x38 => Box::new(jump::jr::jr_c_d::JR_C_D::new(memory, pos)?),
             0x39 => Box::new(math::add::add_hl_sp::ADD_HL_SP::new()),
             0x3A => Box::new(ld::LD_A_PNN::new(memory, pos)?),
             0x3B => Box::new(math::dec::dec_sp::DEC_SP::new()),
@@ -215,6 +215,16 @@ impl Z80Parser {
             0x8c => Box::new(math::adc::ADC_A_H::new()),
             0x8d => Box::new(math::adc::ADC_A_L::new()),
             0x8e => Box::new(math::adc::adc_a_phl::ADC_A_PHL::new()),
+            
+            0x90 => Box::new(math::sub::SUB_B::new()),
+            0x91 => Box::new(math::sub::SUB_C::new()),
+            0x92 => Box::new(math::sub::SUB_D::new()),
+            0x93 => Box::new(math::sub::SUB_E::new()),
+            0x94 => Box::new(math::sub::SUB_H::new()),
+            0x95 => Box::new(math::sub::SUB_L::new()),
+            0x96 => Box::new(math::sub::sub_phl::SUB_PHL::new()),
+            0x97 => Box::new(math::sub::SUB_A::new()),
+            
             0xa0 => Box::new(math::and::AND_B::new()),
             0xa1 => Box::new(math::and::AND_C::new()),
             0xa2 => Box::new(math::and::AND_D::new()),
@@ -326,6 +336,8 @@ impl Z80Parser {
                     0x75 => Box::new(ld::LD_PIXD_L::new(memory, pos)?),
                     0x77 => Box::new(ld::LD_PIXD_A::new(memory, pos)?),
                     0x86 => Box::new(math::add::add_a_pixd::ADD_A_PIXD::new(memory, pos)?),
+                    0x8e => Box::new(math::adc::adc_a_pixd::ADC_A_PIXD::new(memory, pos)?),
+                    0x96 => Box::new(math::sub::sub_ixd::SUB_IXD::new(memory, pos)?),
                     0xa6 => Box::new(math::and::and_ixd::AND_IXD::new(memory, pos)?),
                     0xb6 => Box::new(math::or::or_ixd::OR_IXD::new(memory, pos)?),
                     0xcb => {
@@ -352,6 +364,7 @@ impl Z80Parser {
             }
             0xde => Box::new(math::sbc::sbc_a_n::SBC_A_N::new(memory, pos)?),
             0xe1 => Box::new(stack::pop::POP_HL::new()),
+            0xe3 => Box::new(ex::ex_psp_hl::EX_PSP_HL::new()),
             0xe5 => Box::new(stack::push::PUSH_HL::new()),
             0xee => Box::new(math::xor::xor_n::XOR_N::new(memory, pos)?),
             0xf5 => Box::new(stack::push::PUSH_AF::new()),
@@ -625,6 +638,9 @@ impl Z80Parser {
                             Ok(ImmediateValue::Val8(val)) => {
                                 Box::new(math::adc::adc_a_n::ADC_A_N::new_with_value(val))
                             }
+                            Ok(ImmediateValue::OffsetIX(offset)) => {
+                                Box::new(math::adc::adc_a_pixd::ADC_A_PIXD::new_with_value(offset))
+                            }
                             _ => match source {
                                 "b" => Box::new(math::adc::ADC_A_B::new()),
                                 "c" => Box::new(math::adc::ADC_A_C::new()),
@@ -636,15 +652,6 @@ impl Z80Parser {
                                 _ => return Err("Invalid source".to_string()),
                             },
                         }
-                    }
-                    _ => return Err("Invalid destination".to_string()),
-                }
-            }
-            "sub" => {
-                let destination = op.get(2).unwrap().as_str();
-                match is_val(destination) {
-                    Ok(ImmediateValue::Val8(val)) => {
-                        Box::new(math::sub::sub_n::SUB_N::new_with_value(val))
                     }
                     _ => return Err("Invalid destination".to_string()),
                 }
@@ -685,6 +692,7 @@ impl Z80Parser {
                 match (op1, op2) {
                     ("de", "hl") => Box::new(ex::ex_de_hl::EX_DE_HL::new()),
                     ("af", "af'") => Box::new(ex::ex_af_saf::EX_AF_SAF::new()),
+                    ("(sp)", "hl") => Box::new(ex::ex_psp_hl::EX_PSP_HL::new()),
                     _ => return Err("Invalid operands".to_string()),
                 }
             }
@@ -727,6 +735,29 @@ impl Z80Parser {
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(math::and::and_ixd::AND_IXD::new_with_value(offset))
+                    }
+                    _ => return Err("Invalid destination".to_string()),
+                }
+            }
+            "sub" => {
+                let operator = op.get(2).unwrap().as_str();
+                match is_val(operator) {
+                    Err(_) => match operator {
+                        "a" => Box::new(math::sub::SUB_A::new()),
+                        "b" => Box::new(math::sub::SUB_B::new()),
+                        "c" => Box::new(math::sub::SUB_C::new()),
+                        "d" => Box::new(math::sub::SUB_D::new()),
+                        "e" => Box::new(math::sub::SUB_E::new()),
+                        "h" => Box::new(math::sub::SUB_H::new()),
+                        "l" => Box::new(math::sub::SUB_L::new()),
+                        "(hl)" => Box::new(math::sub::sub_phl::SUB_PHL::new()),
+                        _ => return Err("Invalid destination".to_string()),
+                    },
+                    Ok(ImmediateValue::Val8(val)) => {
+                        Box::new(math::sub::sub_n::SUB_N::new_with_value(val))
+                    }
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(math::sub::sub_ixd::SUB_IXD::new_with_value(offset))
                     }
                     _ => return Err("Invalid destination".to_string()),
                 }
@@ -787,6 +818,9 @@ impl Z80Parser {
                             }
                             ("nc", Ok(ImmediateValue::Val8(val))) => {
                                 Box::new(jump::jr::jr_nc_d::JR_NC_D::new_with_value(val))
+                            }
+                            ("c", Ok(ImmediateValue::Val8(val))) => {
+                                Box::new(jump::jr::jr_c_d::JR_C_D::new_with_value(val))
                             }
                             _ => return Err("Invalid instruction".to_string()),
                         }

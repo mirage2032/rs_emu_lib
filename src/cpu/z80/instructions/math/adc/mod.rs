@@ -13,28 +13,9 @@ use crate::memory::Memory;
 
 mod generics;
 
-// macro_rules! adc_rr_rr {
-//     ($reg1:expr, $reg2:expr, $flags:expr) => {
-//         let result = $reg1
-//             .wrapping_add($reg2)
-//             .wrapping_add($flags.carry() as u16);
-//         let carry = result < *$reg1;
-//         // check for carry between bits 11 and 12
-//         let half_carry = ((*$reg1 & 0x0fff) + ($reg2 & 0x0fff)) > 0x0fff;
-//         *$reg1 = result;
-//         $flags.set_carry(carry);
-//         $flags.set_half_carry(half_carry);
-//         $flags.set_add_sub(false);
-//         //set undocumented flags
-//         $flags.set_bit3((result >> 11) & 1 == 1);
-//         $flags.set_bit5((result >> 13) & 1 == 1);
-//     };
-// }
-//
-// pub(crate) use adc_rr_rr;
-
 pub mod adc_a_n;
 pub mod adc_a_phl;
+pub mod adc_a_pixd;
 
 generics::adc_r_r::adc_r_r!(a, b, "88", "A", "B");
 generics::adc_r_r::adc_r_r!(a, c, "89", "A", "C");
