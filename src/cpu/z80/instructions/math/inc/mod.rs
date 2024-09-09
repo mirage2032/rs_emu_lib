@@ -1,17 +1,19 @@
-mod generics;
-pub mod inc_phl;
-pub mod inc_sp;
-use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::instructions::math::inc::generics::inc_r_setf;
-use crate::cpu::z80::ExecutableInstruction;
-use crate::cpu::z80::Z80;
-use crate::cpu::BaseInstruction;
-use crate::io::IO;
-use crate::memory::Memory;
-use hex_literal::hex;
 use std::fmt;
 use std::fmt::Display;
 
+use hex_literal::hex;
+
+use crate::cpu::BaseInstruction;
+use crate::cpu::instruction::InstructionCommon;
+use crate::cpu::z80::ExecutableInstruction;
+use crate::cpu::z80::instructions::math::inc::generics::inc_r_setf;
+use crate::cpu::z80::Z80;
+use crate::io::IO;
+use crate::memory::Memory;
+
+mod generics;
+pub mod inc_phl;
+pub mod inc_sp;
 generics::inc_r::inc_r!(b, "04", "B");
 generics::inc_r::inc_r!(c, "0c", "C");
 generics::inc_r::inc_r!(d, "14", "D");

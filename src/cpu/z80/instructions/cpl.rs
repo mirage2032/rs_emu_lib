@@ -36,14 +36,14 @@ impl BaseInstruction for CPL {
 
 impl ExecutableInstruction<Z80> for CPL {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let inverted_a = !cpu.registers.gp[0].a;
-        cpu.registers.gp[0].a = inverted_a;
+        let inverted_a = !cpu.registers.gp.a;
+        cpu.registers.gp.a = inverted_a;
 
-        cpu.registers.gp[0].f.set_half_carry(true);
-        cpu.registers.gp[0].f.set_add_sub(true);
+        cpu.registers.gp.f.set_half_carry(true);
+        cpu.registers.gp.f.set_add_sub(true);
 
-        cpu.registers.gp[0].f.set_bit3((inverted_a >> 3) & 1 == 1);
-        cpu.registers.gp[0].f.set_bit5((inverted_a >> 5) & 1 == 1);
+        cpu.registers.gp.f.set_bit3((inverted_a >> 3) & 1 == 1);
+        cpu.registers.gp.f.set_bit5((inverted_a >> 5) & 1 == 1);
         Ok(())
     }
 }

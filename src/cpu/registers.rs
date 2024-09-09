@@ -1,16 +1,22 @@
+use std::ops::{Deref, DerefMut};
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
-use std::ops::{Deref, DerefMut};
+
 
 use bitfield_struct::bitfield;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub enum BaseRegister {
-    Bit8(u8),
-    Bit16(u16),
+#[derive(Debug, PartialEq, Eq)]
+pub enum BaseRegister<'a> {
+    Bit8(&'a u8),
+    Bit16(&'a u16),
+}
+#[derive(Debug, PartialEq, Eq)]
+pub enum BaseMutRegister<'a> {
+    Bit8(&'a mut u8),
+    Bit16(&'a mut u16),
 }
 
-impl Display for BaseRegister {
+impl<'a> Display for BaseRegister<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             BaseRegister::Bit8(val) => write!(f, "{:02X}", val),
@@ -97,10 +103,18 @@ impl DerefMut for GPByteRegisters {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct AllRegisters {
-    pub gp: Vec<GPByteRegisters>,
-    pub sp: u16,
-    pub pc: u16,
-    pub other: HashMap<&'static str, BaseRegister>,
+#[derive(Debug)]
+pub struct AllRegisters<'a> {
+    pub gp: Vec<&'a GPByteRegisters>,
+    pub sp: &'a u16,
+    pub pc: &'a u16,
+    pub other: HashMap<&'static str, BaseRegister<'a>>,
+}
+
+#[derive(Debug)]
+pub struct AllMutRegisters<'a> {
+    pub gp: Vec<&'a mut GPByteRegisters>,
+    pub sp: &'a mut u16,
+    pub pc: &'a mut u16,
+    pub other: HashMap<&'static str, BaseMutRegister<'a>>,
 }

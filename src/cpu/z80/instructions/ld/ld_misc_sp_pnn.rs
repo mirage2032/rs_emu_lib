@@ -2,7 +2,6 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::registers::BaseRegister;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
@@ -48,12 +47,7 @@ impl BaseInstruction for LD_MISC_SP_PNN {
 impl ExecutableInstruction<Z80> for LD_MISC_SP_PNN {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.sp = memory.read_16(self.nn)?;
-        match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => {
-                *val = val.wrapping_add(1) % 128;
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
+        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
         Ok(())
     }
 }

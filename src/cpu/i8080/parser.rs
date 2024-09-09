@@ -9,21 +9,21 @@ pub struct I8080Parser {}
 impl InstructionParser<I8080> for I8080Parser {
     fn ins_from_mem(
         &self,
-        memory: &Memory,
-        pos: u16,
+        _memory: &Memory,
+        _pos: u16,
     ) -> Result<Box<(dyn ExecutableInstruction<I8080>)>, String> {
         unimplemented!()
     }
     fn ins_from_vec(
         &self,
-        memory: &Vec<u8>,
-        pos: u16,
+        _memory: &Vec<u8>,
+        _pos: u16,
     ) -> Result<Box<(dyn ExecutableInstruction<I8080>)>, String> {
         unimplemented!()
     }
     fn ins_from_string(
         &self,
-        instruction: &String,
+        _instruction: &String,
     ) -> Result<Box<(dyn ExecutableInstruction<I8080>)>, String> {
         unimplemented!()
     }

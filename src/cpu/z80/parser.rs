@@ -1,9 +1,8 @@
 use regex::Regex;
 
-use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionParser};
+use crate::cpu::instruction::{ExecutableInstruction, InstructionParser};
 use crate::cpu::z80::instructions::*;
 use crate::cpu::z80::Z80;
-use crate::io::InterruptType;
 use crate::memory::{memdevices::ROM, Memory, MemoryDevice};
 
 #[derive(Debug, Clone)]

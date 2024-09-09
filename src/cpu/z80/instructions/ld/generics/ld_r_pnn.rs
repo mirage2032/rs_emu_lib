@@ -42,7 +42,7 @@ macro_rules! ld_r_pnn {
 
             impl ExecutableInstruction<Z80> for [<LD_ $cdest _PNN>] {
                 fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                    cpu.registers.gp[0].[<$dest>] = memory.read_8(self.nn)?;
+                    cpu.registers.gp.[<$dest>] = memory.read_8(self.nn)?;
                     Ok(())
                 }
             }

@@ -36,7 +36,7 @@ impl BaseInstruction for LD_SP_HL {
 
 impl ExecutableInstruction<Z80> for LD_SP_HL {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.sp = cpu.registers.gp[0].hl;
+        cpu.registers.sp = cpu.registers.gp.hl;
         Ok(())
     }
 }

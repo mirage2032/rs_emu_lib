@@ -1,11 +1,12 @@
+use std::fmt;
+use std::fmt::Display;
+
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::instructions::math::add::generics::add_r_r_setf;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
-use std::fmt;
-use std::fmt::Display;
 
 #[derive(Debug)]
 pub struct ADD_A_PHL {
@@ -38,9 +39,9 @@ impl BaseInstruction for ADD_A_PHL {
 impl ExecutableInstruction<Z80> for ADD_A_PHL {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         add_r_r_setf!(
-            &mut cpu.registers.gp[0].a,
-            memory.read_8(cpu.registers.gp[0].hl)?,
-            cpu.registers.gp[0].f
+            &mut cpu.registers.gp.a,
+            memory.read_8(cpu.registers.gp.hl)?,
+            cpu.registers.gp.f
         );
         Ok(())
     }

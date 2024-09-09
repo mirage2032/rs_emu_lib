@@ -1,10 +1,10 @@
-use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionParser};
-use crate::cpu::registers::AllRegisters;
 use crate::cpu::Cpu;
-use crate::cpu::i8080::parser::I8080Parser;
+use crate::cpu::instruction::{ExecutableInstruction, InstructionParser};
+use crate::cpu::registers::{AllMutRegisters, AllRegisters};
 use crate::io::IO;
 
 use super::super::memory::Memory;
+
 pub mod parser;
 
 pub struct I8080 {
@@ -29,10 +29,10 @@ impl Cpu for I8080 {
         unimplemented!()
     }
 
-    fn registers(&self) -> &AllRegisters {
+    fn registers(&self) -> AllRegisters {
         unimplemented!()
     }
-    fn registers_mut(&mut self) -> &mut AllRegisters {
+    fn registers_mut(&mut self) -> AllMutRegisters {
         unimplemented!()
     }
     fn halted(&self) -> bool {

@@ -37,8 +37,8 @@ impl BaseInstruction for CP_PHL {
 
 impl ExecutableInstruction<Z80> for CP_PHL {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let value = memory.read_8(cpu.registers.gp[0].hl)?;
-        cp_r_setf!(cpu.registers.gp[0].a, value, cpu.registers.gp[0].f);
+        let value = memory.read_8(cpu.registers.gp.hl)?;
+        cp_r_setf!(cpu.registers.gp.a, value, cpu.registers.gp.f);
         Ok(())
     }
 }

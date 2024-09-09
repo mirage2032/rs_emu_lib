@@ -2,7 +2,6 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::registers::BaseRegister;
 use crate::cpu::z80::instructions::math::add::generics::add_rr_rr_setf;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
@@ -38,18 +37,8 @@ impl BaseInstruction for ADD_IX_SP {
 
 impl ExecutableInstruction<Z80> for ADD_IX_SP {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        match cpu.registers.other.get_mut("ix") {
-            Some(crate::cpu::registers::BaseRegister::Bit16(val)) => {
-                add_rr_rr_setf!(val, cpu.registers.sp, cpu.registers.gp[0].f);
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
-        match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => {
-                *val = val.wrapping_add(1) % 128;
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
+        add_rr_rr_setf!(&mut cpu.registers.ix, cpu.registers.sp, cpu.registers.gp.f);
+        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
         Ok(())
     }
 }

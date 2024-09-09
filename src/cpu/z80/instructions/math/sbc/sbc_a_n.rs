@@ -45,7 +45,7 @@ impl BaseInstruction for SBC_A_N {
 
 impl ExecutableInstruction<Z80> for SBC_A_N {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        sbc_r_r!(cpu.registers.gp[0].a, self.n, cpu.registers.gp[0].f);
+        sbc_r_r!(cpu.registers.gp.a, self.n, cpu.registers.gp.f);
         Ok(())
     }
 }

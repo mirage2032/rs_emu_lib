@@ -1,7 +1,7 @@
 use std::time::{Duration, SystemTime};
 
-use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction};
 use crate::cpu::Cpu;
+use crate::cpu::instruction::{ExecutableInstruction};
 use crate::io::IO;
 use crate::memory::Memory;
 

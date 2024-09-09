@@ -36,12 +36,12 @@ impl BaseInstruction for DAA {
 
 impl ExecutableInstruction<Z80> for DAA {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let initial_a = cpu.registers.gp[0].a;
+        let initial_a = cpu.registers.gp.a;
         let mut a = initial_a;
 
-        let carry_in = cpu.registers.gp[0].f.carry();
-        let half_carry_in = cpu.registers.gp[0].f.half_carry();
-        let add_sub = cpu.registers.gp[0].f.add_sub(); // true for subtraction, false for addition
+        let carry_in = cpu.registers.gp.f.carry();
+        let half_carry_in = cpu.registers.gp.f.half_carry();
+        let add_sub = cpu.registers.gp.f.add_sub(); // true for subtraction, false for addition
 
         let mut correction = 0;
 
@@ -52,7 +52,7 @@ impl ExecutableInstruction<Z80> for DAA {
             }
             if carry_in || a > 0x99 {
                 correction |= 0x60;
-                cpu.registers.gp[0].f.set_carry(true);
+                cpu.registers.gp.f.set_carry(true);
             }
             a = a.wrapping_sub(correction);
         } else {
@@ -62,7 +62,7 @@ impl ExecutableInstruction<Z80> for DAA {
             }
             if carry_in || a > 0x99 {
                 correction |= 0x60;
-                cpu.registers.gp[0].f.set_carry(true);
+                cpu.registers.gp.f.set_carry(true);
             }
             a = a.wrapping_add(correction);
         }
@@ -74,16 +74,16 @@ impl ExecutableInstruction<Z80> for DAA {
             (initial_a & 0x0F) < (correction & 0x0F)
         };
         let parity_flag = a.count_ones() % 2 == 0;
-        cpu.registers.gp[0].a = a;
+        cpu.registers.gp.a = a;
 
         // Update the flags
-        cpu.registers.gp[0].f.set_half_carry(new_half_carry);
-        cpu.registers.gp[0].f.set_parity_overflow(parity_flag);
-        cpu.registers.gp[0].f.set_zero(a == 0);
-        cpu.registers.gp[0].f.set_sign(a & 0x80 != 0);
+        cpu.registers.gp.f.set_half_carry(new_half_carry);
+        cpu.registers.gp.f.set_parity_overflow(parity_flag);
+        cpu.registers.gp.f.set_zero(a == 0);
+        cpu.registers.gp.f.set_sign(a & 0x80 != 0);
 
-        cpu.registers.gp[0].f.set_bit3((a >> 3) & 1 == 1);
-        cpu.registers.gp[0].f.set_bit5((a >> 5) & 1 == 1);
+        cpu.registers.gp.f.set_bit3((a >> 3) & 1 == 1);
+        cpu.registers.gp.f.set_bit5((a >> 5) & 1 == 1);
 
         Ok(())
     }

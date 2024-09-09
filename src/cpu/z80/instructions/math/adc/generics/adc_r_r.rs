@@ -33,9 +33,9 @@ macro_rules! adc_r_r {
             impl ExecutableInstruction<Z80> for [<ADC_ $cdest _ $csrc>] {
                 fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     adc_r_r_setf!(
-                        &mut cpu.registers.gp[0].[<$dest>],
-                        cpu.registers.gp[0].[<$src>],
-                        cpu.registers.gp[0].f
+                        &mut cpu.registers.gp.[<$dest>],
+                        cpu.registers.gp.[<$src>],
+                        cpu.registers.gp.f
                     );
                     Ok(())
                 }

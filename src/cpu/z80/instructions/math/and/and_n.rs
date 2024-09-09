@@ -46,7 +46,7 @@ impl BaseInstruction for AND_N {
 
 impl ExecutableInstruction<Z80> for AND_N {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        and_r_setf!(cpu.registers.gp[0].a, self.n, cpu.registers.gp[0].f);
+        and_r_setf!(cpu.registers.gp.a, self.n, cpu.registers.gp.f);
         Ok(())
     }
 }

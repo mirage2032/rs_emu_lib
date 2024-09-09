@@ -36,14 +36,14 @@ impl BaseInstruction for RLA {
 
 impl ExecutableInstruction<Z80> for RLA {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let carry = cpu.registers.gp[0].a >> 7;
-        let a = (cpu.registers.gp[0].a << 1) | cpu.registers.gp[0].f.carry() as u8;
-        cpu.registers.gp[0].f.set_carry(carry != 0);
-        cpu.registers.gp[0].a = a;
-        cpu.registers.gp[0].f.set_add_sub(false);
-        cpu.registers.gp[0].f.set_half_carry(false);
-        cpu.registers.gp[0].f.set_bit3((a >> 3) & 1 == 1);
-        cpu.registers.gp[0].f.set_bit5((a >> 5) & 1 == 1);
+        let carry = cpu.registers.gp.a >> 7;
+        let a = (cpu.registers.gp.a << 1) | cpu.registers.gp.f.carry() as u8;
+        cpu.registers.gp.f.set_carry(carry != 0);
+        cpu.registers.gp.a = a;
+        cpu.registers.gp.f.set_add_sub(false);
+        cpu.registers.gp.f.set_half_carry(false);
+        cpu.registers.gp.f.set_bit3((a >> 3) & 1 == 1);
+        cpu.registers.gp.f.set_bit5((a >> 5) & 1 == 1);
         Ok(())
     }
 }

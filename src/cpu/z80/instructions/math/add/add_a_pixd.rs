@@ -1,13 +1,12 @@
-use crate::memory::MemoryDevice;
 use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::registers::BaseRegister;
 use crate::cpu::z80::instructions::math::add::generics::add_r_r_setf;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::Memory;
+use crate::memory::MemoryDevice;
 
 #[derive(Debug)]
 pub struct ADD_A_PIXD {
@@ -48,24 +47,14 @@ impl BaseInstruction for ADD_A_PIXD {
 
 impl ExecutableInstruction<Z80> for ADD_A_PIXD {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        match cpu.registers.other.get_mut("ix") {
-            Some(crate::cpu::registers::BaseRegister::Bit16(val)) => {
-                let offset = val.wrapping_add(self.d as u16);
-                let value = memory.read_8(offset as u16)?;
-                add_r_r_setf!(
-                    &mut cpu.registers.gp[0].a,
-                    value,
-                    &mut cpu.registers.gp[0].f
-                );
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
-        match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => {
-                *val = val.wrapping_add(1) % 128;
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
+        let offset = cpu.registers.ix.wrapping_add(self.d as u16);
+        let value = memory.read_8(offset as u16)?;
+        add_r_r_setf!(
+            &mut cpu.registers.gp.a,
+            value,
+            &mut cpu.registers.gp.f
+        );
+        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
         Ok(())
     }
 }

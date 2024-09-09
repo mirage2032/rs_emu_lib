@@ -37,23 +37,23 @@ impl BaseInstruction for INC_PHL {
 
 impl ExecutableInstruction<Z80> for INC_PHL {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let value_before = memory.read_8(cpu.registers.gp[0].hl)?;
+        let value_before = memory.read_8(cpu.registers.gp.hl)?;
         let result = value_before.wrapping_add(1);
-        memory.write_8(cpu.registers.gp[0].hl, result)?;
+        memory.write_8(cpu.registers.gp.hl, result)?;
         // Update flags
-        cpu.registers.gp[0].f.set_sign((result & (1 << 7)) != 0);
-        cpu.registers.gp[0]
+        cpu.registers.gp.f.set_sign((result & (1 << 7)) != 0);
+        cpu.registers.gp
             .f
             .set_parity_overflow(value_before == 0x7F);
-        cpu.registers.gp[0]
+        cpu.registers.gp
             .f
             .set_half_carry((value_before & 0x0F) == 0x0F);
-        cpu.registers.gp[0].f.set_zero(result == 0);
-        cpu.registers.gp[0].f.set_add_sub(false);
+        cpu.registers.gp.f.set_zero(result == 0);
+        cpu.registers.gp.f.set_add_sub(false);
 
         // Set undocumented flags
-        cpu.registers.gp[0].f.set_bit3((result >> 3) & 1 == 1);
-        cpu.registers.gp[0].f.set_bit5((result >> 5) & 1 == 1);
+        cpu.registers.gp.f.set_bit3((result >> 3) & 1 == 1);
+        cpu.registers.gp.f.set_bit5((result >> 5) & 1 == 1);
 
         Ok(())
     }

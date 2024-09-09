@@ -1,9 +1,8 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::cpu::instruction::push_16;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::registers::BaseRegister;
+use crate::cpu::instruction::push_16;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
@@ -38,18 +37,9 @@ impl BaseInstruction for PUSH_IX {
 
 impl ExecutableInstruction<Z80> for PUSH_IX {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        match cpu.registers.other.get("ix") {
-            Some(BaseRegister::Bit16(val)) => {
-                push_16!(*val, memory, cpu.registers.sp);
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
-        match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => {
-                *val = val.wrapping_add(1) % 128;
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
+        push_16!(cpu.registers.ix, memory, cpu.registers.sp);
+        cpu.registers.r = cpu.registers.r.wrapping_add(1);
+
         Ok(())
     }
 }

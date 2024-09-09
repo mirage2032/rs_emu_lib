@@ -37,8 +37,8 @@ impl BaseInstruction for ADC_A_PHL {
 
 impl ExecutableInstruction<Z80> for ADC_A_PHL {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let val = memory.read_8(cpu.registers.gp[0].hl)?;
-        super::adc_r_r_setf!(&mut cpu.registers.gp[0].a, val, cpu.registers.gp[0].f);
+        let val = memory.read_8(cpu.registers.gp.hl)?;
+        super::adc_r_r_setf!(&mut cpu.registers.gp.a, val, cpu.registers.gp.f);
         Ok(())
     }
 }

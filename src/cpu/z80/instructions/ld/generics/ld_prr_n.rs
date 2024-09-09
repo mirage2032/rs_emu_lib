@@ -41,7 +41,7 @@ macro_rules! ld_prr_n {
 
             impl ExecutableInstruction<Z80> for [<LD_P $cdest _N>] {
                 fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                    memory.write_8(cpu.registers.gp[0].[<$dest>], self.n)?;
+                    memory.write_8(cpu.registers.gp.[<$dest>], self.n)?;
                     Ok(())
                 }
             }

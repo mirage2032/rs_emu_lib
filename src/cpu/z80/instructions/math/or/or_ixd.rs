@@ -3,7 +3,6 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::instructions::math::or::or_r_setf;
-use crate::cpu::z80::BaseRegister;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
@@ -47,21 +46,11 @@ impl BaseInstruction for OR_IXD {
 
 impl ExecutableInstruction<Z80> for OR_IXD {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        match cpu.registers.other.get("ix") {
-            Some(BaseRegister::Bit16(ix)) => {
-                let val = memory.read_8(ix.wrapping_add(self.d as u16))?;
-                or_r_setf!(cpu.registers.gp[0].a, val, cpu.registers.gp[0].f);
-            }
-            _ => {
-                return Err("IX register not found".to_string());
-            }
-        }
-        match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => {
-                *val = val.wrapping_add(1) % 128;
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
+        
+                let val = memory.read_8(cpu.registers.ix.wrapping_add(self.d as u16))?;
+                or_r_setf!(cpu.registers.gp.a, val, cpu.registers.gp.f);
+            
+        cpu.registers.r = cpu.registers.r.wrapping_add(1);
         Ok(())
     }
 }

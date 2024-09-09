@@ -1,9 +1,9 @@
-use crate::cpu::registers::BaseRegister;
-use crate::cpu::Cpu;
-use crate::emulator::Emulator;
-use crate::memory::memdevices::RAM;
-use crate::memory::{Memory, MemoryDevice};
 use serde::{Deserialize, Serialize};
+
+use crate::cpu::z80::Z80;
+use crate::emulator::Emulator;
+use crate::memory::{Memory, MemoryDevice};
+use crate::memory::memdevices::RAM;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TestState {
@@ -44,27 +44,27 @@ pub struct TestData {
 }
 
 fn setup_z80(emulator: &mut Emulator<Z80>, state: &TestState) -> Result<(), &'static str> {
-    let registers = emulator.cpu.registers_mut();
+    let registers = &mut emulator.cpu.registers;
     registers.pc = state.pc;
     registers.sp = state.sp;
-    registers.gp[0].a = state.a;
-    registers.gp[0].b = state.b;
-    registers.gp[0].c = state.c;
-    registers.gp[0].d = state.d;
-    registers.gp[0].e = state.e;
-    registers.gp[0].f = state.f.into();
-    registers.gp[0].h = state.h;
-    registers.gp[0].l = state.l;
-    registers.other.insert("i", BaseRegister::Bit8(state.i));
-    registers.other.insert("r", BaseRegister::Bit8(state.r));
+    registers.gp.a = state.a;
+    registers.gp.b = state.b;
+    registers.gp.c = state.c;
+    registers.gp.d = state.d;
+    registers.gp.e = state.e;
+    registers.gp.f = state.f.into();
+    registers.gp.h = state.h;
+    registers.gp.l = state.l;
+    registers.i = state.i;
+    registers.r = state.r;
     //registers.other.insert("ei",BaseRegister::Bit8(state.ei));
     //registers.other.insert("wz",BaseRegister::Bit16(state.wz));
-    registers.other.insert("ix", BaseRegister::Bit16(state.ix));
-    registers.other.insert("iy", BaseRegister::Bit16(state.iy));
-    registers.gp[1].af = state.af_;
-    registers.gp[1].bc = state.bc_;
-    registers.gp[1].de = state.de_;
-    registers.gp[1].hl = state.hl_;
+    registers.ix = state.ix;
+    registers.iy = state.iy;
+    registers.gp_alt.af = state.af_;
+    registers.gp_alt.bc = state.bc_;
+    registers.gp_alt.de = state.de_;
+    registers.gp_alt.hl = state.hl_;
     //registers.other.insert("im",BaseRegister::Bit8(state.im));
     //registers.other.insert("p",BaseRegister::Bit16(state.p));
     //registers.other.insert("q",BaseRegister::Bit16(state.q));
@@ -77,23 +77,23 @@ fn setup_z80(emulator: &mut Emulator<Z80>, state: &TestState) -> Result<(), &'st
 }
 
 fn assert_z80(emulator: &mut Emulator<Z80>, test_state: &TestState) {
-    let registers = emulator.cpu.registers();
-    assert_eq!(registers.gp[0].a, test_state.a);
-    assert_eq!(registers.gp[0].b, test_state.b);
-    assert_eq!(registers.gp[0].c, test_state.c);
-    assert_eq!(registers.gp[0].d, test_state.d);
-    assert_eq!(registers.gp[0].e, test_state.e);
-    assert_eq!(registers.gp[0].f, test_state.f.into());
-    assert_eq!(registers.gp[0].h, test_state.h);
-    assert_eq!(registers.gp[0].l, test_state.l);
-    assert_eq!(registers.other["i"], BaseRegister::Bit8(test_state.i));
-    assert_eq!(registers.other["r"], BaseRegister::Bit8(test_state.r));
-    assert_eq!(registers.gp[1].af, test_state.af_);
-    assert_eq!(registers.gp[1].bc, test_state.bc_);
-    assert_eq!(registers.gp[1].de, test_state.de_);
-    assert_eq!(registers.gp[1].hl, test_state.hl_);
-    assert_eq!(registers.other["ix"], BaseRegister::Bit16(test_state.ix));
-    assert_eq!(registers.other["iy"], BaseRegister::Bit16(test_state.iy));
+    let registers = &emulator.cpu.registers;
+    assert_eq!(registers.gp.a, test_state.a);
+    assert_eq!(registers.gp.b, test_state.b);
+    assert_eq!(registers.gp.c, test_state.c);
+    assert_eq!(registers.gp.d, test_state.d);
+    assert_eq!(registers.gp.e, test_state.e);
+    assert_eq!(registers.gp.f, test_state.f.into());
+    assert_eq!(registers.gp.h, test_state.h);
+    assert_eq!(registers.gp.l, test_state.l);
+    assert_eq!(registers.i, test_state.i);
+    assert_eq!(registers.r, test_state.r);
+    assert_eq!(registers.gp_alt.af, test_state.af_);
+    assert_eq!(registers.gp_alt.bc, test_state.bc_);
+    assert_eq!(registers.gp_alt.de, test_state.de_);
+    assert_eq!(registers.gp_alt.hl, test_state.hl_);
+    assert_eq!(registers.ix, test_state.ix);
+    assert_eq!(registers.iy, test_state.iy);
     assert_eq!(registers.pc, test_state.pc);
     assert_eq!(registers.sp, test_state.sp);
     //assert_eq!(registers.other["wz"],BaseRegister::Bit16(test_state.wz));
@@ -178,5 +178,4 @@ macro_rules! test_z80 {
     };
 }
 
-use crate::cpu::z80::Z80;
 pub(crate) use test_z80;

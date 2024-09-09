@@ -1,6 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
 
+
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
@@ -36,9 +37,9 @@ impl BaseInstruction for EX_DE_HL {
 
 impl ExecutableInstruction<Z80> for EX_DE_HL {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let temp = cpu.registers.gp[0].de;
-        cpu.registers.gp[0].de = cpu.registers.gp[0].hl;
-        cpu.registers.gp[0].hl = temp;
+        let temp = cpu.registers.gp.de;
+        cpu.registers.gp.de = cpu.registers.gp.hl;
+        cpu.registers.gp.hl = temp;
         Ok(())
     }
 }

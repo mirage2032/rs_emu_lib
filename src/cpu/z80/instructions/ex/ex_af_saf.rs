@@ -1,6 +1,7 @@
 use std::fmt;
 use std::fmt::Display;
 
+
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
@@ -36,9 +37,9 @@ impl BaseInstruction for EX_AF_SAF {
 
 impl ExecutableInstruction<Z80> for EX_AF_SAF {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let af = cpu.registers.gp[0].af;
-        cpu.registers.gp[0].af = cpu.registers.gp[1].af;
-        cpu.registers.gp[1].af = af;
+        let af = cpu.registers.gp.af;
+        cpu.registers.gp.af = cpu.registers.gp_alt.af;
+        cpu.registers.gp_alt.af = af;
         Ok(())
     }
 }

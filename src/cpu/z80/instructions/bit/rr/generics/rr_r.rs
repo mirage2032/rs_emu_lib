@@ -32,14 +32,9 @@ macro_rules! rr_r {
 
             impl ExecutableInstruction<Z80> for [<RR_ $sdest>] {
                 fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                    let gp = &mut cpu.registers.gp[0];
+                    let gp = &mut cpu.registers.gp;
                     rr_r_setf!(gp.$src, gp.f);
-                    match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => {
-                *val = val.wrapping_add(1) % 128;
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
+                    cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
 
                     Ok(())
                 }

@@ -1,8 +1,8 @@
 #![allow(unused)]
 use std::fmt::{Debug, Display};
 
-use crate::cpu::registers::BaseRegister;
 use crate::cpu::Cpu;
+use crate::cpu::registers::BaseMutRegister;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -41,13 +41,13 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
     fn runner(&mut self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String>;
     fn execute(&mut self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String> {
         self.runner(memory, cpu, io)?;
-        if let BaseRegister::Bit8(val) = cpu.registers_mut().other.get_mut("r").unwrap() {
-            *val = val.wrapping_add(1) % 128;
+        if let BaseMutRegister::Bit8(val) = cpu.registers_mut().other.get_mut("r").unwrap() {
+            **val = val.wrapping_add(1) % 128;
         }
         if self.common().increment_pc {
             let inst_length = self.common().length;
             let new_pc = cpu.registers_mut().pc.wrapping_add(inst_length);
-            cpu.registers_mut().pc = new_pc;
+            *cpu.registers_mut().pc = new_pc;
         }
         Ok(())
     }
@@ -116,5 +116,4 @@ macro_rules! pop_16 {
     }};
 }
 
-use crate::cpu::z80::Z80;
 pub(crate) use pop_16;

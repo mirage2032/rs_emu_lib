@@ -45,7 +45,7 @@ impl BaseInstruction for JR_NC_D {
 
 impl ExecutableInstruction<Z80> for JR_NC_D {
     fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        if !cpu.registers.gp[0].f.carry() {
+        if !cpu.registers.gp.f.carry() {
             self.common = InstructionCommon::new(2, 12, true);
             cpu.registers.pc = cpu.registers.pc.wrapping_add(self.d as u16);
         }

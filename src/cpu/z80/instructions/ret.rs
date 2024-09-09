@@ -1,8 +1,8 @@
 use std::fmt;
 use std::fmt::Display;
 
-use crate::cpu::instruction::pop_16;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::cpu::instruction::pop_16;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};

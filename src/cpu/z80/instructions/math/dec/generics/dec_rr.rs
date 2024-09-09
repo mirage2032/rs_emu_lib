@@ -32,7 +32,7 @@ macro_rules! dec_rr {
 
             impl ExecutableInstruction<Z80> for [<DEC_ $cdest>] {
                 fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                    cpu.registers.gp[0].[<$dest>] = cpu.registers.gp[0].[<$dest>].wrapping_sub(1);
+                    cpu.registers.gp.[<$dest>] = cpu.registers.gp.[<$dest>].wrapping_sub(1);
                     Ok(())
                 }
             }

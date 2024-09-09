@@ -41,21 +41,10 @@ macro_rules! ld_pixd_r {
 
             impl ExecutableInstruction<Z80> for [<LD_PIXD_ $cdest>] {
                 fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                    match cpu.registers.other.get("ix") {
-            Some(BaseRegister::Bit16(ix)) => {
-                let addr = ix.wrapping_add(self.d as u16);
-                memory.write_8(addr, cpu.registers.gp[0].$dest)?;
-            }
-            _ => {
-                return Err("IX register not found".to_string());
-            }
-        }
-        match cpu.registers.other.get_mut("r") {
-            Some(BaseRegister::Bit8(val)) => {
-                *val = val.wrapping_add(1) % 128;
-            }
-            _ => return Err("Invalid register".to_string()),
-        }
+
+                let addr = cpu.registers.ix.wrapping_add(self.d as u16);
+                memory.write_8(addr, cpu.registers.gp.$dest)?;
+                cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
         Ok(())
                 }
             }

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::cpu::instruction::{push_16, BaseInstruction, ExecutableInstruction, InstructionParser};
-use crate::cpu::registers::{AllRegisters, BaseRegister, GPByteRegisters};
 use crate::cpu::Cpu;
+use crate::cpu::instruction::{ExecutableInstruction, InstructionParser, push_16};
+use crate::cpu::registers::{AllMutRegisters, AllRegisters, BaseMutRegister, BaseRegister, GPByteRegisters};
 use crate::io::{InterruptType, IO};
 
 use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
@@ -13,21 +13,37 @@ pub mod parser;
 #[cfg(test)]
 mod test;
 
-fn default_registers() -> AllRegisters {
-    let mut map = HashMap::new();
-    map.insert("ix", BaseRegister::Bit16(0));
-    map.insert("iy", BaseRegister::Bit16(0));
-    map.insert("i", BaseRegister::Bit8(0));
-    map.insert("r", BaseRegister::Bit8(0));
-    AllRegisters {
-        gp: vec![GPByteRegisters::default(), GPByteRegisters::default()],
-        sp: 0xFFFF,
-        pc: 0,
-        other: map,
+pub struct Z80Registers {
+    pub gp: GPByteRegisters,
+    pub gp_alt: GPByteRegisters,
+    pub ix: u16,
+    pub iy: u16,
+    pub i: u8,
+    pub r: u8,
+    pub sp: u16,
+    pub pc: u16,
+}
+impl Z80Registers{
+    pub fn swap(&mut self) {
+        std::mem::swap(&mut self.gp, &mut self.gp_alt);
+    }
+}
+impl Default for Z80Registers {
+    fn default() -> Self {
+        Z80Registers {
+            gp: GPByteRegisters::default(),
+            gp_alt: GPByteRegisters::default(),
+            ix: 0,
+            iy: 0,
+            i: 0,
+            r: 0,
+            sp: 0xFFFF,
+            pc: 0,
+        }
     }
 }
 pub struct Z80 {
-    registers: AllRegisters,
+    registers: Z80Registers,
     parser: parser::Z80Parser,
     halted: bool,
 }
@@ -35,7 +51,7 @@ pub struct Z80 {
 impl Default for Z80 {
     fn default() -> Self {
         Z80 {
-            registers: default_registers(),
+            registers: Z80Registers::default(),
             parser: parser::Z80Parser::default(),
             halted: false,
         }
@@ -68,10 +84,7 @@ impl Z80 {
                                 self.registers.pc = 0x38;
                             }
                             InterruptType::IM2(int_vector) => {
-                                let BaseRegister::Bit8(i) = self.registers.other["i"] else {
-                                    panic!("I register is not 8-bit");
-                                };
-                                self.registers.pc = u16::from_le_bytes([int_vector, i]);
+                                self.registers.pc = u16::from_le_bytes([int_vector, self.registers.i]);
                             }
                             _ => unreachable!("IM0/NMI should have been handled"),
                         }
@@ -107,11 +120,31 @@ impl Cpu for Z80 {
         &self.parser
     }
 
-    fn registers(&self) -> &AllRegisters {
-        &self.registers
+    fn registers(&self) -> AllRegisters {
+        let mut others = HashMap::new();
+        others.insert("ix", BaseRegister::Bit16(&self.registers.ix));
+        others.insert("iy", BaseRegister::Bit16(&self.registers.iy));
+        others.insert("i", BaseRegister::Bit8(&self.registers.i));
+        others.insert("r", BaseRegister::Bit8(&self.registers.r));
+        AllRegisters {
+            gp: vec![&self.registers.gp, &self.registers.gp_alt],
+            other: others,
+            sp: &self.registers.sp,
+            pc: &self.registers.pc,
+        }
     }
-    fn registers_mut(&mut self) -> &mut AllRegisters {
-        &mut self.registers
+    fn registers_mut(&mut self) -> AllMutRegisters {
+        let mut others = HashMap::new();
+        others.insert("ix", BaseMutRegister::Bit16(&mut self.registers.ix));
+        others.insert("iy", BaseMutRegister::Bit16(&mut self.registers.iy));
+        others.insert("i", BaseMutRegister::Bit8(&mut self.registers.i));
+        others.insert("r", BaseMutRegister::Bit8(&mut self.registers.r));
+        AllMutRegisters {
+            gp: vec![&mut self.registers.gp, &mut self.registers.gp_alt],
+            other: others,
+            sp: &mut self.registers.sp,
+            pc: &mut self.registers.pc,
+        }
     }
     fn halted(&self) -> bool {
         self.halted
