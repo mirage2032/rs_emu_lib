@@ -31,7 +31,7 @@ macro_rules! pop_rr {
             }
 
             impl ExecutableInstruction<Z80> for [<POP_ $cdest>] {
-                fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     cpu.registers.gp.[<$dest>] = pop_16!(memory, cpu.registers.sp);
                     Ok(())
                 }

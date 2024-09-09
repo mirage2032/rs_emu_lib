@@ -35,7 +35,7 @@ impl BaseInstruction for Halt {
 }
 
 impl ExecutableInstruction<Z80> for Halt {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.halted = true;
         Ok(())
     }

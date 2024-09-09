@@ -41,7 +41,7 @@ macro_rules! ld_rr_pnn {
             }
 
             impl ExecutableInstruction<Z80> for [<LD_ $cdest _PNN>] {
-                fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     cpu.registers.gp.[<$dest>] = memory.read_16(self.nn)?;
                     Ok(())
                 }

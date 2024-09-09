@@ -31,7 +31,7 @@ macro_rules! or_r {
             }
 
             impl ExecutableInstruction<Z80> for [<OR_ $sdest>] {
-                fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
                     or_r_setf!(gp.a, gp.$src, gp.f);
 

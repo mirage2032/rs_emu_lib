@@ -36,7 +36,7 @@ impl BaseInstruction for INC_PHL {
 }
 
 impl ExecutableInstruction<Z80> for INC_PHL {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let value_before = memory.read_8(cpu.registers.gp.hl)?;
         let result = value_before.wrapping_add(1);
         memory.write_8(cpu.registers.gp.hl, result)?;

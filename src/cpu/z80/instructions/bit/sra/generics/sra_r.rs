@@ -31,7 +31,7 @@ macro_rules! sra_r {
             }
 
             impl ExecutableInstruction<Z80> for [<SRA_ $sdest>] {
-                fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
                     sra_r_setf!(gp.$src, gp.f);
                     cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;

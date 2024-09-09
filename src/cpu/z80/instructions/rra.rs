@@ -35,7 +35,7 @@ impl BaseInstruction for RRA {
 }
 
 impl ExecutableInstruction<Z80> for RRA {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let carry = cpu.registers.gp.a & 1;
         let a = (cpu.registers.gp.a >> 1) | (cpu.registers.gp.f.carry() as u8) << 7;
         cpu.registers.gp.f.set_carry(carry != 0);

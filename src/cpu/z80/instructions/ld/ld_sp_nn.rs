@@ -45,7 +45,7 @@ impl BaseInstruction for LD_SP_NN {
 }
 
 impl ExecutableInstruction<Z80> for LD_SP_NN {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.sp = self.nn;
         Ok(())
     }

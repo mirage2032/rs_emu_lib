@@ -40,7 +40,7 @@ macro_rules! ld_r_pixd {
             }
 
             impl ExecutableInstruction<Z80> for [<LD_ $cdest _PIXD>] {
-                fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let addr = cpu.registers.ix.wrapping_add(self.d as u16);
                     cpu.registers.gp.$dest = memory.read_8(addr)?;
                     cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;

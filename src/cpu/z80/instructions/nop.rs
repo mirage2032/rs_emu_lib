@@ -35,7 +35,7 @@ impl BaseInstruction for NOP {
 }
 
 impl ExecutableInstruction<Z80> for NOP {
-    fn runner(&mut self, _memory: &mut Memory, _cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, _cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         Ok(())
     }
 }

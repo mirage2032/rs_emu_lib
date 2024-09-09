@@ -45,7 +45,7 @@ impl BaseInstruction for SUB_N {
 }
 
 impl ExecutableInstruction<Z80> for SUB_N {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         sub_r!(cpu.registers.gp.a, self.n, cpu.registers.gp.f);
         Ok(())
     }

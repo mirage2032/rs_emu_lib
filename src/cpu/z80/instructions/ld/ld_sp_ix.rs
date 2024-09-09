@@ -35,7 +35,7 @@ impl BaseInstruction for LD_SP_IX {
 }
 
 impl ExecutableInstruction<Z80> for LD_SP_IX {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.sp = cpu.registers.ix;
         cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
         Ok(())

@@ -36,7 +36,7 @@ impl BaseInstruction for EX_DE_HL {
 }
 
 impl ExecutableInstruction<Z80> for EX_DE_HL {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let temp = cpu.registers.gp.de;
         cpu.registers.gp.de = cpu.registers.gp.hl;
         cpu.registers.gp.hl = temp;

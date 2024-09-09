@@ -35,7 +35,7 @@ impl BaseInstruction for DAA {
 }
 
 impl ExecutableInstruction<Z80> for DAA {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let initial_a = cpu.registers.gp.a;
         let mut a = initial_a;
 

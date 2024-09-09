@@ -45,7 +45,7 @@ impl BaseInstruction for OR_IXD {
 }
 
 impl ExecutableInstruction<Z80> for OR_IXD {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         
                 let val = memory.read_8(cpu.registers.ix.wrapping_add(self.d as u16))?;
                 or_r_setf!(cpu.registers.gp.a, val, cpu.registers.gp.f);

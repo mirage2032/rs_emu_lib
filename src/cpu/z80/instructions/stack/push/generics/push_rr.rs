@@ -31,7 +31,7 @@ macro_rules! push_rr {
             }
 
             impl ExecutableInstruction<Z80> for [<PUSH_ $cdest>] {
-                fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     push_16!(cpu.registers.gp.[<$dest>],memory, cpu.registers.sp);
                     Ok(())
                 }

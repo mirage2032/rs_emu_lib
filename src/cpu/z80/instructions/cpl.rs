@@ -35,7 +35,7 @@ impl BaseInstruction for CPL {
 }
 
 impl ExecutableInstruction<Z80> for CPL {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let inverted_a = !cpu.registers.gp.a;
         cpu.registers.gp.a = inverted_a;
 

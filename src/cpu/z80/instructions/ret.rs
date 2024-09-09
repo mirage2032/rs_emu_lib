@@ -36,7 +36,7 @@ impl BaseInstruction for RET {
 }
 
 impl ExecutableInstruction<Z80> for RET {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.pc = pop_16!(memory, cpu.registers.sp);
         Ok(())
     }

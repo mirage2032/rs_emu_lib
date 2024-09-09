@@ -31,7 +31,7 @@ macro_rules! xor_r {
             }
 
             impl ExecutableInstruction<Z80> for [<XOR_ $csrc>] {
-                fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
                     xor_r_r_setf!(&mut gp.a,&mut gp.[<$src>], &mut gp.f);
                     Ok(())

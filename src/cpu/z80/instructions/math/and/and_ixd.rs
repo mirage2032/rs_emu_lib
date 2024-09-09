@@ -45,7 +45,7 @@ impl BaseInstruction for AND_IXD {
 }
 
 impl ExecutableInstruction<Z80> for AND_IXD {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let val = memory.read_8(cpu.registers.ix.wrapping_add(self.d as u16))?;
         and_r_setf!(cpu.registers.gp.a, val, cpu.registers.gp.f);
         cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;

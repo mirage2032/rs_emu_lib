@@ -36,7 +36,7 @@ impl BaseInstruction for OR_PHL {
 }
 
 impl ExecutableInstruction<Z80> for OR_PHL {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let value = memory.read_8(cpu.registers.gp.hl)?;
         or_r_setf!(cpu.registers.gp.a, value, cpu.registers.gp.f);
         Ok(())

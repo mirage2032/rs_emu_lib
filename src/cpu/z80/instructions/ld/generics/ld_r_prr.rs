@@ -31,7 +31,7 @@ macro_rules! ld_r_prr {
             }
 
             impl ExecutableInstruction<Z80> for [<LD_ $cdest _P $csrc>] {
-                fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     cpu.registers.gp.[<$dest>] = memory.read_8(cpu.registers.gp.[<$src>])?;
                     Ok(())
                 }

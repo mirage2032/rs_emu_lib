@@ -45,7 +45,7 @@ impl BaseInstruction for SRA_PIXD {
 }
 
 impl ExecutableInstruction<Z80> for SRA_PIXD {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let addr = cpu.registers.ix.wrapping_add(self.d as u16);
         let mut value = memory.read_8(addr)?;
         sra_r_setf!(value, cpu.registers.gp.f);

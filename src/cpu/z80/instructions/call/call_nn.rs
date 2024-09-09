@@ -46,7 +46,7 @@ impl BaseInstruction for CALL_NN {
 }
 
 impl ExecutableInstruction<Z80> for CALL_NN {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         push_16!(cpu.registers.pc.wrapping_add(3), memory, cpu.registers.sp);
         cpu.registers.pc = self.nn;
         Ok(())

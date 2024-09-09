@@ -41,7 +41,7 @@ macro_rules! ld_misc_rr_pnn {
             }
 
             impl ExecutableInstruction<Z80> for [<LD_MISC_ $cdest _PNN>] {
-                fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+                fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     cpu.registers.gp.[<$dest>] = memory.read_16(self.nn)?;
                     cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
                     Ok(())

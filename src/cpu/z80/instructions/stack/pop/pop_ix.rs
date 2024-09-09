@@ -36,7 +36,7 @@ impl BaseInstruction for POP_IX {
 }
 
 impl ExecutableInstruction<Z80> for POP_IX {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let result = pop_16!(memory, cpu.registers.sp);
         cpu.registers.ix = result;
         cpu.registers.r = cpu.registers.r.wrapping_add(1);

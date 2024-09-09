@@ -35,7 +35,7 @@ impl BaseInstruction for DEC_SP {
 }
 
 impl ExecutableInstruction<Z80> for DEC_SP {
-    fn runner(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.sp = cpu.registers.sp.wrapping_sub(1);
         Ok(())
     }

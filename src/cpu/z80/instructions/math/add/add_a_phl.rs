@@ -37,7 +37,7 @@ impl BaseInstruction for ADD_A_PHL {
 }
 
 impl ExecutableInstruction<Z80> for ADD_A_PHL {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         add_r_r_setf!(
             &mut cpu.registers.gp.a,
             memory.read_8(cpu.registers.gp.hl)?,

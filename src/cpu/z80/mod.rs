@@ -113,6 +113,13 @@ impl Cpu for Z80 {
         // println!("Executing: {:?}", self.registers.gp[0].f);
         // println!("HL: {:X},BC:{:X}", self.registers.gp[0].hl,self.registers.gp[0].bc);
         instruction.execute(memory, self, io)?;
+        let common = instruction.common();
+        self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
+        if common.get_increment_pc() {
+            let inst_length = common.get_length();
+            let new_pc = self.registers.pc.wrapping_add(inst_length);
+            self.registers.pc = new_pc;
+        }
         // println!("Executing: {:?}", self.registers.gp[0].f);
         Ok(instruction)
     }

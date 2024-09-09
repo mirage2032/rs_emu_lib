@@ -36,7 +36,7 @@ impl BaseInstruction for SRA_PHL {
 }
 
 impl ExecutableInstruction<Z80> for SRA_PHL {
-    fn runner(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let mut value = memory.read_8(cpu.registers.gp.hl)?;
         sra_r_setf!(value, cpu.registers.gp.f);
         memory.write_8(cpu.registers.gp.hl, value)?;

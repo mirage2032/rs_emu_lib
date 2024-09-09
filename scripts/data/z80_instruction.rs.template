@@ -39,7 +39,7 @@ impl BaseInstruction for %INSTRUCTION% {
 }
 
 impl ExecutableInstruction<Z80> for %INSTRUCTION% {
-    fn runner(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
+    fn execute(&self, _memory: &mut Memory, cpu: &mut Z80) -> Result<(), String> {
         unimplemented!()
     }
 }
