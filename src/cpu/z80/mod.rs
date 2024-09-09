@@ -157,6 +157,10 @@ impl Cpu for Z80 {
             pc: &mut self.registers.pc,
         }
     }
+
+    fn pc(&self) -> u16 {
+        self.registers.pc
+    }
     fn halted(&self) -> bool {
         self.halted
     }

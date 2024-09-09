@@ -21,6 +21,8 @@ pub trait Cpu: Send {
     fn parser(&self) -> &dyn InstructionParser<Self>;
     fn registers(&self) -> AllRegisters;
     fn registers_mut(&mut self) -> AllMutRegisters;
+
+    fn pc(&self) -> u16;
     fn halted(&self) -> bool;
     fn set_halted(&mut self, halted: bool);
 }

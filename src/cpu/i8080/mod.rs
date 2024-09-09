@@ -35,6 +35,9 @@ impl Cpu for I8080 {
     fn registers_mut(&mut self) -> AllMutRegisters {
         unimplemented!()
     }
+    fn pc(&self) -> u16 {
+        unimplemented!()
+    }
     fn halted(&self) -> bool {
         self.halted
     }

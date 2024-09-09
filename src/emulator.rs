@@ -65,7 +65,7 @@ impl<T: Cpu + Default> Emulator<T> {
             if self.cpu.halted() {
                 return Err(StopReason::Halt);
             }
-            if self.breakpoints.contains(&self.cpu.registers().pc) {
+            if self.breakpoints.contains(&self.cpu.pc()) {
                 return Err(StopReason::Breakpoint);
             }
         }
