@@ -7,9 +7,9 @@ use crate::memory::Memory;
 
 #[derive(Debug, Clone, Copy)]
 pub struct InstructionCommon {
-    length: u16,
-    cycles: u16,
-    increment_pc: bool,
+    pub length: u16,
+    pub cycles: u16,
+    pub increment_pc: bool,
 }
 
 impl InstructionCommon {
@@ -19,15 +19,6 @@ impl InstructionCommon {
             cycles,
             increment_pc,
         }
-    }
-    pub fn get_length(&self) -> u16 {
-        self.length
-    }
-    pub fn get_cycles(&self) -> u16 {
-        self.cycles
-    }
-    pub fn get_increment_pc(&self) -> bool {
-        self.increment_pc
     }
 }
 

@@ -45,7 +45,7 @@ impl<T: Cpu + Default> Emulator<T> {
         self.memory.clear_changes();
         let instruction = self.cpu.step(&mut self.memory, &mut self.io);
         if let Ok(instruction) = &instruction {
-            self.cycles += instruction.common().get_cycles() as usize;
+            self.cycles += instruction.common().cycles as usize;
         }
         instruction
     }
@@ -58,7 +58,7 @@ impl<T: Cpu + Default> Emulator<T> {
         let mut current_ticks = 0.0;
         while current_ticks < ticks  {
             let instruction = self.step().map_err(|e| StopReason::Error(e))?;
-            current_ticks += instruction.common().get_cycles() as f64;
+            current_ticks += instruction.common().cycles as f64;
             if let Some(callback) = &callback {
                 callback(self, &*instruction);
             }

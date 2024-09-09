@@ -37,7 +37,7 @@ impl BaseInstruction for ADD_IX_SP {
 
 impl ExecutableInstruction<Z80> for ADD_IX_SP {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        add_rr_rr_setf!(&mut cpu.registers.ix, cpu.registers.sp, cpu.registers.gp.f);
+        add_rr_rr_setf!(cpu.registers.ix, cpu.registers.sp, cpu.registers.gp.f);
         cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
         Ok(())
     }

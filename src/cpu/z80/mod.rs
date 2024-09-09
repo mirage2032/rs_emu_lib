@@ -115,8 +115,8 @@ impl Cpu for Z80 {
         instruction.execute(memory, self, io)?;
         let common = instruction.common();
         self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
-        if common.get_increment_pc() {
-            let inst_length = common.get_length();
+        if common.increment_pc {
+            let inst_length = common.length;
             let new_pc = self.registers.pc.wrapping_add(inst_length);
             self.registers.pc = new_pc;
         }

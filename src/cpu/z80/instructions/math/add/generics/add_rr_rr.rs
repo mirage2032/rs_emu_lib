@@ -33,7 +33,7 @@ macro_rules! add_rr_rr {
             impl ExecutableInstruction<Z80> for [<ADD_ $cdest _ $csrc>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     add_rr_rr_setf!(
-                        &mut cpu.registers.gp.[<$dest>],
+                        cpu.registers.gp.[<$dest>],
                         cpu.registers.gp.[<$src>],
                         cpu.registers.gp.f
                     );
