@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::cpu::Cpu;
 use crate::cpu::instruction::{ExecutableInstruction, InstructionParser, push_16};
-use crate::cpu::registers::{AllMutRegisters, AllRegisters, BaseMutRegister, BaseRegister, GPByteRegisters};
+use crate::cpu::registers::{AllMutRegisters, AllRegisters, GPByteRegisters};
 use crate::io::{InterruptType, IO};
 
 use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
@@ -121,27 +121,31 @@ impl Cpu for Z80 {
     }
 
     fn registers(&self) -> AllRegisters {
-        let mut others = HashMap::new();
-        others.insert("ix", BaseRegister::Bit16(&self.registers.ix));
-        others.insert("iy", BaseRegister::Bit16(&self.registers.iy));
-        others.insert("i", BaseRegister::Bit8(&self.registers.i));
-        others.insert("r", BaseRegister::Bit8(&self.registers.r));
+        let mut other8bit = HashMap::new();
+        let mut other16bit = HashMap::new();
+        other16bit.insert("ix", &self.registers.ix);
+        other16bit.insert("iy", &self.registers.iy);
+        other8bit.insert("i", &self.registers.i);
+        other8bit.insert("r", &self.registers.r);
         AllRegisters {
             gp: vec![&self.registers.gp, &self.registers.gp_alt],
-            other: others,
+            other8bit,
+            other16bit,
             sp: &self.registers.sp,
             pc: &self.registers.pc,
         }
     }
     fn registers_mut(&mut self) -> AllMutRegisters {
-        let mut others = HashMap::new();
-        others.insert("ix", BaseMutRegister::Bit16(&mut self.registers.ix));
-        others.insert("iy", BaseMutRegister::Bit16(&mut self.registers.iy));
-        others.insert("i", BaseMutRegister::Bit8(&mut self.registers.i));
-        others.insert("r", BaseMutRegister::Bit8(&mut self.registers.r));
+        let mut other8bit = HashMap::new();
+        let mut other16bit = HashMap::new();
+        other16bit.insert("ix", &mut self.registers.ix);
+        other16bit.insert("iy", &mut self.registers.iy);
+        other8bit.insert("i", &mut self.registers.i);
+        other8bit.insert("r", &mut self.registers.r);
         AllMutRegisters {
             gp: vec![&mut self.registers.gp, &mut self.registers.gp_alt],
-            other: others,
+            other8bit,
+            other16bit,
             sp: &mut self.registers.sp,
             pc: &mut self.registers.pc,
         }

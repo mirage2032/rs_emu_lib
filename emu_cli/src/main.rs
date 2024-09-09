@@ -24,7 +24,10 @@ fn print_registers(registers: &AllRegisters) {
     for (i, gp_regs) in registers.gp.iter().enumerate() {
         print_gp(gp_regs, &String::from("'").repeat(i));
     }
-    for (key, value) in &registers.other {
+    for (key, value) in &registers.other8bit {
+        print!("{}: {}, ", key.to_uppercase(), value);
+    }
+    for (key, value) in &registers.other16bit {
         print!("{}: {}, ", key.to_uppercase(), value);
     }
     println!();

@@ -5,26 +5,6 @@ use std::fmt::{Debug, Display};
 
 use bitfield_struct::bitfield;
 
-#[derive(Debug, PartialEq, Eq)]
-pub enum BaseRegister<'a> {
-    Bit8(&'a u8),
-    Bit16(&'a u16),
-}
-#[derive(Debug, PartialEq, Eq)]
-pub enum BaseMutRegister<'a> {
-    Bit8(&'a mut u8),
-    Bit16(&'a mut u16),
-}
-
-impl<'a> Display for BaseRegister<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            BaseRegister::Bit8(val) => write!(f, "{:02X}", val),
-            BaseRegister::Bit16(val) => write!(f, "{:04X}", val),
-        }
-    }
-}
-
 #[bitfield(u8)]
 #[derive(PartialEq, Eq)]
 pub struct Flags {
@@ -108,7 +88,8 @@ pub struct AllRegisters<'a> {
     pub gp: Vec<&'a GPByteRegisters>,
     pub sp: &'a u16,
     pub pc: &'a u16,
-    pub other: HashMap<&'static str, BaseRegister<'a>>,
+    pub other16bit: HashMap<&'static str, &'a u16>,
+    pub other8bit:HashMap<&'static str, &'a u8>,
 }
 
 #[derive(Debug)]
@@ -116,5 +97,6 @@ pub struct AllMutRegisters<'a> {
     pub gp: Vec<&'a mut GPByteRegisters>,
     pub sp: &'a mut u16,
     pub pc: &'a mut u16,
-    pub other: HashMap<&'static str, BaseMutRegister<'a>>,
+    pub other16bit: HashMap<&'static str, &'a mut u16>,
+    pub other8bit:HashMap<&'static str, &'a mut u8>,
 }
