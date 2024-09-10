@@ -20,7 +20,7 @@ pub struct MemViz {
 }
 
 impl MemViz {
-    pub fn new(size: usize, width: usize, scale: f32) -> MemViz {
+    pub fn new(size: usize, width: usize, scale: f32,refresh_rate:f64) -> MemViz {
         let buffer = Arc::new(Mutex::new(vec![0; size]));
         let buffer_clone = buffer.clone();
         let (event_sender, event_receiver) = mpsc::channel();
@@ -31,6 +31,7 @@ impl MemViz {
                 scale,
                 buffer_clone,
                 event_receiver,
+                refresh_rate,
             );
             fbdisplay.run();
         }));

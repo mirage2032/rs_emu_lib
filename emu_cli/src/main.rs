@@ -35,7 +35,8 @@ fn print_registers(registers: &AllRegisters) {
 
 fn main() {
     let res = (256,192);
-    let dsp = MemViz::new(res.0 * res.1, res.0, 4.0);
+    let refresh_rate = 50.08;
+    let dsp = MemViz::new(res.0 * res.1, res.0,4.0, refresh_rate);
     // dsp.randomize();
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
@@ -67,7 +68,7 @@ fn main() {
             // print_registers(emu.cpu.registers());
         }),
         // 1
-        freq as f64 / 60.08,
+        freq as f64 / refresh_rate,
     );
     println!("Emulator stopped");
     match stop_reason {

@@ -29,11 +29,12 @@ impl FBDisplay {
         height: usize,
         scale: f32,
         buffer: Arc<Mutex<Vec<u8>>>,
-        event_receiver: mpsc::Receiver<Event>,
+        event_receiver: mpsc::Receiver<Event>, 
+        refresh_rate: f64
     ) -> FBDisplay {
         let mut window = create_window(width as f32, height as f32, scale);
 
-        window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+        window.limit_update_rate(Some(std::time::Duration::from_micros((1_000_000.0 / refresh_rate) as u64)));
         FBDisplay {
             width,
             height,
