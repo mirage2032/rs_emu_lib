@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::cpu::Cpu;
-use crate::cpu::instruction::{ExecutableInstruction, InstructionParser, push_16};
+use crate::cpu::instruction::{push_16, ExecutableInstruction, InstructionParser};
 use crate::cpu::registers::{AllMutRegisters, AllRegisters, GPByteRegisters};
+use crate::cpu::Cpu;
 use crate::io::{InterruptType, IO};
 
 use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
@@ -23,7 +23,7 @@ pub struct Z80Registers {
     pub sp: u16,
     pub pc: u16,
 }
-impl Z80Registers{
+impl Z80Registers {
     pub fn swap(&mut self) {
         std::mem::swap(&mut self.gp, &mut self.gp_alt);
     }
@@ -43,7 +43,7 @@ impl Default for Z80Registers {
     }
 }
 pub struct Z80 {
-    registers: Z80Registers,
+    pub registers: Z80Registers,
     parser: parser::Z80Parser,
     halted: bool,
 }
@@ -84,7 +84,8 @@ impl Z80 {
                                 self.registers.pc = 0x38;
                             }
                             InterruptType::IM2(int_vector) => {
-                                self.registers.pc = u16::from_le_bytes([int_vector, self.registers.i]);
+                                self.registers.pc =
+                                    u16::from_le_bytes([int_vector, self.registers.i]);
                             }
                             _ => unreachable!("IM0/NMI should have been handled"),
                         }

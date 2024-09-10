@@ -46,7 +46,6 @@ pub trait InstructionParser<T: Cpu> {
         &self,
         instruction: &String,
     ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
-    
 }
 //MACROS
 //STACK PUSH/POP

@@ -13,7 +13,8 @@ macro_rules! sub_r_setf {
 
         // Overflow: Detects overflow if the result has an incorrect sign
         let mut overflow = ((value_before ^ $reg2) & (value_before ^ result) & 0x80) != 0;
-        if (std::ptr::eq(&$reg1,&$reg2)){ // Special case for SUB A,A might move it to a different place
+        if (std::ptr::eq(&$reg1, &$reg2)) {
+            // Special case for SUB A,A might move it to a different place
             overflow = false;
         }
         // Carry: Detects borrow from bit 8

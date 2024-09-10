@@ -27,5 +27,4 @@ impl InstructionParser<I8080> for I8080Parser {
     ) -> Result<Box<(dyn ExecutableInstruction<I8080>)>, String> {
         unimplemented!()
     }
-    
 }

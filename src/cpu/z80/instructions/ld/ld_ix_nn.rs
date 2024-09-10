@@ -46,8 +46,8 @@ impl BaseInstruction for LD_IX_NN {
 
 impl ExecutableInstruction<Z80> for LD_IX_NN {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                cpu.registers.ix = self.nn;
-                cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.ix = self.nn;
+        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
         Ok(())
     }
 }

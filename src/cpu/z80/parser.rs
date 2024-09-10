@@ -62,7 +62,7 @@ fn is_val(number: &str) -> Result<ImmediateValue, String> {
 pub struct Z80Parser {}
 
 impl Z80Parser {
-    pub fn from_memdev<M:MemoryDevice>(
+    pub fn from_memdev<M: MemoryDevice>(
         memory: &M,
         pos: u16,
     ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
@@ -215,7 +215,7 @@ impl Z80Parser {
             0x8c => Box::new(math::adc::ADC_A_H::new()),
             0x8d => Box::new(math::adc::ADC_A_L::new()),
             0x8e => Box::new(math::adc::adc_a_phl::ADC_A_PHL::new()),
-            
+
             0x90 => Box::new(math::sub::SUB_B::new()),
             0x91 => Box::new(math::sub::SUB_C::new()),
             0x92 => Box::new(math::sub::SUB_D::new()),
@@ -224,7 +224,7 @@ impl Z80Parser {
             0x95 => Box::new(math::sub::SUB_L::new()),
             0x96 => Box::new(math::sub::sub_phl::SUB_PHL::new()),
             0x97 => Box::new(math::sub::SUB_A::new()),
-            
+
             0xa0 => Box::new(math::and::AND_B::new()),
             0xa1 => Box::new(math::and::AND_C::new()),
             0xa2 => Box::new(math::and::AND_D::new()),
@@ -341,7 +341,7 @@ impl Z80Parser {
                     0xa6 => Box::new(math::and::and_ixd::AND_IXD::new(memory, pos)?),
                     0xb6 => Box::new(math::or::or_ixd::OR_IXD::new(memory, pos)?),
                     0xcb => {
-                        let d = memory.read_8(pos.wrapping_add(2))?;
+                        let _d = memory.read_8(pos.wrapping_add(2))?;
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
                             0x16 => Box::new(bit::rl::rl_pixd::RL_PIXD::new(memory, pos)?),

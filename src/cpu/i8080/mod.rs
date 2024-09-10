@@ -1,6 +1,6 @@
-use crate::cpu::Cpu;
 use crate::cpu::instruction::{ExecutableInstruction, InstructionParser};
 use crate::cpu::registers::{AllMutRegisters, AllRegisters};
+use crate::cpu::Cpu;
 use crate::io::IO;
 
 use super::super::memory::Memory;
@@ -16,7 +16,6 @@ impl Default for I8080 {
         I8080 { halted: false }
     }
 }
-
 impl Cpu for I8080 {
     fn step(
         &mut self,

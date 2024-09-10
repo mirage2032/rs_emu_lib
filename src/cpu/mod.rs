@@ -12,7 +12,7 @@ pub mod registers;
 pub mod test;
 pub mod z80;
 
-pub trait Cpu: Send {
+pub trait Cpu: Send + Default {
     fn step(
         &mut self,
         memory: &mut Memory,

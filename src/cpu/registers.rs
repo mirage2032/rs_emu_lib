@@ -1,7 +1,6 @@
-use std::ops::{Deref, DerefMut};
 use std::collections::HashMap;
-use std::fmt::{Debug};
-
+use std::fmt::Debug;
+use std::ops::{Deref, DerefMut};
 
 use bitfield_struct::bitfield;
 
@@ -89,7 +88,7 @@ pub struct AllRegisters<'a> {
     pub sp: &'a u16,
     pub pc: &'a u16,
     pub other16bit: HashMap<&'static str, &'a u16>,
-    pub other8bit:HashMap<&'static str, &'a u8>,
+    pub other8bit: HashMap<&'static str, &'a u8>,
 }
 
 #[derive(Debug)]
@@ -98,5 +97,5 @@ pub struct AllMutRegisters<'a> {
     pub sp: &'a mut u16,
     pub pc: &'a mut u16,
     pub other16bit: HashMap<&'static str, &'a mut u16>,
-    pub other8bit:HashMap<&'static str, &'a mut u8>,
+    pub other8bit: HashMap<&'static str, &'a mut u8>,
 }

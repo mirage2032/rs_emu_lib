@@ -37,11 +37,7 @@ impl BaseInstruction for ADD_HL_SP {
 
 impl ExecutableInstruction<Z80> for ADD_HL_SP {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        add_rr_rr_setf!(
-            cpu.registers.gp.hl,
-            cpu.registers.sp,
-            cpu.registers.gp.f
-        );
+        add_rr_rr_setf!(cpu.registers.gp.hl, cpu.registers.sp, cpu.registers.gp.f);
         Ok(())
     }
 }

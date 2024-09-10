@@ -45,11 +45,7 @@ impl BaseInstruction for XOR_N {
 
 impl ExecutableInstruction<Z80> for XOR_N {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        super::xor_r_r_setf!(
-            &mut cpu.registers.gp.a,
-            &self.n,
-            &mut cpu.registers.gp.f
-        );
+        super::xor_r_r_setf!(&mut cpu.registers.gp.a, &self.n, &mut cpu.registers.gp.f);
         Ok(())
     }
 }

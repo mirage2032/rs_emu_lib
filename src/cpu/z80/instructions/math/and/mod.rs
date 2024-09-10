@@ -3,18 +3,18 @@ use std::fmt::Display;
 
 use hex_literal::hex;
 
-use crate::cpu::BaseInstruction;
 use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::instructions::math::and::generics::and_r_setf;
+use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
+use crate::cpu::BaseInstruction;
 use crate::io::IO;
 use crate::memory::Memory;
 
-mod generics;
 pub mod and_ixd;
 pub mod and_n;
 pub mod and_phl;
+mod generics;
 
 generics::and_r::and_r!(b, "a0", "B");
 generics::and_r::and_r!(c, "a1", "C");

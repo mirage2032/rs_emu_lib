@@ -1,17 +1,18 @@
 use std::time::{Duration, SystemTime};
 
+use crate::cpu::instruction::ExecutableInstruction;
 use crate::cpu::Cpu;
-use crate::cpu::instruction::{ExecutableInstruction};
 use crate::io::IO;
 use crate::memory::Memory;
 
+#[derive(Debug)]
 pub enum StopReason {
     Breakpoint,
     Halt,
     Error(String),
 }
 
-pub struct Emulator<T: Cpu + Default> {
+pub struct Emulator<T: Cpu> {
     pub memory: Memory,
     pub cpu: T,
     pub breakpoints: Vec<u16>,
@@ -19,7 +20,7 @@ pub struct Emulator<T: Cpu + Default> {
     pub cycles: usize,
 }
 
-impl<T: Cpu + Default> Emulator<T> {
+impl<T: Cpu> Emulator<T> {
     pub fn new() -> Emulator<T> {
         Emulator {
             memory: Memory::default(),
@@ -56,7 +57,7 @@ impl<T: Cpu + Default> Emulator<T> {
         callback: &Option<CB>,
     ) -> Result<f64, StopReason> {
         let mut current_ticks = 0.0;
-        while current_ticks < ticks  {
+        while current_ticks < ticks {
             let instruction = self.step().map_err(|e| StopReason::Error(e))?;
             current_ticks += instruction.common().cycles as f64;
             if let Some(callback) = &callback {

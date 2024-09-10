@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::cpu::z80::Z80;
 use crate::emulator::Emulator;
-use crate::memory::{Memory, MemoryDevice};
 use crate::memory::memdevices::RAM;
+use crate::memory::{Memory, MemoryDevice};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TestState {
