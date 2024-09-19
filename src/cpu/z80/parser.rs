@@ -971,3 +971,5 @@ impl InstructionParser<Z80> for Z80Parser {
         Z80Parser::from_string(instruction).map(|x| x)
     }
 }
+
+pub const Z80_PARSER: Z80Parser = Z80Parser {};

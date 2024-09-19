@@ -1,4 +1,5 @@
 use instruction::{BaseInstruction, InstructionParser};
+use serde::{Deserialize, Serialize};
 
 use crate::cpu::instruction::ExecutableInstruction;
 use crate::cpu::registers::{AllMutRegisters, AllRegisters};
@@ -12,7 +13,7 @@ pub mod registers;
 pub mod test;
 pub mod z80;
 
-pub trait Cpu: Send + Default {
+pub trait Cpu: Send + Copy + Clone + Default + Serialize + for<'a> Deserialize<'a> {
     fn step(
         &mut self,
         memory: &mut Memory,

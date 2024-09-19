@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use crate::cpu::instruction::{ExecutableInstruction, InstructionParser};
 use crate::cpu::registers::{AllMutRegisters, AllRegisters};
 use crate::cpu::Cpu;
@@ -7,6 +8,7 @@ use super::super::memory::Memory;
 
 pub mod parser;
 
+#[derive(Debug, Copy,Clone,Serialize, Deserialize)]
 pub struct I8080 {
     halted: bool,
 }

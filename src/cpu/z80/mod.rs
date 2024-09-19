@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-
+use serde::{Deserialize, Serialize};
 use crate::cpu::instruction::{push_16, ExecutableInstruction, InstructionParser};
 use crate::cpu::registers::{AllMutRegisters, AllRegisters, GPByteRegisters};
 use crate::cpu::Cpu;
@@ -13,6 +13,7 @@ pub mod parser;
 #[cfg(test)]
 mod test;
 
+#[derive(Debug,Copy,Clone,Serialize, Deserialize)]
 pub struct Z80Registers {
     pub gp: GPByteRegisters,
     pub gp_alt: GPByteRegisters,
@@ -42,9 +43,9 @@ impl Default for Z80Registers {
         }
     }
 }
+#[derive(Debug,Copy,Clone,Serialize, Deserialize)]
 pub struct Z80 {
     pub registers: Z80Registers,
-    parser: parser::Z80Parser,
     halted: bool,
 }
 
@@ -52,7 +53,6 @@ impl Default for Z80 {
     fn default() -> Self {
         Z80 {
             registers: Z80Registers::default(),
-            parser: parser::Z80Parser::default(),
             halted: false,
         }
     }
@@ -125,7 +125,7 @@ impl Cpu for Z80 {
         Ok(instruction)
     }
     fn parser(&self) -> &dyn InstructionParser<Z80> {
-        &self.parser
+        &parser::Z80_PARSER
     }
 
     fn registers(&self) -> AllRegisters {
