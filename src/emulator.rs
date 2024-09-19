@@ -28,8 +28,8 @@ pub struct Emulator<T: Cpu> {
     pub cycles: usize,
 }
 
-impl<T: Cpu> Emulator<T> {
-    pub fn new() -> Emulator<T> {
+impl<T:Cpu> Default for Emulator<T>{
+    fn default() -> Emulator<T> {
         Emulator {
             memory: Memory::default(),
             cpu: T::default(),
@@ -38,6 +38,9 @@ impl<T: Cpu> Emulator<T> {
             cycles: 0,
         }
     }
+}
+
+impl<T: Cpu> Emulator<T> {
     pub fn new_w_mem(memory: Memory) -> Emulator<T> {
         Emulator {
             memory,
