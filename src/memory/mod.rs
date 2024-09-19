@@ -56,6 +56,12 @@ impl Memory {
             readcallback: None,
         }
     }
+    
+    pub fn new_full_ram() -> Memory {
+        let mut mem = Memory::new();
+        mem.add_device(Box::new(memdevices::RAM::new(0x10000)));
+        mem
+    }
 
     pub fn add_device(&mut self, device: Box<dyn MemoryDevice>) {
         self.data.push(device);
