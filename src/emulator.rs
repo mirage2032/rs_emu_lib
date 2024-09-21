@@ -1,10 +1,10 @@
-use std::fmt::Debug;
-use std::time::{Duration, SystemTime};
-use serde::{Deserialize, Serialize};
 use crate::cpu::instruction::ExecutableInstruction;
 use crate::cpu::Cpu;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
+use std::time::{Duration, SystemTime};
 
 #[derive(Debug)]
 pub enum StopReason {
@@ -13,7 +13,7 @@ pub enum StopReason {
     Error(String),
 }
 
-#[derive(Debug,Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct EmuState {
     pub cpu: Vec<u8>,
     pub memory: Vec<u8>,
@@ -28,7 +28,7 @@ pub struct Emulator<T: Cpu> {
     pub cycles: usize,
 }
 
-impl<T:Cpu> Default for Emulator<T>{
+impl<T: Cpu> Default for Emulator<T> {
     fn default() -> Emulator<T> {
         Emulator {
             memory: Memory::default(),
@@ -131,13 +131,17 @@ impl<T: Cpu> Emulator<T> {
         };
         bincode::serialize(&state).map_err(|e| format!("{:?}", e))
     }
-    pub fn load(&mut self, data: Vec<u8>,clear_mem:bool) -> Result<(), String> {
+    pub fn load(&mut self, data: Vec<u8>, clear_mem: bool) -> Result<(), String> {
         let state = bincode::deserialize::<EmuState>(&data).map_err(|e| format!("{:?}", e))?;
         self.cpu = bincode::deserialize::<T>(&state.cpu).map_err(|e| format!("{:?}", e))?;
-        self.memory.load(&state.memory).map_err(|e| format!("{:?}", e))?;
+        self.memory
+            .load(&state.memory)
+            .map_err(|e| format!("{:?}", e))?;
         if clear_mem {
             for idx in state.memory.len()..self.memory.size() {
-                self.memory.write_8(idx as u16, 0).map_err(|e| format!("{:?}", e))?;
+                self.memory
+                    .write_8(idx as u16, 0)
+                    .map_err(|e| format!("{:?}", e))?;
             }
         }
         self.breakpoints = state.breakpoints;

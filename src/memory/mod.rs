@@ -56,7 +56,7 @@ impl Memory {
             readcallback: None,
         }
     }
-    
+
     pub fn new_full_ram() -> Memory {
         let mut mem = Memory::new();
         mem.add_device(Box::new(memdevices::RAM::new(0x10000)));

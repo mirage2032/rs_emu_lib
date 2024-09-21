@@ -1,9 +1,9 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use crate::cpu::instruction::{push_16, ExecutableInstruction, InstructionParser};
 use crate::cpu::registers::{AllMutRegisters, AllRegisters, GPByteRegisters};
 use crate::cpu::Cpu;
 use crate::io::{InterruptType, IO};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
 
@@ -13,7 +13,7 @@ pub mod parser;
 #[cfg(test)]
 mod test;
 
-#[derive(Debug,Copy,Clone,Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Z80Registers {
     pub gp: GPByteRegisters,
     pub gp_alt: GPByteRegisters,
@@ -43,7 +43,7 @@ impl Default for Z80Registers {
         }
     }
 }
-#[derive(Debug,Copy,Clone,Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Z80 {
     pub registers: Z80Registers,
     halted: bool,

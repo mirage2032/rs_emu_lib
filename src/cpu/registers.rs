@@ -1,11 +1,11 @@
+use bitfield_struct::bitfield;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::ops::{Deref, DerefMut};
-use bitfield_struct::bitfield;
-use serde::{Deserialize, Serialize};
 
 #[bitfield(u8)]
-#[derive(PartialEq, Eq,Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Serialize, Deserialize)]
 pub struct Flags {
     pub carry: bool,
     pub add_sub: bool,
@@ -18,7 +18,7 @@ pub struct Flags {
 }
 
 #[cfg(target_endian = "big")]
-#[derive(Debug, Clone, Copy,Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[repr(C)]
 pub struct GPByteRegisters {
     pub a: u8,
@@ -32,7 +32,7 @@ pub struct GPByteRegisters {
 }
 
 #[cfg(target_endian = "little")]
-#[derive(Debug, Clone, Copy,Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[repr(C)]
 pub struct GPByteRegisters {
     pub f: Flags,
