@@ -129,12 +129,14 @@ pub fn test_z80_w_data(test_data_vec: Vec<TestData>) {
 }
 macro_rules! include_test_data {
     ($test_data_path:expr ) => {{
-        use std::fs::read_to_string;
-        use std::path::PathBuf;
-        let mut full_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        full_path.push("tests/z80/v1/");
-        full_path.push($test_data_path);
-        let test_data_str = &read_to_string(full_path).expect("Failed to read test data");
+        // use std::fs::read_to_string;
+        // use std::path::PathBuf;
+        use emu_lib_json_tests::get_z80_tests;
+        // let mut full_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        // full_path.push("tests/z80/v1/");
+        // full_path.push($test_data_path);
+        // let test_data_str = &read_to_string(full_path).expect("Failed to read test data");
+        let test_data_str = get_z80_tests($test_data_path).unwrap();
         // let test_data_str = include_str!(concat!(
         //         env!("CARGO_MANIFEST_DIR"),
         //         "/tests/z80/v1/",
