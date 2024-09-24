@@ -1,7 +1,5 @@
-use std::cell::RefCell;
 use std::collections::HashMap;
-use std::rc::{Rc, Weak};
-
+use std::sync::{Arc, Mutex,Weak};
 use iodevice::IODevice;
 use iodevice::IORegister;
 
@@ -18,19 +16,19 @@ pub enum InterruptType {
 }
 
 pub struct IO {
-    pub port_map: HashMap<u8, Weak<RefCell<Box<dyn IODevice>>>>,
-    devices: Vec<Rc<RefCell<Box<dyn IODevice>>>>,
+    pub port_map: HashMap<u8, Weak<Mutex<Box<dyn IODevice>>>>,
+    devices: Vec<Arc<Mutex<Box<dyn IODevice>>>>,
     pub iff1: bool,
     pub iff2: bool,
 }
 
 impl IO {
     pub fn new() -> IO {
-        let registers: Rc<RefCell<Box<dyn IODevice>>> =
-            Rc::new(RefCell::new(Box::new(IORegister::default())));
+        let registers: Arc<Mutex<Box<dyn IODevice>>> =
+            Arc::new(Mutex::new(Box::new(IORegister::default())));
         let mut port_map = HashMap::new();
-        for port in registers.borrow().ports() {
-            port_map.insert(port, Rc::downgrade(&registers));
+        for port in registers.lock().expect("Failed to get IO Lock").ports() {
+            port_map.insert(port, Arc::downgrade(&registers));
         }
         IO {
             port_map,
@@ -43,11 +41,11 @@ impl IO {
 
 impl Default for IO {
     fn default() -> IO {
-        let registers: Rc<RefCell<Box<dyn IODevice>>> =
-            Rc::new(RefCell::new(Box::new(IORegister::default())));
+        let registers: Arc<Mutex<Box<dyn IODevice>>> =
+            Arc::new(Mutex::new(Box::new(IORegister::default())));
         let mut port_map = HashMap::new();
-        for port in registers.borrow().ports() {
-            port_map.insert(port, Rc::downgrade(&registers));
+        for port in registers.lock().expect("Failed to get IO lock").ports() {
+            port_map.insert(port, Arc::downgrade(&registers));
         }
         IO {
             port_map,
@@ -60,7 +58,7 @@ impl Default for IO {
 
 impl IO {
     pub fn read(&self, port: u8) -> Result<u8, &str> {
-        let device: Weak<RefCell<Box<dyn IODevice>>> = self
+        let device: Weak<Mutex<Box<dyn IODevice>>> = self
             .port_map
             .get(&port)
             .ok_or("Attempting to read from unconnected port")?
@@ -68,7 +66,7 @@ impl IO {
         device
             .upgrade()
             .ok_or("Attempting to read from removed device")?
-            .borrow()
+            .lock().expect("Failed to get IO lock")
             .read(port)
     }
 
@@ -80,26 +78,26 @@ impl IO {
         device
             .upgrade()
             .ok_or("Attempting to write to removed device")?
-            .borrow_mut()
+            .lock().expect("Failed to get IO lock")
             .write(port, data)
     }
 
     pub fn step(&mut self) {
         for device in self.devices.iter() {
-            device.borrow_mut().step();
+            device.lock().expect("Failed to get IO lock").step();
         }
     }
 
     pub fn add_device(&mut self, device: Box<dyn IODevice>) -> Result<(), &'static str> {
-        let dev: Rc<RefCell<Box<dyn IODevice>>> = Rc::new(RefCell::new(device));
-        let ports = dev.borrow().ports();
+        let dev: Arc<Mutex<Box<dyn IODevice>>> = Arc::new(Mutex::new(device));
+        let ports = dev.lock().expect("Failed to get IO lock").ports();
         for port in ports {
             if self.port_map.contains_key(&port) {
                 return Err(
                     "Attempting to add a device with a port already in use by other device",
                 );
             }
-            self.port_map.insert(port, Rc::downgrade(&dev));
+            self.port_map.insert(port, Arc::downgrade(&dev));
         }
         self.devices.push(dev);
         Ok(())
@@ -117,7 +115,7 @@ impl IO {
             .ok_or("Attempting to remove device from unconnected port")?;
         let mut found = false;
         for (i, dev) in self.devices.iter().enumerate() {
-            if Rc::ptr_eq(&device.upgrade().unwrap(), dev) {
+            if Arc::ptr_eq(&device.upgrade().unwrap(), dev) {
                 self.devices.remove(i);
                 found = true;
                 break;
@@ -133,7 +131,7 @@ impl IO {
     pub fn get_interrupt(&self) -> Option<(InterruptType, usize)> {
         let mut min_im = None;
         for (i, device) in self.devices.iter().enumerate() {
-            match (device.borrow().will_interrupt(), &min_im) {
+            match (device.lock().expect("Failed to get IO lock").will_interrupt(), &min_im) {
                 (Some(InterruptType::NMI), _) => {
                     return Some((InterruptType::NMI, i));
                 }
@@ -151,7 +149,7 @@ impl IO {
             .devices
             .get_mut(device_id)
             .ok_or("Attempting to acknowledge interrupt from non existent device")?;
-        devopt.borrow_mut().ack_int()
+        devopt.lock().expect("Failed to get IO lock").ack_int()
     }
 
     pub fn int_enabled(&self) -> bool {

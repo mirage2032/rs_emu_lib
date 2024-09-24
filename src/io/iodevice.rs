@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::InterruptType;
 
-pub trait IODevice: Send {
+pub trait IODevice: Send + Sync {
     fn ports(&self) -> Vec<u8>;
     fn read(&self, port: u8) -> Result<u8, &'static str>;
     fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str>;

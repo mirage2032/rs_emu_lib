@@ -15,7 +15,7 @@ pub struct Memory {
     writecallback: Option<fn(u16, u8)>,
 }
 
-pub trait MemoryDevice {
+pub trait MemoryDevice: Send + Sync{
     fn size(&self) -> usize;
     fn read_8(&self, addr: u16) -> Result<u8, &'static str>;
     fn read_16(&self, addr: u16) -> Result<u16, &'static str> {
