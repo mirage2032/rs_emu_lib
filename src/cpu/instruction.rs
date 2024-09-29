@@ -44,7 +44,7 @@ pub trait InstructionParser<T: Cpu> {
     ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
     fn ins_from_string(
         &self,
-        instruction: &String,
+        instruction: &str,
     ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
 }
 //MACROS

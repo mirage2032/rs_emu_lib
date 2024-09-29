@@ -376,9 +376,7 @@ impl Z80Parser {
         };
         Ok(instruction)
     }
-    pub fn from_string(
-        instruction: &String,
-    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
+    pub fn from_string(instruction: &str) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
         let filtered = instruction.to_lowercase().replace(",", " ");
         //regex
         let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
@@ -966,7 +964,7 @@ impl InstructionParser<Z80> for Z80Parser {
 
     fn ins_from_string(
         &self,
-        instruction: &String,
+        instruction: &str,
     ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, String> {
         Z80Parser::from_string(instruction).map(|x| x)
     }

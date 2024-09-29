@@ -23,7 +23,7 @@ impl InstructionParser<I8080> for I8080Parser {
     }
     fn ins_from_string(
         &self,
-        _instruction: &String,
+        _instruction: &str,
     ) -> Result<Box<(dyn ExecutableInstruction<I8080>)>, String> {
         unimplemented!()
     }
