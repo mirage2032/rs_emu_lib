@@ -5,6 +5,7 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct SBC_A_N {
@@ -13,7 +14,7 @@ pub struct SBC_A_N {
 }
 
 impl SBC_A_N {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SBC_A_N, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SBC_A_N, MemoryReadError> {
         Ok(SBC_A_N {
             common: InstructionCommon::new(2, 7, true),
             n: memory.read_8(pos.wrapping_add(1))?,

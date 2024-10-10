@@ -43,7 +43,7 @@ pub struct TestData {
     cycles: Vec<(u16, Option<u8>, String)>,
 }
 
-fn setup_z80(emulator: &mut Emulator<Z80>, state: &TestState) -> Result<(), &'static str> {
+fn setup_z80(emulator: &mut Emulator<Z80>, state: &TestState) -> Result<(), String> {
     let registers = &mut emulator.cpu.registers;
     registers.pc = state.pc;
     registers.sp = state.sp;

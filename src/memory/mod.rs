@@ -3,7 +3,8 @@ use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
-use errors::{FileError, MemWriteError, MemoryError};
+use errors::{FileError, MemoryError};
+use crate::memory::errors::{MemoryRWCommonError, MemoryReadError, MemoryWriteError};
 
 pub mod errors;
 pub mod memdevices;
@@ -17,29 +18,29 @@ pub struct Memory {
 
 pub trait MemoryDevice: Send + Sync{
     fn size(&self) -> usize;
-    fn read_8(&self, addr: u16) -> Result<u8, &'static str>;
-    fn read_16(&self, addr: u16) -> Result<u16, &'static str> {
+    fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError>;
+    fn read_16(&self, addr: u16) -> Result<u16, MemoryReadError> {
         let lsb = self.read_8(addr)?;
         let msb = self.read_8(addr.wrapping_add(1))?;
         Ok(u16::from_le_bytes([lsb, msb]))
     }
-    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str>;
-    fn write_16(&mut self, addr: u16, data: u16) -> Result<(), &'static str> {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError>;
+    fn write_16(&mut self, addr: u16, data: u16) -> Result<(), MemoryWriteError> {
         let bytes = data.to_le_bytes();
         self.write_8(addr, bytes[0])?;
         self.write_8(addr.wrapping_add(1), bytes[1])?;
         Ok(())
     }
 
-    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str>;
-    fn write_16_force(&mut self, addr: u16, data: u16) -> Result<(), &'static str> {
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError>;
+    fn write_16_force(&mut self, addr: u16, data: u16) -> Result<(), MemoryWriteError> {
         let bytes = data.to_le_bytes();
         self.write_8_force(addr, bytes[0])?;
         self.write_8_force(addr.wrapping_add(1), bytes[1])?;
         Ok(())
     }
 
-    fn clear(&mut self) -> Result<(), &'static str> {
+    fn clear(&mut self) -> Result<(), MemoryWriteError> {
         for i in 0..self.size() {
             self.write_8(i as u16, 0)?;
         }
@@ -87,7 +88,7 @@ impl Memory {
         self.readcallback = callback;
     }
 
-    fn get_elem_idx(&self, addr: u16) -> Result<(usize, usize), &'static str> {
+    fn get_elem_idx(&self, addr: u16) -> Result<(usize, usize), MemoryRWCommonError> {
         let mut offset = 0;
         for (index, device) in self.data.iter().enumerate() {
             let dev_size = device.size();
@@ -97,7 +98,7 @@ impl Memory {
             }
             offset += dev_size;
         }
-        Err("Address not mapped")
+        Err(MemoryRWCommonError::UnmappedAddress(addr))
     }
 
     pub fn save(&self) -> Result<Vec<u8>, MemoryError> {
@@ -107,7 +108,7 @@ impl Memory {
                 data.push(
                     device
                         .read_8(byte as u16)
-                        .map_err(|err| MemoryError::MemRead(byte, err))?,
+                        .map_err(|err| MemoryError::MemRead(err))?,
                 );
             }
         }
@@ -134,7 +135,7 @@ impl Memory {
                 }
                 let byte = data[index];
                 if let Err(err) = device.write_8_force(offset as u16, byte) {
-                    result.push(MemWriteError::Write(index, err).into());
+                    result.push(MemoryError::MemWrite(err));
                 }
                 offset += 1;
                 index += 1;
@@ -176,7 +177,7 @@ impl MemoryDevice for Memory {
     fn size(&self) -> usize {
         self.data.iter().map(|d| d.size()).sum()
     }
-    fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
+    fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         let data = self.data[device_idx].read_8(offset as u16)?;
         if let Some(callback) = &self.readcallback {
@@ -184,7 +185,7 @@ impl MemoryDevice for Memory {
         }
         Ok(data)
     }
-    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].write_8(offset as u16, data)?;
         if let Some(callback) = &self.writecallback {
@@ -196,7 +197,7 @@ impl MemoryDevice for Memory {
         Ok(())
     }
 
-    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
         let (device_idx, offset) = self.get_elem_idx(addr)?;
         self.data[device_idx].write_8_force(offset as u16, data)?;
         if let Some(callback) = &self.writecallback {

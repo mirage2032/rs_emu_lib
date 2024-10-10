@@ -4,6 +4,7 @@ use std::fmt::Display;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
+use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
 
@@ -14,7 +15,7 @@ pub struct ADC_A_N {
 }
 
 impl ADC_A_N {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<ADC_A_N, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<ADC_A_N, MemoryReadError> {
         Ok(ADC_A_N {
             common: InstructionCommon::new(2, 7, true),
             n: memory.read_8(pos.wrapping_add(1))?,

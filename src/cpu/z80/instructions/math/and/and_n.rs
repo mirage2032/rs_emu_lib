@@ -6,6 +6,7 @@ use crate::cpu::z80::instructions::math::and::and_r_setf;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct AND_N {
@@ -14,7 +15,7 @@ pub struct AND_N {
 }
 
 impl AND_N {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<AND_N, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<AND_N, MemoryReadError> {
         Ok(AND_N {
             common: InstructionCommon::new(2, 7, true),
             n: memory.read_8(pos.wrapping_add(1))?,

@@ -9,7 +9,7 @@ macro_rules! ld_misc_rr_pnn {
             }
 
             impl [<LD_MISC_ $cdest _PNN>] {
-                pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<[<LD_MISC_ $cdest _PNN>],String> {
+                pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<[<LD_MISC_ $cdest _PNN>],MemoryReadError> {
                     Ok([<LD_MISC_ $cdest _PNN>] {
                         common: InstructionCommon::new(4, 20, true),
                         nn:memory.read_16(pos.wrapping_add(2))?,

@@ -6,6 +6,7 @@ use crate::cpu::z80::instructions::bit::sla::generics::sla_r_setf;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct SLA_PIXD {
@@ -14,7 +15,7 @@ pub struct SLA_PIXD {
 }
 
 impl SLA_PIXD {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SLA_PIXD, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SLA_PIXD, MemoryReadError> {
         Ok(SLA_PIXD {
             common: InstructionCommon::new(4, 23, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,

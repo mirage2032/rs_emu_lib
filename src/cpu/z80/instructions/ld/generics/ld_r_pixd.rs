@@ -9,7 +9,7 @@ macro_rules! ld_r_pixd {
             }
 
             impl [<LD_ $cdest _PIXD>] {
-                pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<[<LD_ $cdest _PIXD>],String> {
+                pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<[<LD_ $cdest _PIXD>],MemoryReadError> {
                     Ok([<LD_ $cdest _PIXD>] {
                         common: InstructionCommon::new(3, 19, true),
                         d:memory.read_8(pos.wrapping_add(2))? as i8,

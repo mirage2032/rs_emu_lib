@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::path::PathBuf;
 
 use thiserror::Error;
@@ -19,21 +20,46 @@ pub enum FileError {
 }
 
 #[derive(Debug, Error, Clone)]
-pub enum MemWriteError {
-    #[error("Error writing to address: d:{0} h:{0:x}. {1}")]
-    Write(usize, &'static str),
-    #[error(
-        "Attempted to write to address: d:{0} h:{0:x} beyond the end of mapped memory. Skipping..."
-    )]
-    EndOfMem(usize),
+pub enum MemoryRWCommonError {
+    #[error("Not mapped address: d:{0} h:{0:x}")]
+    UnmappedAddress(u16),
+    #[error("Device accessed at address over the bound: d:{0} h:{0:x}")]
+    OutOfBounds(u16),
+    #[error("{0}")]
+    CustomError(String),
+}
+
+#[derive(Debug, Error, Clone)]
+pub enum MemoryReadError{
+    #[error("Memory read error: {0}")]
+    CommonRWError(#[from] MemoryRWCommonError),
+}
+
+impl From<MemoryReadError> for String {
+    fn from(err: MemoryReadError) -> String {
+        format!("{}", err)
+    }
+}
+#[derive(Debug, Error, Clone)]
+pub enum MemoryWriteError{
+    #[error("Memory write error: {0}")]
+    CommonRWError(#[from] MemoryRWCommonError),
+    #[error("Attempted to write memory at read only address: d:{0} h:{0:x}")]
+    ReadOnly(u16),
+}
+
+impl From<MemoryWriteError> for String {
+    fn from(err: MemoryWriteError) -> String {
+        format!("{}", err)
+    }
 }
 
 #[derive(Debug, Error, Clone)]
 pub enum MemoryError {
-    #[error("File error: {0}")]
-    File(#[from] FileError),
-    #[error("Memory write error: {0}")]
-    MemWrite(#[from] MemWriteError),
-    #[error("Error reading from address: d:{0} h:{0:x}. {1}")]
-    MemRead(usize, &'static str),
+    #[error("{0}")]
+    MemWrite(#[from] MemoryWriteError),
+    #[error("{0}")]
+    MemRead(#[from] MemoryReadError),
+    #[error("Memory file error: {0}")]
+    FileError(#[from] FileError),
 }

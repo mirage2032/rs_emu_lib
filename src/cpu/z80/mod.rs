@@ -73,7 +73,7 @@ impl Z80 {
                     }
                     InterruptType::IM0(instruction) => {
                         let rom: ROM = vec![instruction].into();
-                        let instruction = parser::Z80Parser::from_memdev(&rom, 0)?;
+                        let instruction = parser::Z80Parser::from_memdev(&rom, 0).map_err(|e| e.to_string())?;
                         Some(instruction)
                     }
                     remaining => {
@@ -109,7 +109,7 @@ impl Cpu for Z80 {
         let res = self.handle_interrupt(memory, io)?; // If IM1 interrupt it will be returned and executed
         let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
             Some(instruction) => instruction,
-            None => parser::Z80Parser::from_memdev(memory, self.registers.pc)?,
+            None => parser::Z80Parser::from_memdev(memory, self.registers.pc).map_err(|e| e.to_string())?,
         };
         // println!("Executing: {:?}", self.registers.gp[0].f);
         // println!("HL: {:X},BC:{:X}", self.registers.gp[0].hl,self.registers.gp[0].bc);

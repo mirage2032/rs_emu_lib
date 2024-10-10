@@ -5,6 +5,7 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct JR_Z_D {
@@ -13,7 +14,7 @@ pub struct JR_Z_D {
 }
 
 impl JR_Z_D {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JR_Z_D, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JR_Z_D, MemoryReadError> {
         Ok(JR_Z_D {
             common: InstructionCommon::new(2, 7, true),
             d: memory.read_8(pos.wrapping_add(1))? as i8,

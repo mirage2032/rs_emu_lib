@@ -1,3 +1,4 @@
+use crate::memory::errors::{MemoryRWCommonError, MemoryReadError, MemoryWriteError};
 use crate::memory::MemoryDevice;
 
 #[derive(Debug, Clone)]
@@ -17,22 +18,22 @@ impl MemoryDevice for RAM {
     fn size(&self) -> usize {
         self.data.len()
     }
-    fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
+    fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
         match self.data.get(addr as usize) {
-            None => Err("Address out of boundsX"),
+            None => Err(MemoryRWCommonError::OutOfBounds(addr).into()),
             Some(val) => Ok(*val),
         }
     }
-    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
         let val = self
             .data
             .get_mut(addr as usize)
-            .ok_or("Address out of bounds")?;
+            .ok_or(MemoryRWCommonError::OutOfBounds(addr))?;
         *val = data;
         Ok(())
     }
 
-    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
         self.write_8(addr, data)
     }
 }
@@ -60,21 +61,21 @@ impl MemoryDevice for ROM {
     fn size(&self) -> usize {
         self.data.len()
     }
-    fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
+    fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
         match self.data.get(addr as usize) {
-            None => Err("Address out of bounds"),
+            None => Err(MemoryRWCommonError::OutOfBounds(addr).into()),
             Some(val) => Ok(*val),
         }
     }
-    fn write_8(&mut self, _: u16, _: u8) -> Result<(), &'static str> {
-        Err("ROM is read only")
+    fn write_8(&mut self, addr: u16, _: u8) -> Result<(), MemoryWriteError> {
+        Err(MemoryWriteError::ReadOnly(addr))
     }
 
-    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
         let val = self
             .data
             .get_mut(addr as usize)
-            .ok_or("Address out of bounds")?;
+            .ok_or(MemoryRWCommonError::OutOfBounds(addr))?;
         *val = data;
         Ok(())
     }

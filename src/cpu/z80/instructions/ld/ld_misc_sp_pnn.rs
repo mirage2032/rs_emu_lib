@@ -5,6 +5,7 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct LD_MISC_SP_PNN {
@@ -13,7 +14,7 @@ pub struct LD_MISC_SP_PNN {
 }
 
 impl LD_MISC_SP_PNN {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_MISC_SP_PNN, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_MISC_SP_PNN, MemoryReadError> {
         Ok(LD_MISC_SP_PNN {
             common: InstructionCommon::new(4, 20, true),
             nn: memory.read_16(pos.wrapping_add(2))?,

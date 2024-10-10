@@ -6,6 +6,7 @@ use crate::cpu::z80::instructions::bit::rr::generics::rr_r_setf;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct RR_PIXD {
@@ -14,7 +15,7 @@ pub struct RR_PIXD {
 }
 
 impl RR_PIXD {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<RR_PIXD, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<RR_PIXD, MemoryReadError> {
         Ok(RR_PIXD {
             common: InstructionCommon::new(4, 23, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,

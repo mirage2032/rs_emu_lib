@@ -1,6 +1,6 @@
 #![allow(unused)]
 use std::fmt::{Debug, Display};
-
+use thiserror::Error;
 use crate::cpu::Cpu;
 use crate::io::IO;
 use crate::memory::Memory;
@@ -31,21 +31,34 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut T, io: &mut IO) -> Result<(), String>;
 }
 
+//into error parse error
+#[derive(Debug,Error)]
+pub enum ParseError{
+    #[error("Malformed instruction: {0}")]
+    InvalidInstruction(String),
+    #[error("Memory error: {0}")]
+    MemoryError(#[from] MemoryReadError),
+}
+
 pub trait InstructionParser<T: Cpu> {
-    fn ins_from_mem(
+    fn ins_from_memory(
         &self,
         memory: &Memory,
         pos: u16,
-    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
+    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>;
     fn ins_from_vec(
         &self,
         memory: &Vec<u8>,
         pos: u16,
-    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
+    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>;
     fn ins_from_string(
         &self,
         instruction: &str,
-    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, String>;
+    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>;
+
+    fn from_file(&self, path: &str) -> Result<Box<dyn ExecutableInstruction<T>>, ParseError>{
+        unimplemented!("from_file not implemented")
+    }
 }
 //MACROS
 //STACK PUSH/POP
@@ -94,3 +107,4 @@ macro_rules! pop_16 {
 }
 
 pub(crate) use pop_16;
+use crate::memory::errors::{MemoryError, MemoryReadError};

@@ -5,6 +5,7 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct LD_PIXD_N {
@@ -14,7 +15,7 @@ pub struct LD_PIXD_N {
 }
 
 impl LD_PIXD_N {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_PIXD_N, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_PIXD_N, MemoryReadError> {
         Ok(LD_PIXD_N {
             common: InstructionCommon::new(4, 19, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,

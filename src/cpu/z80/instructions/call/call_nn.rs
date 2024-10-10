@@ -6,6 +6,7 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
+use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct CALL_NN {
@@ -14,7 +15,7 @@ pub struct CALL_NN {
 }
 
 impl CALL_NN {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<CALL_NN, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<CALL_NN, MemoryReadError> {
         Ok(CALL_NN {
             common: InstructionCommon::new(3, 17, false),
             nn: memory.read_16(pos.wrapping_add(1))?,

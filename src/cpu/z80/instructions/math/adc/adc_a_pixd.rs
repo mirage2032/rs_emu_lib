@@ -5,6 +5,7 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::instructions::math::adc::generics::adc_r_r_setf;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
+use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
 
@@ -15,7 +16,7 @@ pub struct ADC_A_PIXD {
 }
 
 impl ADC_A_PIXD {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<ADC_A_PIXD, String> {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<ADC_A_PIXD, MemoryReadError> {
         Ok(ADC_A_PIXD {
             common: InstructionCommon::new(3, 19, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,

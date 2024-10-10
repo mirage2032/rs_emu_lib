@@ -1,6 +1,6 @@
 use core::fmt;
 use std::fmt::Display;
-
+use crate::memory::errors::MemoryReadError;
 use hex_literal::hex;
 
 use crate::cpu::instruction::InstructionCommon;

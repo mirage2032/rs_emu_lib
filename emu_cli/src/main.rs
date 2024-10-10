@@ -79,7 +79,7 @@ fn main() {
             let instruction = emulator
                 .cpu
                 .parser()
-                .ins_from_mem(&emulator.memory, *pc)
+                .ins_from_memory(&emulator.memory, *pc)
                 .expect("Error decoding instruction");
             println!("Error: {} while executing \"{}\"", e, instruction)
         }
