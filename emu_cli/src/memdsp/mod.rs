@@ -5,6 +5,7 @@ use std::thread;
 use emu_lib::memory::MemoryDevice;
 use fbdisplay::FBDisplay;
 use rand::random;
+use emu_lib::memory::errors::{MemoryRWCommonError, MemoryReadError, MemoryWriteError};
 
 mod fbdisplay;
 
@@ -73,25 +74,25 @@ impl MemoryDevice for MemViz {
     fn size(&self) -> usize {
         self.buffer.lock().expect("Failed to lock buffer").len()
     }
-    fn read_8(&self, addr: u16) -> Result<u8, &'static str> {
+    fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
         self.buffer
             .lock()
-            .or(Err("Failed to lock buffer"))?
+            .or(Err(MemoryRWCommonError::CustomError("Failed to lock buffer".to_string())))?
             .get(addr as usize)
             .copied()
-            .ok_or("Address out of bounds")
+            .ok_or(MemoryReadError::CommonRWError(MemoryRWCommonError::OutOfBounds(addr)))
     }
-    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
         self.buffer
             .lock()
-            .or(Err("Failed to lock buffer"))?
+            .or(Err(MemoryRWCommonError::CustomError("Failed to lock buffer".to_string())))?
             .get_mut(addr as usize)
             .map(|v| *v = data)
-            .ok_or("Address out of bounds")?;
+            .ok_or(MemoryWriteError::CommonRWError(MemoryRWCommonError::OutOfBounds(addr)))?;
         Ok(())
     }
 
-    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), &'static str> {
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
         Self::write_8(self, addr, data)
     }
 }

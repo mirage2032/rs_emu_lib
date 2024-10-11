@@ -2,13 +2,12 @@ use std::path::PathBuf;
 use emu_lib::cpu::Cpu;
 
 use emu_lib::cpu::{
-    instruction::BaseInstruction,
     registers::{AllRegisters, GPByteRegisters},
 };
 use emu_lib::cpu::instruction::ExecutableInstruction;
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::{errors::MemoryError, memdevices::RAM, Memory, MemoryDevice};
+use emu_lib::memory::{errors::MemoryError, memdevices::RAM, Memory};
 
 mod memdsp;
 use memdsp::MemViz;
@@ -51,7 +50,7 @@ fn main() {
         Ok(_) => {}
         Err(e) => {
             for err in e {
-                if let MemoryError::File(e) = err {
+                if let MemoryError::FileError(e) = err {
                     panic!("{}", e)
                 }
             }
@@ -79,7 +78,7 @@ fn main() {
             let instruction = emulator
                 .cpu
                 .parser()
-                .ins_from_memory(&emulator.memory, *pc)
+                .ins_from_machinecode(&emulator.memory, *pc)
                 .expect("Error decoding instruction");
             println!("Error: {} while executing \"{}\"", e, instruction)
         }

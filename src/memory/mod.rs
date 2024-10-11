@@ -209,3 +209,26 @@ impl MemoryDevice for Memory {
         Ok(())
     }
 }
+
+impl MemoryDevice for Vec<u8> {
+    fn size(&self) -> usize {
+        self.len()
+    }
+    fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
+        match self.get(addr as usize) {
+            Some(val) => Ok(*val),
+            None => Err(MemoryRWCommonError::OutOfBounds(addr).into()),
+        }
+    }
+    fn write_8(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
+        let val = self
+            .get_mut(addr as usize)
+            .ok_or(MemoryRWCommonError::OutOfBounds(addr))?;
+        *val = data;
+        Ok(())
+    }
+
+    fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
+        self.write_8(addr, data)
+    }
+}

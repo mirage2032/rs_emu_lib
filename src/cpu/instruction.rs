@@ -1,9 +1,9 @@
 #![allow(unused)]
-use std::fmt::{Debug, Display};
-use thiserror::Error;
 use crate::cpu::Cpu;
 use crate::io::IO;
-use crate::memory::Memory;
+use crate::memory::{Memory, MemoryDevice};
+use std::fmt::{Debug, Display};
+use thiserror::Error;
 
 #[derive(Debug, Clone, Copy)]
 pub struct InstructionCommon {
@@ -32,8 +32,8 @@ pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
 }
 
 //into error parse error
-#[derive(Debug,Error)]
-pub enum ParseError{
+#[derive(Debug, Error)]
+pub enum ParseError {
     #[error("Malformed instruction: {0}")]
     InvalidInstruction(String),
     #[error("Memory error: {0}")]
@@ -41,24 +41,45 @@ pub enum ParseError{
 }
 
 pub trait InstructionParser<T: Cpu> {
-    fn ins_from_memory(
-        &self,
-        memory: &Memory,
-        pos: u16,
-    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>;
-    fn ins_from_vec(
-        &self,
-        memory: &Vec<u8>,
-        pos: u16,
-    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>;
-    fn ins_from_string(
+    // fn ins_from_mc_memory(
+    //     memory: &Memory,
+    //     pos: u16,
+    // ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>  where Self: Sized;
+    // fn ins_from_mc_vec(
+    //     memory: &Vec<u8>,
+    //     pos: u16,
+    // ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>  where Self: Sized;
+    fn ins_from_asm_string(
         &self,
         instruction: &str,
     ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>;
-
-    fn from_file(&self, path: &str) -> Result<Box<dyn ExecutableInstruction<T>>, ParseError>{
-        unimplemented!("from_file not implemented")
+    fn check_asm_lines(&self,lines: &[String]) -> Result<(), Vec<(u16, ParseError)>>{
+        let mut errors = Vec::new();
+        for (idx,line) in lines.iter().enumerate() {
+            match self.ins_from_asm_string(line) {
+                Ok(_) => (),
+                Err(e) => errors.push((idx as u16, e)),
+            }
+        }
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(errors)
+        }
     }
+
+    fn ins_vec_from_asm_lines(&self,lines: &Vec<String>) -> Result<Vec<Box<(dyn ExecutableInstruction<T>)>>, ParseError> {
+        let mut instructions = Vec::new();
+        for line in lines {
+            instructions.push(self.ins_from_asm_string(line)?);
+        }
+        Ok(instructions)
+    }
+    fn ins_from_machinecode(
+        &self,
+        memory: &dyn MemoryDevice,
+        pos: u16,
+    ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>;
 }
 //MACROS
 //STACK PUSH/POP
@@ -107,4 +128,6 @@ macro_rules! pop_16 {
 }
 
 pub(crate) use pop_16;
-use crate::memory::errors::{MemoryError, MemoryReadError};
+use crate::cpu::z80::parser::Z80Parser;
+use crate::cpu::z80::Z80;
+use crate::memory::errors::MemoryReadError;

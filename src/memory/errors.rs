@@ -1,4 +1,3 @@
-use std::fmt::Display;
 use std::path::PathBuf;
 
 use thiserror::Error;
@@ -11,12 +10,6 @@ pub enum FileError {
     FileDoesNotExist(PathBuf),
     #[error("Error creating file: {0}")]
     FileCreate(PathBuf),
-    #[error("Error opening file: {0}")]
-    FileOpen(PathBuf),
-    #[error("Error reading from file")]
-    ReadError,
-    #[error("Error writing to file")]
-    WriteError,
 }
 
 #[derive(Debug, Error, Clone)]

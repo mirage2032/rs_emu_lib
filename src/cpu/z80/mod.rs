@@ -43,19 +43,10 @@ impl Default for Z80Registers {
         }
     }
 }
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone,Default, Serialize, Deserialize)]
 pub struct Z80 {
     pub registers: Z80Registers,
     halted: bool,
-}
-
-impl Default for Z80 {
-    fn default() -> Self {
-        Z80 {
-            registers: Z80Registers::default(),
-            halted: false,
-        }
-    }
 }
 
 impl Z80 {
@@ -73,7 +64,7 @@ impl Z80 {
                     }
                     InterruptType::IM0(instruction) => {
                         let rom: ROM = vec![instruction].into();
-                        let instruction = parser::Z80Parser::from_memdev(&rom, 0).map_err(|e| e.to_string())?;
+                        let instruction = parser::Z80_PARSER.ins_from_machinecode(&rom, 0).map_err(|e| e.to_string())?;
                         Some(instruction)
                     }
                     remaining => {
@@ -109,7 +100,7 @@ impl Cpu for Z80 {
         let res = self.handle_interrupt(memory, io)?; // If IM1 interrupt it will be returned and executed
         let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
             Some(instruction) => instruction,
-            None => parser::Z80Parser::from_memdev(memory, self.registers.pc).map_err(|e| e.to_string())?,
+            None => parser::Z80_PARSER.ins_from_machinecode(memory, self.registers.pc).map_err(|e| e.to_string())?,
         };
         // println!("Executing: {:?}", self.registers.gp[0].f);
         // println!("HL: {:X},BC:{:X}", self.registers.gp[0].hl,self.registers.gp[0].bc);
