@@ -1,7 +1,6 @@
 macro_rules! test_instruction_parse {
     ($instruction:ident, [$($arg:expr),*]) => {
             use crate::cpu::z80::parser::Z80_PARSER;
-            use crate::memory::memdevices::ROM;
             use crate::cpu::instruction::InstructionParser;
 
             use super::*;
@@ -12,8 +11,7 @@ macro_rules! test_instruction_parse {
                 fn [< test_ $instruction _as_bytes_and_back >]() {
                     let instruction = $instruction::new_with_value($($arg),*);
                     let ins_as_bytes: Vec<u8> = instruction.to_bytes();
-                    let ins_as_rom: ROM = ins_as_bytes.clone().into();
-                    let new_instruction = Z80_PARSER.ins_from_machinecode(&ins_as_rom, 0).expect(&format!("Failed to parse instruction: {:?}", ins_as_bytes));
+                    let new_instruction = Z80_PARSER.ins_from_machinecode(&ins_as_bytes, 0).expect(&format!("Failed to parse instruction: {:?}", ins_as_bytes));
                     assert_eq!(ins_as_bytes, new_instruction.to_bytes());
                 }
 
@@ -29,7 +27,6 @@ macro_rules! test_instruction_parse {
     };
     ($instruction:ident) => {
             use crate::cpu::z80::parser::Z80_PARSER;
-            use crate::memory::memdevices::ROM;
             use crate::cpu::instruction::InstructionParser;
 
             use super::*;
@@ -40,8 +37,7 @@ macro_rules! test_instruction_parse {
                 fn [< test_ $instruction _as_bytes_and_back >]() {
                     let instruction = $instruction::new();
                     let ins_as_bytes = instruction.to_bytes();
-                    let ins_as_rom: ROM = ins_as_bytes.clone().into();
-                    let new_instruction = Z80_PARSER.ins_from_machinecode(&ins_as_rom, 0).unwrap();
+                    let new_instruction = Z80_PARSER.ins_from_machinecode(&ins_as_bytes, 0).unwrap();
                     assert_eq!(ins_as_bytes, new_instruction.to_bytes());
                 }
 

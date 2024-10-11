@@ -48,11 +48,17 @@ impl From<MemoryWriteError> for String {
 }
 
 #[derive(Debug, Error, Clone)]
-pub enum MemoryError {
+pub enum MemoryRWError {
     #[error("{0}")]
     MemWrite(#[from] MemoryWriteError),
     #[error("{0}")]
     MemRead(#[from] MemoryReadError),
-    #[error("Memory file error: {0}")]
+}
+
+#[derive(Debug, Error, Clone)]
+pub enum MemorySaveLoadError {
+    #[error("Memory error: {0}")]
+    MemoryRWError(#[from] MemoryRWError),
+    #[error("File error: {0}")]
     FileError(#[from] FileError),
 }

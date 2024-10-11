@@ -131,11 +131,11 @@ impl<T: Cpu> Emulator<T> {
         };
         bincode::serialize(&state).map_err(|e| format!("{:?}", e))
     }
-    pub fn load(&mut self, data: Vec<u8>, clear_mem: bool) -> Result<(), String> {
+    pub fn load(&mut self, data: Vec<u8>, clear_mem: bool,force:bool) -> Result<(), String> {
         let state = bincode::deserialize::<EmuState>(&data).map_err(|e| format!("{:?}", e))?;
         self.cpu = bincode::deserialize::<T>(&state.cpu).map_err(|e| format!("{:?}", e))?;
         self.memory
-            .load(&state.memory)
+            .load(&state.memory,force)
             .map_err(|e| format!("{:?}", e))?;
         if clear_mem {
             for idx in state.memory.len()..self.memory.size() {

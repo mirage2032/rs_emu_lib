@@ -7,7 +7,7 @@ use emu_lib::cpu::{
 use emu_lib::cpu::instruction::ExecutableInstruction;
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::{errors::MemoryError, memdevices::RAM, Memory};
+use emu_lib::memory::{errors::MemoryRWError, memdevices::RAM, Memory};
 
 mod memdsp;
 use memdsp::MemViz;
@@ -50,7 +50,7 @@ fn main() {
         Ok(_) => {}
         Err(e) => {
             for err in e {
-                if let MemoryError::FileError(e) = err {
+                if let MemoryRWError::FileError(e) = err {
                     panic!("{}", e)
                 }
             }
