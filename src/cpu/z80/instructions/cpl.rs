@@ -53,6 +53,6 @@ mod tests {
     use crate::cpu::test::test_instruction_parse;
     use crate::cpu::z80::test::*;
 
-    test_z80!("1f");
+    test_z80!("2f");
     test_instruction_parse!(CPL);
 }
