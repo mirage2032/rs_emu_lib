@@ -46,14 +46,10 @@ fn main() {
     let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
     let rom_path: PathBuf = PathBuf::from("roms/color2.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
-    match emulator.memory.load_file(&rom_path) {
+    match emulator.memory.load_file(&rom_path,true) {
         Ok(_) => {}
         Err(e) => {
-            for err in e {
-                if let MemoryRWError::FileError(e) = err {
-                    panic!("{}", e)
-                }
-            }
+            panic!("Error loading rom: {:?}", e);
         }
     };
     println!("Running emulator");

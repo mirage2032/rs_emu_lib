@@ -79,6 +79,7 @@ impl InstructionParser<Z80> for Z80Parser {
         };
         let instruction: Box<dyn ExecutableInstruction<Z80>> = match get_op(1)? {
             "nop" => Box::new(nop::NOP::new()),
+            "scf" => Box::new(scf::SCF::new()),
             "ld" => {
                 let destination = get_op(2)?;
                 let source = get_op(3)?;
@@ -775,7 +776,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0x34 => Box::new(math::inc::inc_phl::INC_PHL::new()),
             // 0x35
             0x36 => Box::new(ld::LD_PHL_N::new(memory, pos)?),
-            // 0x37
+            0x37 => Box::new(scf::SCF::new()),
             0x38 => Box::new(jump::jr::jr_c_d::JR_C_D::new(memory, pos)?),
             0x39 => Box::new(math::add::add_hl_sp::ADD_HL_SP::new()),
             0x3A => Box::new(ld::LD_A_PNN::new(memory, pos)?),

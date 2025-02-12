@@ -17,3 +17,4 @@ pub mod rlca;
 pub mod rra;
 pub mod rrca;
 pub mod stack;
+pub mod scf;
