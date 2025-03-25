@@ -652,49 +652,68 @@ impl InstructionParser<Z80> for Z80Parser {
             }
             "rla" => Box::new(rla::RLA::new()),
             "jr" => {
-                let op1 = op.get(2);
-                let op2 = op.get(3);
-                match (op1, op2) {
-                    (Some(op1_match), None) => {
-                        let op1_val = is_val(op1_match.as_str());
-                        match op1_val {
-                            Ok(ImmediateValue::Val8(val)) => {
-                                Box::new(jump::jr::jr_d::JR_D::new_with_value(val))
-                            }
+                let op1 = get_op(2)?;
+                let op2 = get_op(3);
+                if let Ok(op2_str) = op2 {
+                    match (is_val(op1), is_val(op2_str)) {
+                        (Err(_), Ok(ImmediateValue::Val8(val))) => match op1 {
+                            "z" => Box::new(jump::jr::jr_z_d::JR_Z_D::new_with_value(val)),
+                            "nz" => Box::new(jump::jr::jr_nz_d::JR_NZ_D::new_with_value(val)),
+                            "nc" => Box::new(jump::jr::jr_nc_d::JR_NC_D::new_with_value(val)),
+                            "c" => Box::new(jump::jr::jr_c_d::JR_C_D::new_with_value(val)),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(
                                     "Invalid instruction".to_string(),
                                 ))
                             }
+                        },
+
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
                         }
                     }
-                    (Some(op1_match), Some(op2_match)) => {
-                        let op2_val = is_val(op2_match.as_str());
-                        match (op1_match.as_str(), op2_val) {
-                            ("z", Ok(ImmediateValue::Val8(val))) => {
-                                Box::new(jump::jr::jr_z_d::JR_Z_D::new_with_value(val))
-                            }
-                            ("nz", Ok(ImmediateValue::Val8(val))) => {
-                                Box::new(jump::jr::jr_nz_d::JR_NZ_D::new_with_value(val))
-                            }
-                            ("nc", Ok(ImmediateValue::Val8(val))) => {
-                                Box::new(jump::jr::jr_nc_d::JR_NC_D::new_with_value(val))
-                            }
-                            ("c", Ok(ImmediateValue::Val8(val))) => {
-                                Box::new(jump::jr::jr_c_d::JR_C_D::new_with_value(val))
-                            }
+                } else if let Ok(ImmediateValue::Val8(val)) = is_val(op1) {
+                    Box::new(jump::jr::jr_d::JR_D::new_with_value(val))
+                } else {
+                    return Err(ParseError::InvalidInstruction(
+                        "Invalid instruction".to_string(),
+                    ));
+                }
+            }
+            "jp" => {
+                let op1 = get_op(2)?;
+                let op2 = get_op(3);
+                if let Ok(op2_str) = op2 {
+                    match (is_val(op1), is_val(op2_str)) {
+                        (Err(_), Ok(ImmediateValue::Val16(val))) => match op1 {
+                            "nz" => Box::new(jump::jp::jp_nz_nn::JP_NZ_NN::new_with_value(val)),
+                            // "z" => Box::new(jump::jp::jp_z_nn::JP_Z_NN::new_with_value(val)),
+                            // "nc" => Box::new(jump::jp::jp_nc_nn::JP_NC_NN::new_with_value(val)),
+                            // "c" => Box::new(jump::jp::jp_c_nn::JP_C_NN::new_with_value(val)),
+                            // "po" => Box::new(jump::jp::jp_po_nn::JP_PO_NN::new_with_value(val)),
+                            // "pe" => Box::new(jump::jp::jp_pe_nn::JP_PE_NN::new_with_value(val)),
+                            // "p" => Box::new(jump::jp::jp_p_nn::JP_P_NN::new_with_value(val)),
+                            // "m" => Box::new(jump::jp::jp_m_nn::JP_M_NN::new_with_value(val)),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(
                                     "Invalid instruction".to_string(),
                                 ))
                             }
+                        },
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
                         }
                     }
-                    _ => {
-                        return Err(ParseError::InvalidInstruction(
-                            "Invalid instruction".to_string(),
-                        ))
-                    }
+                // } else if let Ok(ImmediateValue::Val16(val)) = is_val(op1) {
+                //     Box::new(jump::jp::jp_nn::JP_NN::new_with_value(val))
+                } else {
+                    return Err(ParseError::InvalidInstruction(
+                        "Invalid instruction".to_string(),
+                    ));
                 }
             }
             "rra" => Box::new(rra::RRA::new()),
@@ -1073,7 +1092,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xBF => Box::new(math::cp::CP_A::new()),
             0xC0 => Box::new(ret::ret_nz::RET_NZ::new()),
             0xC1 => Box::new(stack::pop::POP_BC::new()),
-            // 0xC2
+            0xC2 => Box::new(jump::jp::jp_nz_nn::JP_NZ_NN::new(memory, pos)?),
             // 0xC3
             // 0xC4
             0xC5 => Box::new(stack::push::PUSH_BC::new()),
@@ -1561,41 +1580,41 @@ impl InstructionParser<Z80> for Z80Parser {
             // 0xFD => {
             //     let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
             //     match ins_byte1 {
-                    // 0x09
-                    // 0x19
-                    // 0x21
-                    // 0x22
-                    // 0x23
-                    // 0x29
-                    // 0x2A
-                    // 0x2B
-                    // 0x34
-                    // 0x35
-                    // 0x36
-                    // 0x39
-                    // 0x46
-                    // 0x4E
-                    // 0x56
-                    // 0x5E
-                    // 0x66
-                    // 0x6E
-                    // 0x70
-                    // 0x71
-                    // 0x72
-                    // 0x73
-                    // 0x74
-                    // 0x75
-                    // 0x77
-                    // 0x7e
-                    // 0x70
-                    // 0x71
-                    // 0x72
-                    // 0x73
-                    // 0x74
-                    // 0x75
-                    // 0x7E
-                    // ...
-                // }
+            // 0x09
+            // 0x19
+            // 0x21
+            // 0x22
+            // 0x23
+            // 0x29
+            // 0x2A
+            // 0x2B
+            // 0x34
+            // 0x35
+            // 0x36
+            // 0x39
+            // 0x46
+            // 0x4E
+            // 0x56
+            // 0x5E
+            // 0x66
+            // 0x6E
+            // 0x70
+            // 0x71
+            // 0x72
+            // 0x73
+            // 0x74
+            // 0x75
+            // 0x77
+            // 0x7e
+            // 0x70
+            // 0x71
+            // 0x72
+            // 0x73
+            // 0x74
+            // 0x75
+            // 0x7E
+            // ...
+            // }
             // }
             0xFE => Box::new(math::cp::cp_n::CP_N::new(memory, pos)?),
             // 0xFF
