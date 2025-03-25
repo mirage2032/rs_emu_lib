@@ -377,6 +377,9 @@ impl InstructionParser<Z80> for Z80Parser {
                             Ok(ImmediateValue::OffsetIX(offset)) => {
                                 Box::new(math::add::add_a_pixd::ADD_A_PIXD::new_with_value(offset))
                             }
+                            Ok(ImmediateValue::Val8(val)) => {
+                                Box::new(math::add::add_a_n::ADD_A_N::new_with_value(val))
+                            }
                             _ => {
                                 return Err(ParseError::InvalidInstruction(format!(
                                     "Invalid source \"{0}\"",
@@ -713,6 +716,30 @@ impl InstructionParser<Z80> for Z80Parser {
                 } else {
                     return Err(ParseError::InvalidInstruction(
                         "Invalid instruction".to_string(),
+                    ));
+                }
+            }
+            "rst" => {
+                let destination = get_op(2)?;
+                if let Ok(ImmediateValue::Val8(val)) = is_val(destination) {
+                    match val {
+                        0x00 => Box::new(rst::RST_0x00::new()),
+                        0x08 => Box::new(rst::RST_0x08::new()),
+                        0x10 => Box::new(rst::RST_0x10::new()),
+                        0x18 => Box::new(rst::RST_0x18::new()),
+                        0x20 => Box::new(rst::RST_0x20::new()),
+                        0x28 => Box::new(rst::RST_0x28::new()),
+                        0x30 => Box::new(rst::RST_0x30::new()),
+                        0x38 => Box::new(rst::RST_0x38::new()),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Bad RST address".to_string(),
+                            ))
+                        }
+                    }
+                } else {
+                    return Err(ParseError::InvalidInstruction(
+                        "Bad RST parameter".to_string(),
                     ));
                 }
             }
@@ -1117,8 +1144,8 @@ impl InstructionParser<Z80> for Z80Parser {
             0xC3 => Box::new(jump::jp::jp_nn::JP_NN::new(memory, pos)?),
             0xC4 => Box::new(call::call_nz_nn::CALL_NZ_NN::new(memory, pos)?),
             0xC5 => Box::new(stack::push::PUSH_BC::new()),
-            // 0xC6
-            // 0xC7
+            0xC6 => Box::new(math::add::add_a_n::ADD_A_N::new(memory, pos)?),
+            0xC7 => Box::new(rst::RST_0x00::new()),
             0xC8 => Box::new(ret::ret_z::RET_Z::new()),
             0xC9 => Box::new(ret::ret::RET::new()),
             // 0xCA
@@ -1386,7 +1413,7 @@ impl InstructionParser<Z80> for Z80Parser {
             // 0xCC
             0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
             0xCE => Box::new(math::adc::adc_a_n::ADC_A_N::new(memory, pos)?),
-            // 0xCF
+            0xCF => Box::new(rst::RST_0x08::new()),
             0xD0 => Box::new(ret::ret_nc::RET_NC::new()),
             0xD1 => Box::new(stack::pop::POP_DE::new()),
             // 0xD2
@@ -1394,7 +1421,7 @@ impl InstructionParser<Z80> for Z80Parser {
             // 0xD4
             0xD5 => Box::new(stack::push::PUSH_DE::new()),
             0xD6 => Box::new(math::sub::sub_n::SUB_N::new(memory, pos)?),
-            // 0xD7
+            0xD7 => Box::new(rst::RST_0x10::new()),
             0xD8 => Box::new(ret::ret_c::RET_C::new()),
             // 0xD9
             // 0xDA
@@ -1501,7 +1528,7 @@ impl InstructionParser<Z80> for Z80Parser {
                 }
             }
             0xDE => Box::new(math::sbc::sbc_a_n::SBC_A_N::new(memory, pos)?),
-            // 0xDF
+            0xDF => Box::new(rst::RST_0x18::new()),
             0xE0 => Box::new(ret::ret_po::RET_PO::new()),
             0xE1 => Box::new(stack::pop::POP_HL::new()),
             // 0xE2
@@ -1509,7 +1536,7 @@ impl InstructionParser<Z80> for Z80Parser {
             // 0xE4
             0xE5 => Box::new(stack::push::PUSH_HL::new()),
             0xE6 => Box::new(math::and::and_n::AND_N::new(memory, pos)?),
-            // 0xE7
+            0xE7 => Box::new(rst::RST_0x20::new()),
             0xE8 => Box::new(ret::ret_pe::RET_PE::new()),
             // 0xE9
             // 0xEA
@@ -1584,7 +1611,7 @@ impl InstructionParser<Z80> for Z80Parser {
                 }
             }
             0xEE => Box::new(math::xor::xor_n::XOR_N::new(memory, pos)?),
-            // 0xEF
+            0xEF => Box::new(rst::RST_0x28::new()),
             0xF0 => Box::new(ret::ret_p::RET_P::new()),
             0xF1 => Box::new(stack::pop::POP_AF::new()),
             // 0xF2
@@ -1592,7 +1619,7 @@ impl InstructionParser<Z80> for Z80Parser {
             // 0xF4
             0xF5 => Box::new(stack::push::PUSH_AF::new()),
             0xF6 => Box::new(math::or::or_n::OR_N::new(memory, pos)?),
-            // 0xF7
+            0xF7 => Box::new(rst::RST_0x30::new()),
             0xF8 => Box::new(ret::ret_m::RET_M::new()),
             0xF9 => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
             // 0xFA
@@ -1601,44 +1628,44 @@ impl InstructionParser<Z80> for Z80Parser {
             // 0xFD => {
             //     let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
             //     match ins_byte1 {
-            // 0x09
-            // 0x19
-            // 0x21
-            // 0x22
-            // 0x23
-            // 0x29
-            // 0x2A
-            // 0x2B
-            // 0x34
-            // 0x35
-            // 0x36
-            // 0x39
-            // 0x46
-            // 0x4E
-            // 0x56
-            // 0x5E
-            // 0x66
-            // 0x6E
-            // 0x70
-            // 0x71
-            // 0x72
-            // 0x73
-            // 0x74
-            // 0x75
-            // 0x77
-            // 0x7e
-            // 0x70
-            // 0x71
-            // 0x72
-            // 0x73
-            // 0x74
-            // 0x75
-            // 0x7E
-            // ...
+            //     0x09
+            //     0x19
+            //     0x21
+            //     0x22
+            //     0x23
+            //     0x29
+            //     0x2A
+            //     0x2B
+            //     0x34
+            //     0x35
+            //     0x36
+            //     0x39
+            //     0x46
+            //     0x4E
+            //     0x56
+            //     0x5E
+            //     0x66
+            //     0x6E
+            //     0x70
+            //     0x71
+            //     0x72
+            //     0x73
+            //     0x74
+            //     0x75
+            //     0x77
+            //     0x7e
+            //     0x70
+            //     0x71
+            //     0x72
+            //     0x73
+            //     0x74
+            //     0x75
+            //     0x7E
+            //     ...
             // }
             // }
             0xFE => Box::new(math::cp::cp_n::CP_N::new(memory, pos)?),
-            // 0xFF
+            0xFF => Box::new(rst::RST_0x38::new()),
             _ => {
                 return Err(ParseError::InvalidInstruction(format!(
                     "Invalid instruction: 0x{:02x}",
