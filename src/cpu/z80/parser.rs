@@ -708,8 +708,8 @@ impl InstructionParser<Z80> for Z80Parser {
                             ))
                         }
                     }
-                // } else if let Ok(ImmediateValue::Val16(val)) = is_val(op1) {
-                //     Box::new(jump::jp::jp_nn::JP_NN::new_with_value(val))
+                } else if let Ok(ImmediateValue::Val16(val)) = is_val(op1) {
+                    Box::new(jump::jp::jp_nn::JP_NN::new_with_value(val))
                 } else {
                     return Err(ParseError::InvalidInstruction(
                         "Invalid instruction".to_string(),
@@ -719,16 +719,37 @@ impl InstructionParser<Z80> for Z80Parser {
             "rra" => Box::new(rra::RRA::new()),
             "halt" => Box::new(halt::Halt::new()),
             "call" => {
-                let destination = is_val(get_op(2)?);
-                match destination {
-                    Ok(ImmediateValue::Val16(val)) => {
-                        Box::new(call::call_nn::CALL_NN::new_with_value(val))
+                let op1 = get_op(2)?;
+                let op2 = get_op(3);
+                if let Ok(op2_str) = op2 {
+                    match (is_val(op1), is_val(op2_str)) {
+                        (Err(_), Ok(ImmediateValue::Val16(val))) => match op1 {
+                            "nz" => Box::new(call::call_nz_nn::CALL_NZ_NN::new_with_value(val)),
+                            // "z" => Box::new(call::call_z_nn::CALL_Z_NN::new_with_value(val)),
+                            // "nc" => Box::new(call::call_nc_nn::CALL_NC_NN::new_with_value(val)),
+                            // "c" => Box::new(call::call_c_nn::CALL_C_NN::new_with_value(val)),
+                            // "po" => Box::new(call::call_po_nn::CALL_PO_NN::new_with_value(val)),
+                            // "pe" => Box::new(call::call_pe_nn::CALL_PE_NN::new_with_value(val)),
+                            // "p" => Box::new(call::call_p_nn::CALL_P_NN::new_with_value(val)),
+                            // "m" => Box::new(call::call_m_nn::CALL_M_NN::new_with_value(val)),
+                            _ => {
+                                return Err(ParseError::InvalidInstruction(
+                                    "Invalid instruction".to_string(),
+                                ))
+                            }
+                        },
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
+                        }
                     }
-                    _ => {
-                        return Err(ParseError::InvalidInstruction(
-                            "Invalid instruction".to_string(),
-                        ))
-                    }
+                } else if let Ok(ImmediateValue::Val16(val)) = is_val(op1) {
+                    Box::new(call::call_nn::CALL_NN::new_with_value(val))
+                } else {
+                    return Err(ParseError::InvalidInstruction(
+                        "Invalid instruction".to_string(),
+                    ));
                 }
             }
             "ret" => {
@@ -1093,8 +1114,8 @@ impl InstructionParser<Z80> for Z80Parser {
             0xC0 => Box::new(ret::ret_nz::RET_NZ::new()),
             0xC1 => Box::new(stack::pop::POP_BC::new()),
             0xC2 => Box::new(jump::jp::jp_nz_nn::JP_NZ_NN::new(memory, pos)?),
-            // 0xC3
-            // 0xC4
+            0xC3 => Box::new(jump::jp::jp_nn::JP_NN::new(memory, pos)?),
+            0xC4 => Box::new(call::call_nz_nn::CALL_NZ_NN::new(memory, pos)?),
             0xC5 => Box::new(stack::push::PUSH_BC::new()),
             // 0xC6
             // 0xC7
