@@ -1,53 +1,55 @@
 use std::fmt;
 use std::fmt::Display;
 
+use crate::cpu::instruction::pop_16;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::math::sbc::generics::sbc_r_r;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
 
 #[derive(Debug)]
-pub struct SBC_A_PHL {
+pub struct RET_NC {
     common: InstructionCommon,
 }
 
-impl SBC_A_PHL {
-    pub fn new() -> SBC_A_PHL {
-        SBC_A_PHL {
-            common: InstructionCommon::new(1, 7, true),
+impl RET_NC {
+    pub fn new() -> RET_NC {
+        RET_NC {
+            common: InstructionCommon::new(1, 5, true),
         }
     }
 }
 
-impl Display for SBC_A_PHL {
+impl Display for RET_NC {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SBC A, (HL)")
+        write!(f, "RET NC")
     }
 }
 
-impl BaseInstruction for SBC_A_PHL {
+impl BaseInstruction for RET_NC {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0x9E]
+        vec![0xd0]
     }
 }
 
-impl ExecutableInstruction<Z80> for SBC_A_PHL {
+impl ExecutableInstruction<Z80> for RET_NC {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let val = memory.read_8(cpu.registers.gp.hl)?;
-        sbc_r_r!(cpu.registers.gp.a, val, cpu.registers.gp.f);
+        if !cpu.registers.gp.f.carry() {
+            self.common = InstructionCommon::new(1, 11, false);
+            cpu.registers.pc = pop_16!(memory, cpu.registers.sp);
+        }
         Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::cpu::test::*;
+    use crate::cpu::test::test_instruction_parse;
     use crate::cpu::z80::test::*;
 
-    test_z80!("9e");
-    test_instruction_parse!(SBC_A_PHL);
+    test_z80!("d0");
+    test_instruction_parse!(RET_NC);
 }

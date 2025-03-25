@@ -712,7 +712,28 @@ impl InstructionParser<Z80> for Z80Parser {
                     }
                 }
             }
-            "ret" => Box::new(ret::RET::new()),
+            "ret" => {
+                let condition = get_op(2);
+                if let Ok(condition) = condition {
+                    match condition {
+                        "nz" => Box::new(ret::ret_nz::RET_NZ::new()),
+                        "z" => Box::new(ret::ret_z::RET_Z::new()),
+                        "nc" => Box::new(ret::ret_nc::RET_NC::new()),
+                        "c" => Box::new(ret::ret_c::RET_C::new()),
+                        "po" => Box::new(ret::ret_po::RET_PO::new()),
+                        "pe" => Box::new(ret::ret_pe::RET_PE::new()),
+                        "p" => Box::new(ret::ret_p::RET_P::new()),
+                        "m" => Box::new(ret::ret_m::RET_M::new()),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
+                        }
+                    }
+                } else {
+                    Box::new(ret::ret::RET::new())
+                }
+            }
             "push" => {
                 let destination = get_op(2)?;
                 match destination {
@@ -1050,7 +1071,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xBD => Box::new(math::cp::CP_L::new()),
             0xBE => Box::new(math::cp::cp_phl::CP_PHL::new()),
             0xBF => Box::new(math::cp::CP_A::new()),
-            // 0xC0
+            0xC0 => Box::new(ret::ret_nz::RET_NZ::new()),
             0xC1 => Box::new(stack::pop::POP_BC::new()),
             // 0xC2
             // 0xC3
@@ -1058,8 +1079,8 @@ impl InstructionParser<Z80> for Z80Parser {
             0xC5 => Box::new(stack::push::PUSH_BC::new()),
             // 0xC6
             // 0xC7
-            // 0xC8
-            0xC9 => Box::new(ret::RET::new()),
+            0xC8 => Box::new(ret::ret_z::RET_Z::new()),
+            0xC9 => Box::new(ret::ret::RET::new()),
             // 0xCA
             0xCB => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
@@ -1326,7 +1347,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
             0xCE => Box::new(math::adc::adc_a_n::ADC_A_N::new(memory, pos)?),
             // 0xCF
-            // 0xD0
+            0xD0 => Box::new(ret::ret_nc::RET_NC::new()),
             0xD1 => Box::new(stack::pop::POP_DE::new()),
             // 0xD2
             // 0xD3
@@ -1334,7 +1355,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xD5 => Box::new(stack::push::PUSH_DE::new()),
             0xD6 => Box::new(math::sub::sub_n::SUB_N::new(memory, pos)?),
             // 0xD7
-            // 0xD8
+            0xD8 => Box::new(ret::ret_c::RET_C::new()),
             // 0xD9
             // 0xDA
             // 0xDB
@@ -1441,7 +1462,7 @@ impl InstructionParser<Z80> for Z80Parser {
             }
             0xDE => Box::new(math::sbc::sbc_a_n::SBC_A_N::new(memory, pos)?),
             // 0xDF
-            // 0xE0
+            0xE0 => Box::new(ret::ret_po::RET_PO::new()),
             0xE1 => Box::new(stack::pop::POP_HL::new()),
             // 0xE2
             0xE3 => Box::new(ex::ex_psp_hl::EX_PSP_HL::new()),
@@ -1449,7 +1470,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xE5 => Box::new(stack::push::PUSH_HL::new()),
             0xE6 => Box::new(math::and::and_n::AND_N::new(memory, pos)?),
             // 0xE7
-            // 0xE8
+            0xE8 => Box::new(ret::ret_pe::RET_PE::new()),
             // 0xE9
             // 0xEA
             0xEB => Box::new(ex::ex_de_hl::EX_DE_HL::new()),
@@ -1524,7 +1545,7 @@ impl InstructionParser<Z80> for Z80Parser {
             }
             0xEE => Box::new(math::xor::xor_n::XOR_N::new(memory, pos)?),
             // 0xEF
-            // 0xF0
+            0xF0 => Box::new(ret::ret_p::RET_P::new()),
             0xF1 => Box::new(stack::pop::POP_AF::new()),
             // 0xF2
             // 0xF3
@@ -1532,7 +1553,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xF5 => Box::new(stack::push::PUSH_AF::new()),
             0xF6 => Box::new(math::or::or_n::OR_N::new(memory, pos)?),
             // 0xF7
-            // 0xF8
+            0xF8 => Box::new(ret::ret_m::RET_M::new()),
             0xF9 => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
             // 0xFA
             // 0xFB

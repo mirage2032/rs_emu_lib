@@ -5,7 +5,6 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
-use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct XOR_PHL {
