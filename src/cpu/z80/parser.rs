@@ -692,13 +692,13 @@ impl InstructionParser<Z80> for Z80Parser {
                     match (is_val(op1), is_val(op2_str)) {
                         (Err(_), Ok(ImmediateValue::Val16(val))) => match op1 {
                             "nz" => Box::new(jump::jp::jp_nz_nn::JP_NZ_NN::new_with_value(val)),
-                            // "z" => Box::new(jump::jp::jp_z_nn::JP_Z_NN::new_with_value(val)),
-                            // "nc" => Box::new(jump::jp::jp_nc_nn::JP_NC_NN::new_with_value(val)),
-                            // "c" => Box::new(jump::jp::jp_c_nn::JP_C_NN::new_with_value(val)),
-                            // "po" => Box::new(jump::jp::jp_po_nn::JP_PO_NN::new_with_value(val)),
-                            // "pe" => Box::new(jump::jp::jp_pe_nn::JP_PE_NN::new_with_value(val)),
-                            // "p" => Box::new(jump::jp::jp_p_nn::JP_P_NN::new_with_value(val)),
-                            // "m" => Box::new(jump::jp::jp_m_nn::JP_M_NN::new_with_value(val)),
+                            "z" => Box::new(jump::jp::jp_z_nn::JP_Z_NN::new_with_value(val)),
+                            "nc" => Box::new(jump::jp::jp_nc_nn::JP_NC_NN::new_with_value(val)),
+                            "c" => Box::new(jump::jp::jp_c_nn::JP_C_NN::new_with_value(val)),
+                            "po" => Box::new(jump::jp::jp_po_nn::JP_PO_NN::new_with_value(val)),
+                            "pe" => Box::new(jump::jp::jp_pe_nn::JP_PE_NN::new_with_value(val)),
+                            "p" => Box::new(jump::jp::jp_p_nn::JP_P_NN::new_with_value(val)),
+                            "m" => Box::new(jump::jp::jp_m_nn::JP_M_NN::new_with_value(val)),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(
                                     "Invalid instruction".to_string(),
@@ -713,7 +713,11 @@ impl InstructionParser<Z80> for Z80Parser {
                     }
                 } else if let Ok(ImmediateValue::Val16(val)) = is_val(op1) {
                     Box::new(jump::jp::jp_nn::JP_NN::new_with_value(val))
-                } else {
+                } else if op1 == "(hl)" {
+                    Box::new(jump::jp::jp_phl::JP_PHL::new())
+                } else if op1 == "(ix)" {
+                    Box::new(jump::jp::jp_pix::JP_PIX::new())
+                } else{
                     return Err(ParseError::InvalidInstruction(
                         "Invalid instruction".to_string(),
                     ));
@@ -904,7 +908,7 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::sla::sla_pixd::SLA_PIXD::new_with_value(offset))
+                        Box::new(bit::sla::sla_pix::SLA_PIXD::new_with_value(offset))
                     }
                     Err(_) => match destination {
                         "b" => Box::new(bit::sla::SLA_B::new()),
@@ -1148,7 +1152,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xC7 => Box::new(rst::RST_0x00::new()),
             0xC8 => Box::new(ret::ret_z::RET_Z::new()),
             0xC9 => Box::new(ret::ret::RET::new()),
-            // 0xCA
+            0xCA => Box::new(jump::jp::jp_z_nn::JP_Z_NN::new(memory, pos)?),
             0xCB => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
@@ -1416,7 +1420,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xCF => Box::new(rst::RST_0x08::new()),
             0xD0 => Box::new(ret::ret_nc::RET_NC::new()),
             0xD1 => Box::new(stack::pop::POP_DE::new()),
-            // 0xD2
+            0xD2 => Box::new(jump::jp::jp_nc_nn::JP_NC_NN::new(memory, pos)?),
             // 0xD3
             // 0xD4
             0xD5 => Box::new(stack::push::PUSH_DE::new()),
@@ -1424,7 +1428,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xD7 => Box::new(rst::RST_0x10::new()),
             0xD8 => Box::new(ret::ret_c::RET_C::new()),
             // 0xD9
-            // 0xDA
+            0xDA => Box::new(jump::jp::jp_c_nn::JP_C_NN::new(memory, pos)?),
             // 0xDB
             // 0xDC
             0xDD => {
@@ -1479,7 +1483,7 @@ impl InstructionParser<Z80> for Z80Parser {
                             // 0x0E
                             0x16 => Box::new(bit::rl::rl_pixd::RL_PIXD::new(memory, pos)?),
                             0x1E => Box::new(bit::rr::rr_pixd::RR_PIXD::new(memory, pos)?),
-                            0x26 => Box::new(bit::sla::sla_pixd::SLA_PIXD::new(memory, pos)?),
+                            0x26 => Box::new(bit::sla::sla_pix::SLA_PIXD::new(memory, pos)?),
                             0x2E => Box::new(bit::sra::sra_pixd::SRA_PIXD::new(memory, pos)?),
                             // 0x3E
                             // 0x46
@@ -1517,7 +1521,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0xE1 => Box::new(stack::pop::pop_ix::POP_IX::new()),
                     // 0xE3
                     0xE5 => Box::new(stack::push::push_ix::PUSH_IX::new()),
-                    // 0xE9
+                    0xE9 => Box::new(jump::jp::jp_pix::JP_PIX::new()),
                     0xF9 => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
@@ -1531,15 +1535,15 @@ impl InstructionParser<Z80> for Z80Parser {
             0xDF => Box::new(rst::RST_0x18::new()),
             0xE0 => Box::new(ret::ret_po::RET_PO::new()),
             0xE1 => Box::new(stack::pop::POP_HL::new()),
-            // 0xE2
+            0xE2 => Box::new(jump::jp::jp_po_nn::JP_PO_NN::new(memory, pos)?),
             0xE3 => Box::new(ex::ex_psp_hl::EX_PSP_HL::new()),
             // 0xE4
             0xE5 => Box::new(stack::push::PUSH_HL::new()),
             0xE6 => Box::new(math::and::and_n::AND_N::new(memory, pos)?),
             0xE7 => Box::new(rst::RST_0x20::new()),
             0xE8 => Box::new(ret::ret_pe::RET_PE::new()),
-            // 0xE9
-            // 0xEA
+            0xE9 => Box::new(jump::jp::jp_phl::JP_PHL::new()),
+            0xEA => Box::new(jump::jp::jp_pe_nn::JP_PE_NN::new(memory, pos)?),
             0xEB => Box::new(ex::ex_de_hl::EX_DE_HL::new()),
             // 0xEC
             0xED => {
@@ -1614,7 +1618,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xEF => Box::new(rst::RST_0x28::new()),
             0xF0 => Box::new(ret::ret_p::RET_P::new()),
             0xF1 => Box::new(stack::pop::POP_AF::new()),
-            // 0xF2
+            0xF2 => Box::new(jump::jp::jp_p_nn::JP_P_NN::new(memory, pos)?),
             // 0xF3
             // 0xF4
             0xF5 => Box::new(stack::push::PUSH_AF::new()),
@@ -1622,7 +1626,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xF7 => Box::new(rst::RST_0x30::new()),
             0xF8 => Box::new(ret::ret_m::RET_M::new()),
             0xF9 => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
-            // 0xFA
+            0xFA => Box::new(jump::jp::jp_m_nn::JP_M_NN::new(memory, pos)?),
             // 0xFB
             // 0xFC
             // 0xFD => {
