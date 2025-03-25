@@ -23,3 +23,4 @@ generics::adc_r_r::adc_r_r!(a, d, "8a", "A", "D");
 generics::adc_r_r::adc_r_r!(a, e, "8b", "A", "E");
 generics::adc_r_r::adc_r_r!(a, h, "8c", "A", "H");
 generics::adc_r_r::adc_r_r!(a, l, "8d", "A", "L");
+generics::adc_r_r::adc_r_r!(a, a, "8f", "A", "A");

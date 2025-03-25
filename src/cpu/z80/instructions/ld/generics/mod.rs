@@ -6,6 +6,7 @@ pub mod ld_r_n;
 pub mod ld_r_pnn;
 pub mod ld_r_prr;
 pub mod ld_r_r;
+pub mod ld_r_r_self;
 pub mod ld_rr_nn;
 pub mod ld_rr_pnn;
 

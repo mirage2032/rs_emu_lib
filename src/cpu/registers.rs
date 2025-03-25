@@ -7,14 +7,14 @@ use std::ops::{Deref, DerefMut};
 #[bitfield(u8)]
 #[derive(PartialEq, Eq, Serialize, Deserialize)]
 pub struct Flags {
-    pub carry: bool,
-    pub add_sub: bool,
-    pub parity_overflow: bool,
-    pub bit3: bool,
-    pub half_carry: bool,
-    pub bit5: bool,
-    pub zero: bool,
-    pub sign: bool,
+    pub carry: bool,             //C
+    pub add_sub: bool,           //N
+    pub parity_overflow: bool,   //P/V
+    pub bit3: bool,              //3
+    pub half_carry: bool,        //H
+    pub bit5: bool,              //5
+    pub zero: bool,              //Z
+    pub sign: bool,              //S
 }
 
 #[cfg(target_endian = "big")]
