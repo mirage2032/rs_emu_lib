@@ -1,30 +1,25 @@
-macro_rules! sbc_r_r {
-    ($reg1:expr, $reg2:expr, $flags:expr) => {
-        let value_before = $reg1;
-        let result = value_before
-            .wrapping_sub($reg2)
-            .wrapping_sub($flags.carry() as u8);
-        $reg1 = result;
+use crate::cpu::ExecutableInstruction;
+use crate::cpu::BaseInstruction;
+use crate::cpu::z80::Z80;
+use crate::memory::Memory;
+use crate::cpu::instruction::InstructionCommon;
+use crate::io::IO;
+use crate::cpu::z80::instructions::math::sbc::generics::sbc_r_r;
+use std::fmt;
+use std::fmt::Display;
 
-        // Calculate flags
-        let sign = (result & 0x80) != 0;
-        let zero = result == 0;
-        let half_carry = ((value_before & 0x0F) < ($reg2 & 0x0F) + $flags.carry() as u8);
-        let overflow = ((value_before ^ $reg2) & (value_before ^ result) & 0x80) != 0;
-        let carry = (value_before as u16) < ($reg2 as u16) + $flags.carry() as u16;
+use hex_literal::hex;
 
-        // Set flags
-        $flags.set_sign(sign);
-        $flags.set_zero(zero);
-        $flags.set_half_carry(half_carry);
-        $flags.set_parity_overflow(overflow);
-        $flags.set_add_sub(true); // Always set for subtraction
-        $flags.set_carry(carry);
+use crate::cpu::z80::instructions::math::sbc::generics::sbc_a_r::sbc_a_r;
 
-        // Set undocumented flags
-        $flags.set_bit3((result >> 3) & 1 == 1);
-        $flags.set_bit5((result >> 5) & 1 == 1);
-    };
-}
-
+pub mod generics;
 pub mod sbc_a_n;
+pub mod sbc_a_phl;
+
+sbc_a_r!(b,"98", "B");
+sbc_a_r!(c,"99", "C");
+sbc_a_r!(d,"9a", "D");
+sbc_a_r!(e,"9b", "E");
+sbc_a_r!(h,"9c", "H");
+sbc_a_r!(l,"9d", "L");
+sbc_a_r!(a,"9f", "A");

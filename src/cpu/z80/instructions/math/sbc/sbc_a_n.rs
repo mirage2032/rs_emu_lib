@@ -2,6 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::cpu::z80::instructions::math::sbc::generics::sbc_r_r;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
@@ -31,7 +32,7 @@ impl SBC_A_N {
 
 impl Display for SBC_A_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SUB 0x{:02x}", self.n)
+        write!(f, "SBC A, 0x{:02x}", self.n)
     }
 }
 
