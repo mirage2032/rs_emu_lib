@@ -5,3 +5,4 @@ pub mod rr;
 pub mod sla;
 pub mod sra;
 pub mod bit;
+pub mod res;
