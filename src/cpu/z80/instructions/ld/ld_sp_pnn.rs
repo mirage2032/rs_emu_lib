@@ -8,34 +8,34 @@ use crate::memory::{Memory, MemoryDevice};
 use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
-pub struct LD_SP_PNN {
+pub struct LD_MISC_SP_PNN {
     common: InstructionCommon,
     nn: u16,
 }
 
-impl LD_SP_PNN {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_SP_PNN, MemoryReadError> {
-        Ok(LD_SP_PNN {
+impl LD_MISC_SP_PNN {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_MISC_SP_PNN, MemoryReadError> {
+        Ok(LD_MISC_SP_PNN {
             common: InstructionCommon::new(4, 20, true),
             nn: memory.read_16(pos.wrapping_add(2))?,
         })
     }
 
-    pub fn new_with_value(nn: u16) -> LD_SP_PNN {
-        LD_SP_PNN {
+    pub fn new_with_value(nn: u16) -> LD_MISC_SP_PNN {
+        LD_MISC_SP_PNN {
             common: InstructionCommon::new(4, 20, true),
             nn,
         }
     }
 }
 
-impl Display for LD_SP_PNN {
+impl Display for LD_MISC_SP_PNN {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "LD SP, (0x{:04x})", self.nn)
     }
 }
 
-impl BaseInstruction for LD_SP_PNN {
+impl BaseInstruction for LD_MISC_SP_PNN {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
@@ -45,7 +45,7 @@ impl BaseInstruction for LD_SP_PNN {
     }
 }
 
-impl ExecutableInstruction<Z80> for LD_SP_PNN {
+impl ExecutableInstruction<Z80> for LD_MISC_SP_PNN {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.sp = memory.read_16(self.nn)?;
         cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
@@ -59,5 +59,5 @@ mod tests {
     use crate::cpu::z80::test::*;
 
     test_z80!("ed 7b");
-    test_instruction_parse!(LD_SP_PNN, [0xbeef]);
+    test_instruction_parse!(LD_MISC_SP_PNN, [0xbeef]);
 }

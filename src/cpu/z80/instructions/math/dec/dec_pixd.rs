@@ -47,7 +47,7 @@ impl BaseInstruction for DEC_PIXD {
 
 impl ExecutableInstruction<Z80> for DEC_PIXD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let mem_addr = cpu.registers.ix.wrapping_add(self.d as u16);
+        let mem_addr = cpu.registers.ix.wrapping_add(self.  d as u16);
         let val = memory.read_8(mem_addr)?;
         cpu.registers.gp.f.set_half_carry(val & 0x0f == 0);
         let val = val.wrapping_sub(1);
