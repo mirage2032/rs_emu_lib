@@ -14,6 +14,7 @@ use crate::memory::Memory;
 pub mod cp_n;
 pub mod cp_phl;
 mod generics;
+pub mod cp_pixd;
 
 generics::cp_r::cp_r!(b, "b8", "B");
 generics::cp_r::cp_r!(c, "b9", "C");

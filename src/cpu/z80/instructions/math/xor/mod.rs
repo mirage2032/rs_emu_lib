@@ -14,6 +14,7 @@ use crate::memory::Memory;
 mod generics;
 pub mod xor_n;
 pub mod xor_phl;
+pub mod xor_pixd;
 
 generics::xor_r::xor_r!(b, "a8", "B");
 generics::xor_r::xor_r!(c, "a9", "C");

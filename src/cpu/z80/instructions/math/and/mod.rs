@@ -11,7 +11,7 @@ use crate::cpu::BaseInstruction;
 use crate::io::IO;
 use crate::memory::Memory;
 
-pub mod and_ixd;
+pub mod and_pixd;
 pub mod and_n;
 pub mod and_phl;
 mod generics;

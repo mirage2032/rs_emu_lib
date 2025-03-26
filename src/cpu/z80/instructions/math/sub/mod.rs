@@ -12,7 +12,7 @@ use crate::io::IO;
 use crate::memory::Memory;
 
 mod generics;
-pub mod sub_ixd;
+pub mod sub_pixd;
 pub mod sub_n;
 pub mod sub_phl;
 

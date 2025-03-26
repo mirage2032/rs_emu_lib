@@ -9,34 +9,34 @@ use crate::memory::{Memory, MemoryDevice};
 use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
-pub struct SUB_IXD {
+pub struct SUB_PIXD {
     common: InstructionCommon,
     d: i8,
 }
 
-impl SUB_IXD {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SUB_IXD, MemoryReadError> {
-        Ok(SUB_IXD {
+impl SUB_PIXD {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<SUB_PIXD, MemoryReadError> {
+        Ok(SUB_PIXD {
             common: InstructionCommon::new(3, 19, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,
         })
     }
 
-    pub fn new_with_value(d: u8) -> SUB_IXD {
-        SUB_IXD {
+    pub fn new_with_value(d: u8) -> SUB_PIXD {
+        SUB_PIXD {
             common: InstructionCommon::new(3, 19, true),
             d: d as i8,
         }
     }
 }
 
-impl Display for SUB_IXD {
+impl Display for SUB_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "SUB (IX+0x{:02x})", self.d)
     }
 }
 
-impl BaseInstruction for SUB_IXD {
+impl BaseInstruction for SUB_PIXD {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
@@ -45,7 +45,7 @@ impl BaseInstruction for SUB_IXD {
     }
 }
 
-impl ExecutableInstruction<Z80> for SUB_IXD {
+impl ExecutableInstruction<Z80> for SUB_PIXD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let val = memory.read_8(cpu.registers.ix.wrapping_add(self.d as u16))?;
         sub_r_setf!(cpu.registers.gp.a, val, cpu.registers.gp.f);
@@ -60,5 +60,5 @@ mod tests {
     use crate::cpu::z80::test::*;
 
     test_z80!("dd", "96");
-    test_instruction_parse!(SUB_IXD, [0xbf]);
+    test_instruction_parse!(SUB_PIXD, [0xbf]);
 }

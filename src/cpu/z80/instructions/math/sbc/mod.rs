@@ -15,6 +15,7 @@ use crate::cpu::z80::instructions::math::sbc::generics::sbc_a_r::sbc_a_r;
 pub mod generics;
 pub mod sbc_a_n;
 pub mod sbc_a_phl;
+pub mod sbc_a_pixd;
 
 sbc_a_r!(b,"98", "B");
 sbc_a_r!(c,"99", "C");
