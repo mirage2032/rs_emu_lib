@@ -247,81 +247,81 @@ impl InstructionParser<Z80> for Z80Parser {
                 }
             }
             "set" => {
-                            let bit = get_op(2)?;
-                            let destination = get_op(3)?;
-                            match (is_val(bit), destination) {
-                                (Ok(ImmediateValue::Val8(0)), "b") => Box::new(bit::set::SET_0_B::new()),
-                                (Ok(ImmediateValue::Val8(0)), "c") => Box::new(bit::set::SET_0_C::new()),
-                                (Ok(ImmediateValue::Val8(0)), "d") => Box::new(bit::set::SET_0_D::new()),
-                                (Ok(ImmediateValue::Val8(0)), "e") => Box::new(bit::set::SET_0_E::new()),
-                                (Ok(ImmediateValue::Val8(0)), "h") => Box::new(bit::set::SET_0_H::new()),
-                                (Ok(ImmediateValue::Val8(0)), "l") => Box::new(bit::set::SET_0_L::new()),
-                                (Ok(ImmediateValue::Val8(0)), "(hl)") => Box::new(bit::set::SET_0_PHL::new()),
-                                (Ok(ImmediateValue::Val8(0)), "a") => Box::new(bit::set::SET_0_A::new()),
-                                (Ok(ImmediateValue::Val8(1)), "b") => Box::new(bit::set::SET_1_B::new()),
-                                (Ok(ImmediateValue::Val8(1)), "c") => Box::new(bit::set::SET_1_C::new()),
-                                (Ok(ImmediateValue::Val8(1)), "d") => Box::new(bit::set::SET_1_D::new()),
-                                (Ok(ImmediateValue::Val8(1)), "e") => Box::new(bit::set::SET_1_E::new()),
-                                (Ok(ImmediateValue::Val8(1)), "h") => Box::new(bit::set::SET_1_H::new()),
-                                (Ok(ImmediateValue::Val8(1)), "l") => Box::new(bit::set::SET_1_L::new()),
-                                (Ok(ImmediateValue::Val8(1)), "(hl)") => Box::new(bit::set::SET_1_PHL::new()),
-                                (Ok(ImmediateValue::Val8(1)), "a") => Box::new(bit::set::SET_1_A::new()),
-                                (Ok(ImmediateValue::Val8(2)), "b") => Box::new(bit::set::SET_2_B::new()),
-                                (Ok(ImmediateValue::Val8(2)), "c") => Box::new(bit::set::SET_2_C::new()),
-                                (Ok(ImmediateValue::Val8(2)), "d") => Box::new(bit::set::SET_2_D::new()),
-                                (Ok(ImmediateValue::Val8(2)), "e") => Box::new(bit::set::SET_2_E::new()),
-                                (Ok(ImmediateValue::Val8(2)), "h") => Box::new(bit::set::SET_2_H::new()),
-                                (Ok(ImmediateValue::Val8(2)), "l") => Box::new(bit::set::SET_2_L::new()),
-                                (Ok(ImmediateValue::Val8(2)), "(hl)") => Box::new(bit::set::SET_2_PHL::new()),
-                                (Ok(ImmediateValue::Val8(2)), "a") => Box::new(bit::set::SET_2_A::new()),
-                                (Ok(ImmediateValue::Val8(3)), "b") => Box::new(bit::set::SET_3_B::new()),
-                                (Ok(ImmediateValue::Val8(3)), "c") => Box::new(bit::set::SET_3_C::new()),
-                                (Ok(ImmediateValue::Val8(3)), "d") => Box::new(bit::set::SET_3_D::new()),
-                                (Ok(ImmediateValue::Val8(3)), "e") => Box::new(bit::set::SET_3_E::new()),
-                                (Ok(ImmediateValue::Val8(3)), "h") => Box::new(bit::set::SET_3_H::new()),
-                                (Ok(ImmediateValue::Val8(3)), "l") => Box::new(bit::set::SET_3_L::new()),
-                                (Ok(ImmediateValue::Val8(3)), "(hl)") => Box::new(bit::set::SET_3_PHL::new()),
-                                (Ok(ImmediateValue::Val8(3)), "a") => Box::new(bit::set::SET_3_A::new()),
-                                (Ok(ImmediateValue::Val8(4)), "b") => Box::new(bit::set::SET_4_B::new()),
-                                (Ok(ImmediateValue::Val8(4)), "c") => Box::new(bit::set::SET_4_C::new()),
-                                (Ok(ImmediateValue::Val8(4)), "d") => Box::new(bit::set::SET_4_D::new()),
-                                (Ok(ImmediateValue::Val8(4)), "e") => Box::new(bit::set::SET_4_E::new()),
-                                (Ok(ImmediateValue::Val8(4)), "h") => Box::new(bit::set::SET_4_H::new()),
-                                (Ok(ImmediateValue::Val8(4)), "l") => Box::new(bit::set::SET_4_L::new()),
-                                (Ok(ImmediateValue::Val8(4)), "(hl)") => Box::new(bit::set::SET_4_PHL::new()),
-                                (Ok(ImmediateValue::Val8(4)), "a") => Box::new(bit::set::SET_4_A::new()),
-                                (Ok(ImmediateValue::Val8(5)), "b") => Box::new(bit::set::SET_5_B::new()),
-                                (Ok(ImmediateValue::Val8(5)), "c") => Box::new(bit::set::SET_5_C::new()),
-                                (Ok(ImmediateValue::Val8(5)), "d") => Box::new(bit::set::SET_5_D::new()),
-                                (Ok(ImmediateValue::Val8(5)), "e") => Box::new(bit::set::SET_5_E::new()),
-                                (Ok(ImmediateValue::Val8(5)), "h") => Box::new(bit::set::SET_5_H::new()),
-                                (Ok(ImmediateValue::Val8(5)), "l") => Box::new(bit::set::SET_5_L::new()),
-                                (Ok(ImmediateValue::Val8(5)), "(hl)") => Box::new(bit::set::SET_5_PHL::new()),
-                                (Ok(ImmediateValue::Val8(5)), "a") => Box::new(bit::set::SET_5_A::new()),
-                                (Ok(ImmediateValue::Val8(6)), "b") => Box::new(bit::set::SET_6_B::new()),
-                                (Ok(ImmediateValue::Val8(6)), "c") => Box::new(bit::set::SET_6_C::new()),
-                                (Ok(ImmediateValue::Val8(6)), "d") => Box::new(bit::set::SET_6_D::new()),
-                                (Ok(ImmediateValue::Val8(6)), "e") => Box::new(bit::set::SET_6_E::new()),
-                                (Ok(ImmediateValue::Val8(6)), "h") => Box::new(bit::set::SET_6_H::new()),
-                                (Ok(ImmediateValue::Val8(6)), "l") => Box::new(bit::set::SET_6_L::new()),
-                                (Ok(ImmediateValue::Val8(6)), "(hl)") => Box::new(bit::set::SET_6_PHL::new()),
-                                (Ok(ImmediateValue::Val8(6)), "a") => Box::new(bit::set::SET_6_A::new()),
-                                (Ok(ImmediateValue::Val8(7)), "b") => Box::new(bit::set::SET_7_B::new()),
-                                (Ok(ImmediateValue::Val8(7)), "c") => Box::new(bit::set::SET_7_C::new()),
-                                (Ok(ImmediateValue::Val8(7)), "d") => Box::new(bit::set::SET_7_D::new()),
-                                (Ok(ImmediateValue::Val8(7)), "e") => Box::new(bit::set::SET_7_E::new()),
-                                (Ok(ImmediateValue::Val8(7)), "h") => Box::new(bit::set::SET_7_H::new()),
-                                (Ok(ImmediateValue::Val8(7)), "l") => Box::new(bit::set::SET_7_L::new()),
-                                (Ok(ImmediateValue::Val8(7)), "(hl)") => Box::new(bit::set::SET_7_PHL::new()),
-                                (Ok(ImmediateValue::Val8(7)), "a") => Box::new(bit::set::SET_7_A::new()),
-                                _ => {
-                                    return Err(ParseError::InvalidInstruction(format!(
-                                        "Invalid SET operands \"{0}\" and \"{1}\"",
-                                        bit, destination
-                                    )))
-                                }
-                            }
-                        }
+                let bit = get_op(2)?;
+                let destination = get_op(3)?;
+                match (is_val(bit), destination) {
+                    (Ok(ImmediateValue::Val8(0)), "b") => Box::new(bit::set::SET_0_B::new()),
+                    (Ok(ImmediateValue::Val8(0)), "c") => Box::new(bit::set::SET_0_C::new()),
+                    (Ok(ImmediateValue::Val8(0)), "d") => Box::new(bit::set::SET_0_D::new()),
+                    (Ok(ImmediateValue::Val8(0)), "e") => Box::new(bit::set::SET_0_E::new()),
+                    (Ok(ImmediateValue::Val8(0)), "h") => Box::new(bit::set::SET_0_H::new()),
+                    (Ok(ImmediateValue::Val8(0)), "l") => Box::new(bit::set::SET_0_L::new()),
+                    (Ok(ImmediateValue::Val8(0)), "(hl)") => Box::new(bit::set::SET_0_PHL::new()),
+                    (Ok(ImmediateValue::Val8(0)), "a") => Box::new(bit::set::SET_0_A::new()),
+                    (Ok(ImmediateValue::Val8(1)), "b") => Box::new(bit::set::SET_1_B::new()),
+                    (Ok(ImmediateValue::Val8(1)), "c") => Box::new(bit::set::SET_1_C::new()),
+                    (Ok(ImmediateValue::Val8(1)), "d") => Box::new(bit::set::SET_1_D::new()),
+                    (Ok(ImmediateValue::Val8(1)), "e") => Box::new(bit::set::SET_1_E::new()),
+                    (Ok(ImmediateValue::Val8(1)), "h") => Box::new(bit::set::SET_1_H::new()),
+                    (Ok(ImmediateValue::Val8(1)), "l") => Box::new(bit::set::SET_1_L::new()),
+                    (Ok(ImmediateValue::Val8(1)), "(hl)") => Box::new(bit::set::SET_1_PHL::new()),
+                    (Ok(ImmediateValue::Val8(1)), "a") => Box::new(bit::set::SET_1_A::new()),
+                    (Ok(ImmediateValue::Val8(2)), "b") => Box::new(bit::set::SET_2_B::new()),
+                    (Ok(ImmediateValue::Val8(2)), "c") => Box::new(bit::set::SET_2_C::new()),
+                    (Ok(ImmediateValue::Val8(2)), "d") => Box::new(bit::set::SET_2_D::new()),
+                    (Ok(ImmediateValue::Val8(2)), "e") => Box::new(bit::set::SET_2_E::new()),
+                    (Ok(ImmediateValue::Val8(2)), "h") => Box::new(bit::set::SET_2_H::new()),
+                    (Ok(ImmediateValue::Val8(2)), "l") => Box::new(bit::set::SET_2_L::new()),
+                    (Ok(ImmediateValue::Val8(2)), "(hl)") => Box::new(bit::set::SET_2_PHL::new()),
+                    (Ok(ImmediateValue::Val8(2)), "a") => Box::new(bit::set::SET_2_A::new()),
+                    (Ok(ImmediateValue::Val8(3)), "b") => Box::new(bit::set::SET_3_B::new()),
+                    (Ok(ImmediateValue::Val8(3)), "c") => Box::new(bit::set::SET_3_C::new()),
+                    (Ok(ImmediateValue::Val8(3)), "d") => Box::new(bit::set::SET_3_D::new()),
+                    (Ok(ImmediateValue::Val8(3)), "e") => Box::new(bit::set::SET_3_E::new()),
+                    (Ok(ImmediateValue::Val8(3)), "h") => Box::new(bit::set::SET_3_H::new()),
+                    (Ok(ImmediateValue::Val8(3)), "l") => Box::new(bit::set::SET_3_L::new()),
+                    (Ok(ImmediateValue::Val8(3)), "(hl)") => Box::new(bit::set::SET_3_PHL::new()),
+                    (Ok(ImmediateValue::Val8(3)), "a") => Box::new(bit::set::SET_3_A::new()),
+                    (Ok(ImmediateValue::Val8(4)), "b") => Box::new(bit::set::SET_4_B::new()),
+                    (Ok(ImmediateValue::Val8(4)), "c") => Box::new(bit::set::SET_4_C::new()),
+                    (Ok(ImmediateValue::Val8(4)), "d") => Box::new(bit::set::SET_4_D::new()),
+                    (Ok(ImmediateValue::Val8(4)), "e") => Box::new(bit::set::SET_4_E::new()),
+                    (Ok(ImmediateValue::Val8(4)), "h") => Box::new(bit::set::SET_4_H::new()),
+                    (Ok(ImmediateValue::Val8(4)), "l") => Box::new(bit::set::SET_4_L::new()),
+                    (Ok(ImmediateValue::Val8(4)), "(hl)") => Box::new(bit::set::SET_4_PHL::new()),
+                    (Ok(ImmediateValue::Val8(4)), "a") => Box::new(bit::set::SET_4_A::new()),
+                    (Ok(ImmediateValue::Val8(5)), "b") => Box::new(bit::set::SET_5_B::new()),
+                    (Ok(ImmediateValue::Val8(5)), "c") => Box::new(bit::set::SET_5_C::new()),
+                    (Ok(ImmediateValue::Val8(5)), "d") => Box::new(bit::set::SET_5_D::new()),
+                    (Ok(ImmediateValue::Val8(5)), "e") => Box::new(bit::set::SET_5_E::new()),
+                    (Ok(ImmediateValue::Val8(5)), "h") => Box::new(bit::set::SET_5_H::new()),
+                    (Ok(ImmediateValue::Val8(5)), "l") => Box::new(bit::set::SET_5_L::new()),
+                    (Ok(ImmediateValue::Val8(5)), "(hl)") => Box::new(bit::set::SET_5_PHL::new()),
+                    (Ok(ImmediateValue::Val8(5)), "a") => Box::new(bit::set::SET_5_A::new()),
+                    (Ok(ImmediateValue::Val8(6)), "b") => Box::new(bit::set::SET_6_B::new()),
+                    (Ok(ImmediateValue::Val8(6)), "c") => Box::new(bit::set::SET_6_C::new()),
+                    (Ok(ImmediateValue::Val8(6)), "d") => Box::new(bit::set::SET_6_D::new()),
+                    (Ok(ImmediateValue::Val8(6)), "e") => Box::new(bit::set::SET_6_E::new()),
+                    (Ok(ImmediateValue::Val8(6)), "h") => Box::new(bit::set::SET_6_H::new()),
+                    (Ok(ImmediateValue::Val8(6)), "l") => Box::new(bit::set::SET_6_L::new()),
+                    (Ok(ImmediateValue::Val8(6)), "(hl)") => Box::new(bit::set::SET_6_PHL::new()),
+                    (Ok(ImmediateValue::Val8(6)), "a") => Box::new(bit::set::SET_6_A::new()),
+                    (Ok(ImmediateValue::Val8(7)), "b") => Box::new(bit::set::SET_7_B::new()),
+                    (Ok(ImmediateValue::Val8(7)), "c") => Box::new(bit::set::SET_7_C::new()),
+                    (Ok(ImmediateValue::Val8(7)), "d") => Box::new(bit::set::SET_7_D::new()),
+                    (Ok(ImmediateValue::Val8(7)), "e") => Box::new(bit::set::SET_7_E::new()),
+                    (Ok(ImmediateValue::Val8(7)), "h") => Box::new(bit::set::SET_7_H::new()),
+                    (Ok(ImmediateValue::Val8(7)), "l") => Box::new(bit::set::SET_7_L::new()),
+                    (Ok(ImmediateValue::Val8(7)), "(hl)") => Box::new(bit::set::SET_7_PHL::new()),
+                    (Ok(ImmediateValue::Val8(7)), "a") => Box::new(bit::set::SET_7_A::new()),
+                    _ => {
+                        return Err(ParseError::InvalidInstruction(format!(
+                            "Invalid SET operands \"{0}\" and \"{1}\"",
+                            bit, destination
+                        )))
+                    }
+                }
+            }
             "ld" => {
                 let destination = get_op(2)?;
                 let source = get_op(3)?;
@@ -1222,7 +1222,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     },
                 }
             }
-            "sll" =>{
+            "sll" => {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
@@ -1538,9 +1538,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xC8 => Box::new(ret::ret_z::RET_Z::new()),
             0xC9 => Box::new(ret::ret::RET::new()),
             0xCA => Box::new(jump::jp::jp_z_nn::JP_Z_NN::new(memory, pos)?),
-            0xCB => {
-                let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
-                match ins_byte1 {
+            0xCB => match memory.read_8(pos.wrapping_add(1))?{
                     0x00 => Box::new(bit::rlc::RLC_B::new()),
                     0x01 => Box::new(bit::rlc::RLC_C::new()),
                     0x02 => Box::new(bit::rlc::RLC_D::new()),
@@ -1797,7 +1795,6 @@ impl InstructionParser<Z80> for Z80Parser {
                     0xFD => Box::new(bit::set::SET_7_L::new()),
                     0xFE => Box::new(bit::set::SET_7_PHL::new()),
                     0xFF => Box::new(bit::set::SET_7_A::new()),
-                }
             }
             0xCC => Box::new(call::call_z_nn::CALL_Z_NN::new(memory, pos)?),
             0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
