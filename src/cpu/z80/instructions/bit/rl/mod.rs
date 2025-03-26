@@ -14,6 +14,7 @@ use crate::memory::Memory;
 mod generics;
 pub mod rl_phl;
 pub mod rl_pixd;
+pub mod rl_piyd;
 
 generics::rl_r::rl_r!(b, "10", "B");
 generics::rl_r::rl_r!(c, "11", "C");

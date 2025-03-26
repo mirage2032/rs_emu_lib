@@ -867,6 +867,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(bit::rl::rl_pixd::RL_PIXD::new_with_value(offset))
                     }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(bit::rl::rl_piyd::RL_PIYD::new_with_value(offset))
+                    }
                     _ => match destination {
                         "b" => Box::new(bit::rl::RL_B::new()),
                         "c" => Box::new(bit::rl::RL_C::new()),
@@ -1517,7 +1520,6 @@ impl InstructionParser<Z80> for Z80Parser {
                     0xB6 => Box::new(math::or::or_ixd::OR_IXD::new(memory, pos)?),
                     // 0xBE
                     0xCB => {
-                        let _d = memory.read_8(pos.wrapping_add(2))?;
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
                             // 0x06
@@ -1670,7 +1672,23 @@ impl InstructionParser<Z80> for Z80Parser {
             0xFA => Box::new(jump::jp::jp_m_nn::JP_M_NN::new(memory, pos)?),
             0xFB => Box::new(ei::EI::new()),
             0xFC => Box::new(call::call_m_nn::CALL_M_NN::new(memory, pos)?),
-            // 0xFD => {
+            0xFD => {
+                let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
+                match ins_byte1 {
+                    0xCB => {
+                        let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
+                        match ins_byte3 {
+                            0x16 => Box::new(bit::rl::rl_piyd::RL_PIYD::new(memory, pos)?),
+                            _ => {
+                                return Err(ParseError::InvalidInstruction(format!(
+                                    "Invalid IY bit instruction"
+                                )))
+                            }
+                        }
+                    },
+                            _ => { return Err(ParseError::InvalidInstruction(format!("Invalid IY instruction"))) }
+                    }
+                }
             //     let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
             //     match ins_byte1 {
             //     0x09
@@ -1708,15 +1726,8 @@ impl InstructionParser<Z80> for Z80Parser {
             //     0x7E
             //     ...
             // }
-            // }
             0xFE => Box::new(math::cp::cp_n::CP_N::new(memory, pos)?),
             0xFF => Box::new(rst::RST_0x38::new()),
-            _ => {
-                return Err(ParseError::InvalidInstruction(format!(
-                    "Invalid instruction: 0x{:02x}",
-                    ins_byte0
-                )))
-            }
         };
         Ok(instruction)
     }

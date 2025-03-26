@@ -9,45 +9,45 @@ use crate::memory::{Memory, MemoryDevice};
 use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
-pub struct RL_PIXD {
+pub struct RL_PIYD {
     common: InstructionCommon,
     d: i8,
 }
 
-impl RL_PIXD {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<RL_PIXD, MemoryReadError> {
-        Ok(RL_PIXD {
+impl RL_PIYD {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<RL_PIYD, MemoryReadError> {
+        Ok(RL_PIYD {
             common: InstructionCommon::new(4, 23, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,
         })
     }
 
-    pub fn new_with_value(d: u8) -> RL_PIXD {
-        RL_PIXD {
+    pub fn new_with_value(d: u8) -> RL_PIYD {
+        RL_PIYD {
             common: InstructionCommon::new(4, 23, true),
             d: d as i8,
         }
     }
 }
 
-impl Display for RL_PIXD {
+impl Display for RL_PIYD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "RL (IX+0x{:02X})", self.d)
+        write!(f, "RL (IY+0x{:02X})", self.d)
     }
 }
 
-impl BaseInstruction for RL_PIXD {
+impl BaseInstruction for RL_PIYD {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xdd, 0xcb, self.d as u8, 0x16]
+        vec![0xfd, 0xcb, self.d as u8, 0x16]
     }
 }
 
-impl ExecutableInstruction<Z80> for RL_PIXD {
+impl ExecutableInstruction<Z80> for RL_PIYD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let addr = cpu.registers.ix.wrapping_add(self.d as u16);
+        let addr = cpu.registers.iy.wrapping_add(self.d as u16);
         let mut value = memory.read_8(addr)?;
         rl_r_setf!(value, cpu.registers.gp.f);
         memory.write_8(addr, value)?;
@@ -62,5 +62,5 @@ mod tests {
     use crate::cpu::z80::test::*;
 
     test_z80!("dd cb __ 16");
-    test_instruction_parse!(RL_PIXD, [0xbe]);
+    test_instruction_parse!(RL_PIYD, [0xbe]);
 }
