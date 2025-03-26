@@ -17,6 +17,9 @@ pub mod add_hl_sp;
 pub mod add_ix_sp;
 pub mod add_a_n;
 mod generics;
+pub mod add_ix_bc;
+pub mod add_ix_de;
+pub mod add_ix_ix;
 
 generics::add_r_r::add_r_r!(a, b, "80", "A", "B");
 generics::add_r_r::add_r_r!(a, c, "81", "A", "C");

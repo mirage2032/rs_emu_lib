@@ -13,11 +13,13 @@ use crate::memory::MemoryDevice;
 
 pub mod generics;
 pub mod ld_ix_nn;
-pub mod ld_misc_sp_pnn;
+pub mod ld_sp_pnn;
 pub mod ld_pixd_n;
 pub mod ld_sp_hl;
 pub mod ld_sp_ix;
 pub mod ld_sp_nn;
+pub mod ld_pnn_ix;
+pub mod ld_ix_pnn;
 
 generics::ld_r_r::ld_r_r!(a, b, "78", "A", "B");
 generics::ld_r_r::ld_r_r!(a, c, "79", "A", "C");
