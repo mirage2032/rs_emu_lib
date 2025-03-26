@@ -61,6 +61,6 @@ mod tests {
     use crate::cpu::test::*;
     use crate::cpu::z80::test::*;
 
-    test_z80!("dd cb __ 16");
+    test_z80!("fd cb __ 16");
     test_instruction_parse!(RL_PIYD, [0xbe]);
 }

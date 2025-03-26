@@ -14,6 +14,7 @@ use crate::memory::Memory;
 mod generics;
 pub mod sra_phl;
 pub mod sra_pixd;
+pub mod sra_piyd;
 
 generics::sra_r::sra_r!(b, "28", "B");
 generics::sra_r::sra_r!(c, "29", "C");

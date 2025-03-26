@@ -9,45 +9,45 @@ use crate::memory::{Memory, MemoryDevice};
 use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
-pub struct RR_PIXD {
+pub struct RR_PIYD {
     common: InstructionCommon,
     d: i8,
 }
 
-impl RR_PIXD {
-    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<RR_PIXD, MemoryReadError> {
-        Ok(RR_PIXD {
+impl RR_PIYD {
+    pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<RR_PIYD, MemoryReadError> {
+        Ok(RR_PIYD {
             common: InstructionCommon::new(4, 23, true),
             d: memory.read_8(pos.wrapping_add(2))? as i8,
         })
     }
 
-    pub fn new_with_value(d: u8) -> RR_PIXD {
-        RR_PIXD {
+    pub fn new_with_value(d: u8) -> RR_PIYD {
+        RR_PIYD {
             common: InstructionCommon::new(4, 23, true),
             d: d as i8,
         }
     }
 }
 
-impl Display for RR_PIXD {
+impl Display for RR_PIYD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "RR (IX+0x{:02X})", self.d)
+        write!(f, "RR (IY+0x{:02X})", self.d)
     }
 }
 
-impl BaseInstruction for RR_PIXD {
+impl BaseInstruction for RR_PIYD {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xdd, 0xcb, self.d as u8, 0x1e]
+        vec![0xfd, 0xcb, self.d as u8, 0x1e]
     }
 }
 
-impl ExecutableInstruction<Z80> for RR_PIXD {
+impl ExecutableInstruction<Z80> for RR_PIYD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let addr = cpu.registers.ix.wrapping_add(self.d as u16);
+        let addr = cpu.registers.iy.wrapping_add(self.d as u16);
         let mut value = memory.read_8(addr)?;
         rr_r_setf!(value, cpu.registers.gp.f);
         memory.write_8(addr, value)?;
@@ -61,6 +61,6 @@ mod tests {
     use crate::cpu::test::*;
     use crate::cpu::z80::test::*;
 
-    test_z80!("dd cb __ 26");
-    test_instruction_parse!(RR_PIXD, [0xbe]);
+    test_z80!("fd cb __ 1e");
+    test_instruction_parse!(RR_PIYD, [0xbe]);
 }

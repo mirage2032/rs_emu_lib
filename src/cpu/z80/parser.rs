@@ -844,6 +844,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(bit::rr::rr_pixd::RR_PIXD::new_with_value(offset))
                     }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(bit::rr::rr_piyd::RR_PIYD::new_with_value(offset))
+                    }
                     _ => match destination {
                         "b" => Box::new(bit::rr::RR_B::new()),
                         "c" => Box::new(bit::rr::RR_C::new()),
@@ -893,6 +896,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(bit::sra::sra_pixd::SRA_PIXD::new_with_value(offset))
                     }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(bit::sra::sra_piyd::SRA_PIYD::new_with_value(offset))
+                    }
                     _ => match destination {
                         "b" => Box::new(bit::sra::SRA_B::new()),
                         "c" => Box::new(bit::sra::SRA_C::new()),
@@ -914,7 +920,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::sla::sla_pix::SLA_PIXD::new_with_value(offset))
+                        Box::new(bit::sla::sla_pixd::SLA_PIXD::new_with_value(offset))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(bit::sla::sla_piyd::SLA_PIYD::new_with_value(offset))
                     }
                     Err(_) => match destination {
                         "b" => Box::new(bit::sla::SLA_B::new()),
@@ -1526,7 +1535,7 @@ impl InstructionParser<Z80> for Z80Parser {
                             // 0x0E
                             0x16 => Box::new(bit::rl::rl_pixd::RL_PIXD::new(memory, pos)?),
                             0x1E => Box::new(bit::rr::rr_pixd::RR_PIXD::new(memory, pos)?),
-                            0x26 => Box::new(bit::sla::sla_pix::SLA_PIXD::new(memory, pos)?),
+                            0x26 => Box::new(bit::sla::sla_pixd::SLA_PIXD::new(memory, pos)?),
                             0x2E => Box::new(bit::sra::sra_pixd::SRA_PIXD::new(memory, pos)?),
                             // 0x3E
                             // 0x46
@@ -1679,6 +1688,9 @@ impl InstructionParser<Z80> for Z80Parser {
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
                             0x16 => Box::new(bit::rl::rl_piyd::RL_PIYD::new(memory, pos)?),
+                            0x1E => Box::new(bit::rr::rr_piyd::RR_PIYD::new(memory, pos)?),
+                            0x26 => Box::new(bit::sla::sla_piyd::SLA_PIYD::new(memory, pos)?),
+                            0x2E => Box::new(bit::sra::sra_piyd::SRA_PIYD::new(memory, pos)?),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(format!(
                                     "Invalid IY bit instruction"
@@ -1689,43 +1701,6 @@ impl InstructionParser<Z80> for Z80Parser {
                             _ => { return Err(ParseError::InvalidInstruction(format!("Invalid IY instruction"))) }
                     }
                 }
-            //     let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
-            //     match ins_byte1 {
-            //     0x09
-            //     0x19
-            //     0x21
-            //     0x22
-            //     0x23
-            //     0x29
-            //     0x2A
-            //     0x2B
-            //     0x34
-            //     0x35
-            //     0x36
-            //     0x39
-            //     0x46
-            //     0x4E
-            //     0x56
-            //     0x5E
-            //     0x66
-            //     0x6E
-            //     0x70
-            //     0x71
-            //     0x72
-            //     0x73
-            //     0x74
-            //     0x75
-            //     0x77
-            //     0x7e
-            //     0x70
-            //     0x71
-            //     0x72
-            //     0x73
-            //     0x74
-            //     0x75
-            //     0x7E
-            //     ...
-            // }
             0xFE => Box::new(math::cp::cp_n::CP_N::new(memory, pos)?),
             0xFF => Box::new(rst::RST_0x38::new()),
         };
