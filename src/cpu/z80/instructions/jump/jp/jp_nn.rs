@@ -46,7 +46,7 @@ impl BaseInstruction for JP_NN {
 }
 
 impl ExecutableInstruction<Z80> for JP_NN {
-    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.registers.pc = self.nn;
         Ok(())
     }

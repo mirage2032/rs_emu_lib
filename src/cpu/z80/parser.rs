@@ -756,13 +756,13 @@ impl InstructionParser<Z80> for Z80Parser {
                     match (is_val(op1), is_val(op2_str)) {
                         (Err(_), Ok(ImmediateValue::Val16(val))) => match op1 {
                             "nz" => Box::new(call::call_nz_nn::CALL_NZ_NN::new_with_value(val)),
-                            // "z" => Box::new(call::call_z_nn::CALL_Z_NN::new_with_value(val)),
-                            // "nc" => Box::new(call::call_nc_nn::CALL_NC_NN::new_with_value(val)),
-                            // "c" => Box::new(call::call_c_nn::CALL_C_NN::new_with_value(val)),
-                            // "po" => Box::new(call::call_po_nn::CALL_PO_NN::new_with_value(val)),
-                            // "pe" => Box::new(call::call_pe_nn::CALL_PE_NN::new_with_value(val)),
-                            // "p" => Box::new(call::call_p_nn::CALL_P_NN::new_with_value(val)),
-                            // "m" => Box::new(call::call_m_nn::CALL_M_NN::new_with_value(val)),
+                            "z" => Box::new(call::call_z_nn::CALL_Z_NN::new_with_value(val)),
+                            "nc" => Box::new(call::call_nc_nn::CALL_NC_NN::new_with_value(val)),
+                            "c" => Box::new(call::call_c_nn::CALL_C_NN::new_with_value(val)),
+                            "po" => Box::new(call::call_po_nn::CALL_PO_NN::new_with_value(val)),
+                            "pe" => Box::new(call::call_pe_nn::CALL_PE_NN::new_with_value(val)),
+                            "p" => Box::new(call::call_p_nn::CALL_P_NN::new_with_value(val)),
+                            "m" => Box::new(call::call_m_nn::CALL_M_NN::new_with_value(val)),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(
                                     "Invalid instruction".to_string(),
@@ -1414,7 +1414,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     }
                 }
             }
-            // 0xCC
+            0xCC => Box::new(call::call_z_nn::CALL_Z_NN::new(memory, pos)?),
             0xCD => Box::new(call::call_nn::CALL_NN::new(memory, pos)?),
             0xCE => Box::new(math::adc::adc_a_n::ADC_A_N::new(memory, pos)?),
             0xCF => Box::new(rst::RST_0x08::new()),
@@ -1422,7 +1422,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xD1 => Box::new(stack::pop::POP_DE::new()),
             0xD2 => Box::new(jump::jp::jp_nc_nn::JP_NC_NN::new(memory, pos)?),
             // 0xD3
-            // 0xD4
+            0xD4 => Box::new(call::call_nc_nn::CALL_NC_NN::new(memory, pos)?),
             0xD5 => Box::new(stack::push::PUSH_DE::new()),
             0xD6 => Box::new(math::sub::sub_n::SUB_N::new(memory, pos)?),
             0xD7 => Box::new(rst::RST_0x10::new()),
@@ -1430,7 +1430,7 @@ impl InstructionParser<Z80> for Z80Parser {
             // 0xD9
             0xDA => Box::new(jump::jp::jp_c_nn::JP_C_NN::new(memory, pos)?),
             // 0xDB
-            // 0xDC
+            0xDC => Box::new(call::call_c_nn::CALL_C_NN::new(memory, pos)?),
             0xDD => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
@@ -1537,7 +1537,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xE1 => Box::new(stack::pop::POP_HL::new()),
             0xE2 => Box::new(jump::jp::jp_po_nn::JP_PO_NN::new(memory, pos)?),
             0xE3 => Box::new(ex::ex_psp_hl::EX_PSP_HL::new()),
-            // 0xE4
+            0xE4 => Box::new(call::call_po_nn::CALL_PO_NN::new(memory, pos)?),
             0xE5 => Box::new(stack::push::PUSH_HL::new()),
             0xE6 => Box::new(math::and::and_n::AND_N::new(memory, pos)?),
             0xE7 => Box::new(rst::RST_0x20::new()),
@@ -1545,7 +1545,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xE9 => Box::new(jump::jp::jp_phl::JP_PHL::new()),
             0xEA => Box::new(jump::jp::jp_pe_nn::JP_PE_NN::new(memory, pos)?),
             0xEB => Box::new(ex::ex_de_hl::EX_DE_HL::new()),
-            // 0xEC
+            0xEC => Box::new(call::call_pe_nn::CALL_PE_NN::new(memory, pos)?),
             0xED => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
@@ -1620,7 +1620,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xF1 => Box::new(stack::pop::POP_AF::new()),
             0xF2 => Box::new(jump::jp::jp_p_nn::JP_P_NN::new(memory, pos)?),
             // 0xF3
-            // 0xF4
+            0xF4 => Box::new(call::call_p_nn::CALL_P_NN::new(memory, pos)?),
             0xF5 => Box::new(stack::push::PUSH_AF::new()),
             0xF6 => Box::new(math::or::or_n::OR_N::new(memory, pos)?),
             0xF7 => Box::new(rst::RST_0x30::new()),
@@ -1628,7 +1628,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xF9 => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
             0xFA => Box::new(jump::jp::jp_m_nn::JP_M_NN::new(memory, pos)?),
             // 0xFB
-            // 0xFC
+            0xFC => Box::new(call::call_m_nn::CALL_M_NN::new(memory, pos)?),
             // 0xFD => {
             //     let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
             //     match ins_byte1 {
