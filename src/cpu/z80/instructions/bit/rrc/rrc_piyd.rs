@@ -32,7 +32,7 @@ impl RRC_PIYD {
 
 impl Display for RRC_PIYD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "RR (IY+0x{:02X})", self.d)
+        write!(f, "RRC (IY+0x{:02X})", self.d)
     }
 }
 

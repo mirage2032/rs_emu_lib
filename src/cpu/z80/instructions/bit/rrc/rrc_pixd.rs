@@ -32,7 +32,7 @@ impl RRC_PIXD {
 
 impl Display for RRC_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "RR (IX+0x{:02X})", self.d)
+        write!(f, "RRC (IX+0x{:02X})", self.d)
     }
 }
 

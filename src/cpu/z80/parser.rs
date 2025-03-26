@@ -246,6 +246,82 @@ impl InstructionParser<Z80> for Z80Parser {
                     }
                 }
             }
+            "set" => {
+                            let bit = get_op(2)?;
+                            let destination = get_op(3)?;
+                            match (is_val(bit), destination) {
+                                (Ok(ImmediateValue::Val8(0)), "b") => Box::new(bit::set::SET_0_B::new()),
+                                (Ok(ImmediateValue::Val8(0)), "c") => Box::new(bit::set::SET_0_C::new()),
+                                (Ok(ImmediateValue::Val8(0)), "d") => Box::new(bit::set::SET_0_D::new()),
+                                (Ok(ImmediateValue::Val8(0)), "e") => Box::new(bit::set::SET_0_E::new()),
+                                (Ok(ImmediateValue::Val8(0)), "h") => Box::new(bit::set::SET_0_H::new()),
+                                (Ok(ImmediateValue::Val8(0)), "l") => Box::new(bit::set::SET_0_L::new()),
+                                (Ok(ImmediateValue::Val8(0)), "(hl)") => Box::new(bit::set::SET_0_PHL::new()),
+                                (Ok(ImmediateValue::Val8(0)), "a") => Box::new(bit::set::SET_0_A::new()),
+                                (Ok(ImmediateValue::Val8(1)), "b") => Box::new(bit::set::SET_1_B::new()),
+                                (Ok(ImmediateValue::Val8(1)), "c") => Box::new(bit::set::SET_1_C::new()),
+                                (Ok(ImmediateValue::Val8(1)), "d") => Box::new(bit::set::SET_1_D::new()),
+                                (Ok(ImmediateValue::Val8(1)), "e") => Box::new(bit::set::SET_1_E::new()),
+                                (Ok(ImmediateValue::Val8(1)), "h") => Box::new(bit::set::SET_1_H::new()),
+                                (Ok(ImmediateValue::Val8(1)), "l") => Box::new(bit::set::SET_1_L::new()),
+                                (Ok(ImmediateValue::Val8(1)), "(hl)") => Box::new(bit::set::SET_1_PHL::new()),
+                                (Ok(ImmediateValue::Val8(1)), "a") => Box::new(bit::set::SET_1_A::new()),
+                                (Ok(ImmediateValue::Val8(2)), "b") => Box::new(bit::set::SET_2_B::new()),
+                                (Ok(ImmediateValue::Val8(2)), "c") => Box::new(bit::set::SET_2_C::new()),
+                                (Ok(ImmediateValue::Val8(2)), "d") => Box::new(bit::set::SET_2_D::new()),
+                                (Ok(ImmediateValue::Val8(2)), "e") => Box::new(bit::set::SET_2_E::new()),
+                                (Ok(ImmediateValue::Val8(2)), "h") => Box::new(bit::set::SET_2_H::new()),
+                                (Ok(ImmediateValue::Val8(2)), "l") => Box::new(bit::set::SET_2_L::new()),
+                                (Ok(ImmediateValue::Val8(2)), "(hl)") => Box::new(bit::set::SET_2_PHL::new()),
+                                (Ok(ImmediateValue::Val8(2)), "a") => Box::new(bit::set::SET_2_A::new()),
+                                (Ok(ImmediateValue::Val8(3)), "b") => Box::new(bit::set::SET_3_B::new()),
+                                (Ok(ImmediateValue::Val8(3)), "c") => Box::new(bit::set::SET_3_C::new()),
+                                (Ok(ImmediateValue::Val8(3)), "d") => Box::new(bit::set::SET_3_D::new()),
+                                (Ok(ImmediateValue::Val8(3)), "e") => Box::new(bit::set::SET_3_E::new()),
+                                (Ok(ImmediateValue::Val8(3)), "h") => Box::new(bit::set::SET_3_H::new()),
+                                (Ok(ImmediateValue::Val8(3)), "l") => Box::new(bit::set::SET_3_L::new()),
+                                (Ok(ImmediateValue::Val8(3)), "(hl)") => Box::new(bit::set::SET_3_PHL::new()),
+                                (Ok(ImmediateValue::Val8(3)), "a") => Box::new(bit::set::SET_3_A::new()),
+                                (Ok(ImmediateValue::Val8(4)), "b") => Box::new(bit::set::SET_4_B::new()),
+                                (Ok(ImmediateValue::Val8(4)), "c") => Box::new(bit::set::SET_4_C::new()),
+                                (Ok(ImmediateValue::Val8(4)), "d") => Box::new(bit::set::SET_4_D::new()),
+                                (Ok(ImmediateValue::Val8(4)), "e") => Box::new(bit::set::SET_4_E::new()),
+                                (Ok(ImmediateValue::Val8(4)), "h") => Box::new(bit::set::SET_4_H::new()),
+                                (Ok(ImmediateValue::Val8(4)), "l") => Box::new(bit::set::SET_4_L::new()),
+                                (Ok(ImmediateValue::Val8(4)), "(hl)") => Box::new(bit::set::SET_4_PHL::new()),
+                                (Ok(ImmediateValue::Val8(4)), "a") => Box::new(bit::set::SET_4_A::new()),
+                                (Ok(ImmediateValue::Val8(5)), "b") => Box::new(bit::set::SET_5_B::new()),
+                                (Ok(ImmediateValue::Val8(5)), "c") => Box::new(bit::set::SET_5_C::new()),
+                                (Ok(ImmediateValue::Val8(5)), "d") => Box::new(bit::set::SET_5_D::new()),
+                                (Ok(ImmediateValue::Val8(5)), "e") => Box::new(bit::set::SET_5_E::new()),
+                                (Ok(ImmediateValue::Val8(5)), "h") => Box::new(bit::set::SET_5_H::new()),
+                                (Ok(ImmediateValue::Val8(5)), "l") => Box::new(bit::set::SET_5_L::new()),
+                                (Ok(ImmediateValue::Val8(5)), "(hl)") => Box::new(bit::set::SET_5_PHL::new()),
+                                (Ok(ImmediateValue::Val8(5)), "a") => Box::new(bit::set::SET_5_A::new()),
+                                (Ok(ImmediateValue::Val8(6)), "b") => Box::new(bit::set::SET_6_B::new()),
+                                (Ok(ImmediateValue::Val8(6)), "c") => Box::new(bit::set::SET_6_C::new()),
+                                (Ok(ImmediateValue::Val8(6)), "d") => Box::new(bit::set::SET_6_D::new()),
+                                (Ok(ImmediateValue::Val8(6)), "e") => Box::new(bit::set::SET_6_E::new()),
+                                (Ok(ImmediateValue::Val8(6)), "h") => Box::new(bit::set::SET_6_H::new()),
+                                (Ok(ImmediateValue::Val8(6)), "l") => Box::new(bit::set::SET_6_L::new()),
+                                (Ok(ImmediateValue::Val8(6)), "(hl)") => Box::new(bit::set::SET_6_PHL::new()),
+                                (Ok(ImmediateValue::Val8(6)), "a") => Box::new(bit::set::SET_6_A::new()),
+                                (Ok(ImmediateValue::Val8(7)), "b") => Box::new(bit::set::SET_7_B::new()),
+                                (Ok(ImmediateValue::Val8(7)), "c") => Box::new(bit::set::SET_7_C::new()),
+                                (Ok(ImmediateValue::Val8(7)), "d") => Box::new(bit::set::SET_7_D::new()),
+                                (Ok(ImmediateValue::Val8(7)), "e") => Box::new(bit::set::SET_7_E::new()),
+                                (Ok(ImmediateValue::Val8(7)), "h") => Box::new(bit::set::SET_7_H::new()),
+                                (Ok(ImmediateValue::Val8(7)), "l") => Box::new(bit::set::SET_7_L::new()),
+                                (Ok(ImmediateValue::Val8(7)), "(hl)") => Box::new(bit::set::SET_7_PHL::new()),
+                                (Ok(ImmediateValue::Val8(7)), "a") => Box::new(bit::set::SET_7_A::new()),
+                                _ => {
+                                    return Err(ParseError::InvalidInstruction(format!(
+                                        "Invalid SET operands \"{0}\" and \"{1}\"",
+                                        bit, destination
+                                    )))
+                                }
+                            }
+                        }
             "ld" => {
                 let destination = get_op(2)?;
                 let source = get_op(3)?;
@@ -1120,6 +1196,32 @@ impl InstructionParser<Z80> for Z80Parser {
                     },
                 }
             }
+            "sll" =>{
+                let destination = get_op(2)?;
+                match is_val(destination) {
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(bit::sll::sll_pixd::SLL_PIXD::new_with_value(offset))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(bit::sll::sll_piyd::SLL_PIYD::new_with_value(offset))
+                    }
+                    _ => match destination {
+                        "b" => Box::new(bit::sll::SLL_B::new()),
+                        "c" => Box::new(bit::sll::SLL_C::new()),
+                        "d" => Box::new(bit::sll::SLL_D::new()),
+                        "e" => Box::new(bit::sll::SLL_E::new()),
+                        "h" => Box::new(bit::sll::SLL_H::new()),
+                        "l" => Box::new(bit::sll::SLL_L::new()),
+                        "a" => Box::new(bit::sll::SLL_A::new()),
+                        "(hl)" => Box::new(bit::sll::sll_phl::SLL_PHL::new()),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
+                        }
+                    },
+                }
+            }
             "sla" => {
                 let destination = get_op(2)?;
                 match is_val(destination) {
@@ -1461,14 +1563,14 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x2D => Box::new(bit::sra::SRA_L::new()),
                     0x2E => Box::new(bit::sra::sra_phl::SRA_PHL::new()),
                     0x2F => Box::new(bit::sra::SRA_A::new()),
-                    // 0x30
-                    // 0x31
-                    // 0x32
-                    // 0x33
-                    // 0x34
-                    // 0x35
-                    // 0x36
-                    // 0x37
+                    0x30 => Box::new(bit::sll::SLL_B::new()),
+                    0x31 => Box::new(bit::sll::SLL_C::new()),
+                    0x32 => Box::new(bit::sll::SLL_D::new()),
+                    0x33 => Box::new(bit::sll::SLL_E::new()),
+                    0x34 => Box::new(bit::sll::SLL_H::new()),
+                    0x35 => Box::new(bit::sll::SLL_L::new()),
+                    0x36 => Box::new(bit::sll::sll_phl::SLL_PHL::new()),
+                    0x37 => Box::new(bit::sll::SLL_A::new()),
                     // 0x38
                     // 0x39
                     // 0x3A
@@ -1543,7 +1645,6 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x7F => Box::new(bit::bit::BIT_7_A::new()),
                     0x80 => Box::new(bit::res::RES_0_B::new()),
                     0x81 => Box::new(bit::res::RES_0_C::new()),
-                    0x81 => Box::new(bit::res::RES_0_C::new()),
                     0x82 => Box::new(bit::res::RES_0_D::new()),
                     0x83 => Box::new(bit::res::RES_0_E::new()),
                     0x84 => Box::new(bit::res::RES_0_H::new()),
@@ -1606,70 +1707,70 @@ impl InstructionParser<Z80> for Z80Parser {
                     0xBD => Box::new(bit::res::RES_7_L::new()),
                     0xBE => Box::new(bit::res::RES_7_PHL::new()),
                     0xBF => Box::new(bit::res::RES_7_A::new()),
-                    // 0xC0
-                    // 0xC1
-                    // 0xC2
-                    // 0xC3
-                    // 0xC4
-                    // 0xC5
-                    // 0xC6
-                    // 0xC7
-                    // 0xC8
-                    // 0xC9
-                    // 0xCA
-                    // 0xCB
-                    // 0xCC
-                    // 0xCD
-                    // 0xCE
-                    // 0xCF
-                    // 0xD0
-                    // 0xD1
-                    // 0xD2
-                    // 0xD3
-                    // 0xD4
-                    // 0xD5
-                    // 0xD6
-                    // 0xD7
-                    // 0xD8
-                    // 0xD9
-                    // 0xDA
-                    // 0xDB
-                    // 0xDC
-                    // 0xDD
-                    // 0xDE
-                    // 0xDF
-                    // 0xE0
-                    // 0xE1
-                    // 0xE2
-                    // 0xE3
-                    // 0xE4
-                    // 0xE5
-                    // 0xE6
-                    // 0xE7
-                    // 0xE8
-                    // 0xE9
-                    // 0xEA
-                    // 0xEB
-                    // 0xEC
-                    // 0xED
-                    // 0xEE
-                    // 0xEF
-                    // 0xF0
-                    // 0xF1
-                    // 0xF2
-                    // 0xF3
-                    // 0xF4
-                    // 0xF5
-                    // 0xF6
-                    // 0xF7
-                    // 0xF8
-                    // 0xF9
-                    // 0xFA
-                    // 0xFB
-                    // 0xFC
-                    // 0xFD
-                    // 0xFE
-                    // 0xFF
+                    0xC0 => Box::new(bit::set::SET_0_B::new()),
+                    0xC1 => Box::new(bit::set::SET_0_C::new()),
+                    0xC2 => Box::new(bit::set::SET_0_D::new()),
+                    0xC3 => Box::new(bit::set::SET_0_E::new()),
+                    0xC4 => Box::new(bit::set::SET_0_H::new()),
+                    0xC5 => Box::new(bit::set::SET_0_L::new()),
+                    0xC6 => Box::new(bit::set::SET_0_PHL::new()),
+                    0xC7 => Box::new(bit::set::SET_0_A::new()),
+                    0xC8 => Box::new(bit::set::SET_1_B::new()),
+                    0xC9 => Box::new(bit::set::SET_1_C::new()),
+                    0xCA => Box::new(bit::set::SET_1_D::new()),
+                    0xCB => Box::new(bit::set::SET_1_E::new()),
+                    0xCC => Box::new(bit::set::SET_1_H::new()),
+                    0xCD => Box::new(bit::set::SET_1_L::new()),
+                    0xCE => Box::new(bit::set::SET_1_PHL::new()),
+                    0xCF => Box::new(bit::set::SET_1_A::new()),
+                    0xD0 => Box::new(bit::set::SET_2_B::new()),
+                    0xD1 => Box::new(bit::set::SET_2_C::new()),
+                    0xD2 => Box::new(bit::set::SET_2_D::new()),
+                    0xD3 => Box::new(bit::set::SET_2_E::new()),
+                    0xD4 => Box::new(bit::set::SET_2_H::new()),
+                    0xD5 => Box::new(bit::set::SET_2_L::new()),
+                    0xD6 => Box::new(bit::set::SET_2_PHL::new()),
+                    0xD7 => Box::new(bit::set::SET_2_A::new()),
+                    0xD8 => Box::new(bit::set::SET_3_B::new()),
+                    0xD9 => Box::new(bit::set::SET_3_C::new()),
+                    0xDA => Box::new(bit::set::SET_3_D::new()),
+                    0xDB => Box::new(bit::set::SET_3_E::new()),
+                    0xDC => Box::new(bit::set::SET_3_H::new()),
+                    0xDD => Box::new(bit::set::SET_3_L::new()),
+                    0xDE => Box::new(bit::set::SET_3_PHL::new()),
+                    0xDF => Box::new(bit::set::SET_3_A::new()),
+                    0xE0 => Box::new(bit::set::SET_4_B::new()),
+                    0xE1 => Box::new(bit::set::SET_4_C::new()),
+                    0xE2 => Box::new(bit::set::SET_4_D::new()),
+                    0xE3 => Box::new(bit::set::SET_4_E::new()),
+                    0xE4 => Box::new(bit::set::SET_4_H::new()),
+                    0xE5 => Box::new(bit::set::SET_4_L::new()),
+                    0xE6 => Box::new(bit::set::SET_4_PHL::new()),
+                    0xE7 => Box::new(bit::set::SET_4_A::new()),
+                    0xE8 => Box::new(bit::set::SET_5_B::new()),
+                    0xE9 => Box::new(bit::set::SET_5_C::new()),
+                    0xEA => Box::new(bit::set::SET_5_D::new()),
+                    0xEB => Box::new(bit::set::SET_5_E::new()),
+                    0xEC => Box::new(bit::set::SET_5_H::new()),
+                    0xED => Box::new(bit::set::SET_5_L::new()),
+                    0xEE => Box::new(bit::set::SET_5_PHL::new()),
+                    0xEF => Box::new(bit::set::SET_5_A::new()),
+                    0xF0 => Box::new(bit::set::SET_6_B::new()),
+                    0xF1 => Box::new(bit::set::SET_6_C::new()),
+                    0xF2 => Box::new(bit::set::SET_6_D::new()),
+                    0xF3 => Box::new(bit::set::SET_6_E::new()),
+                    0xF4 => Box::new(bit::set::SET_6_H::new()),
+                    0xF5 => Box::new(bit::set::SET_6_L::new()),
+                    0xF6 => Box::new(bit::set::SET_6_PHL::new()),
+                    0xF7 => Box::new(bit::set::SET_6_A::new()),
+                    0xF8 => Box::new(bit::set::SET_7_B::new()),
+                    0xF9 => Box::new(bit::set::SET_7_C::new()),
+                    0xFA => Box::new(bit::set::SET_7_D::new()),
+                    0xFB => Box::new(bit::set::SET_7_E::new()),
+                    0xFC => Box::new(bit::set::SET_7_H::new()),
+                    0xFD => Box::new(bit::set::SET_7_L::new()),
+                    0xFE => Box::new(bit::set::SET_7_PHL::new()),
+                    0xFF => Box::new(bit::set::SET_7_A::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid BIT instruction: 0x{:02x}",
@@ -1748,6 +1849,7 @@ impl InstructionParser<Z80> for Z80Parser {
                             0x1E => Box::new(bit::rr::rr_pixd::RR_PIXD::new(memory, pos)?),
                             0x26 => Box::new(bit::sla::sla_pixd::SLA_PIXD::new(memory, pos)?),
                             0x2E => Box::new(bit::sra::sra_pixd::SRA_PIXD::new(memory, pos)?),
+                            0x36 => Box::new(bit::sll::sll_pixd::SLL_PIXD::new(memory, pos)?),
                             // 0x3E
                             // 0x46
                             // 0x4E
@@ -1904,6 +2006,7 @@ impl InstructionParser<Z80> for Z80Parser {
                             0x1E => Box::new(bit::rr::rr_piyd::RR_PIYD::new(memory, pos)?),
                             0x26 => Box::new(bit::sla::sla_piyd::SLA_PIYD::new(memory, pos)?),
                             0x2E => Box::new(bit::sra::sra_piyd::SRA_PIYD::new(memory, pos)?),
+                            0x36 => Box::new(bit::sll::sll_piyd::SLL_PIYD::new(memory, pos)?),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(format!(
                                     "Invalid IY bit instruction: 0x{:02x}",

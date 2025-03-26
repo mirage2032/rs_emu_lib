@@ -22,7 +22,7 @@ impl RR_PHL {
 
 impl Display for RR_PHL {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SRA (HL)")
+        write!(f, "RR (HL)")
     }
 }
 

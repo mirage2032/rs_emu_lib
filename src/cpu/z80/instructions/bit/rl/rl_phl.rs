@@ -22,7 +22,7 @@ impl RL_PHL {
 
 impl Display for RL_PHL {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SRA (HL)")
+        write!(f, "RL (HL)")
     }
 }
 
@@ -31,7 +31,7 @@ impl BaseInstruction for RL_PHL {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xcb, 0x1e]
+        vec![0xcb, 0x16]
     }
 }
 
