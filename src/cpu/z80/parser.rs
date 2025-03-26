@@ -1196,6 +1196,32 @@ impl InstructionParser<Z80> for Z80Parser {
                     },
                 }
             }
+            "srl" => {
+                let destination = get_op(2)?;
+                match is_val(destination) {
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(bit::srl::srl_pixd::SRL_PIXD::new_with_value(offset))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(bit::srl::srl_piyd::SRL_PIYD::new_with_value(offset))
+                    }
+                    _ => match destination {
+                        "b" => Box::new(bit::srl::SRL_B::new()),
+                        "c" => Box::new(bit::srl::SRL_C::new()),
+                        "d" => Box::new(bit::srl::SRL_D::new()),
+                        "e" => Box::new(bit::srl::SRL_E::new()),
+                        "h" => Box::new(bit::srl::SRL_H::new()),
+                        "l" => Box::new(bit::srl::SRL_L::new()),
+                        "a" => Box::new(bit::srl::SRL_A::new()),
+                        "(hl)" => Box::new(bit::srl::srl_phl::SRL_PHL::new()),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
+                        }
+                    },
+                }
+            }
             "sll" =>{
                 let destination = get_op(2)?;
                 match is_val(destination) {
@@ -1571,14 +1597,14 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x35 => Box::new(bit::sll::SLL_L::new()),
                     0x36 => Box::new(bit::sll::sll_phl::SLL_PHL::new()),
                     0x37 => Box::new(bit::sll::SLL_A::new()),
-                    // 0x38
-                    // 0x39
-                    // 0x3A
-                    // 0x3B
-                    // 0x3C
-                    // 0x3D
-                    // 0x3E
-                    // 0x3F
+                    0x38 => Box::new(bit::srl::SRL_B::new()),
+                    0x39 => Box::new(bit::srl::SRL_C::new()),
+                    0x3A => Box::new(bit::srl::SRL_D::new()),
+                    0x3B => Box::new(bit::srl::SRL_E::new()),
+                    0x3C => Box::new(bit::srl::SRL_H::new()),
+                    0x3D => Box::new(bit::srl::SRL_L::new()),
+                    0x3E => Box::new(bit::srl::srl_phl::SRL_PHL::new()),
+                    0x3F => Box::new(bit::srl::SRL_A::new()),
                     0x40 => Box::new(bit::bit::BIT_0_B::new()),
                     0x41 => Box::new(bit::bit::BIT_0_C::new()),
                     0x42 => Box::new(bit::bit::BIT_0_D::new()),
@@ -1771,12 +1797,6 @@ impl InstructionParser<Z80> for Z80Parser {
                     0xFD => Box::new(bit::set::SET_7_L::new()),
                     0xFE => Box::new(bit::set::SET_7_PHL::new()),
                     0xFF => Box::new(bit::set::SET_7_A::new()),
-                    _ => {
-                        return Err(ParseError::InvalidInstruction(format!(
-                            "Invalid BIT instruction: 0x{:02x}",
-                            ins_byte1
-                        )))
-                    }
                 }
             }
             0xCC => Box::new(call::call_z_nn::CALL_Z_NN::new(memory, pos)?),
@@ -1850,6 +1870,7 @@ impl InstructionParser<Z80> for Z80Parser {
                             0x26 => Box::new(bit::sla::sla_pixd::SLA_PIXD::new(memory, pos)?),
                             0x2E => Box::new(bit::sra::sra_pixd::SRA_PIXD::new(memory, pos)?),
                             0x36 => Box::new(bit::sll::sll_pixd::SLL_PIXD::new(memory, pos)?),
+                            0x3E => Box::new(bit::srl::srl_pixd::SRL_PIXD::new(memory, pos)?),
                             // 0x3E
                             // 0x46
                             // 0x4E
@@ -2007,6 +2028,7 @@ impl InstructionParser<Z80> for Z80Parser {
                             0x26 => Box::new(bit::sla::sla_piyd::SLA_PIYD::new(memory, pos)?),
                             0x2E => Box::new(bit::sra::sra_piyd::SRA_PIYD::new(memory, pos)?),
                             0x36 => Box::new(bit::sll::sll_piyd::SLL_PIYD::new(memory, pos)?),
+                            0x3E => Box::new(bit::srl::srl_piyd::SRL_PIYD::new(memory, pos)?),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(format!(
                                     "Invalid IY bit instruction: 0x{:02x}",

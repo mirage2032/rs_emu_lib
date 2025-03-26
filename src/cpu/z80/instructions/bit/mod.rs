@@ -8,3 +8,4 @@ pub mod bit;
 pub mod res;
 pub mod set;
 pub mod sll;
+pub mod srl;
