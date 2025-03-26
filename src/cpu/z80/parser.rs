@@ -864,6 +864,58 @@ impl InstructionParser<Z80> for Z80Parser {
                     },
                 }
             }
+            "rlc" =>{
+                let destination = get_op(2)?;
+                match is_val(destination) {
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(bit::rlc::rlc_pixd::RLC_PIXD::new_with_value(offset))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(bit::rlc::rlc_piyd::RLC_PIYD::new_with_value(offset))
+                    }
+                    _ => match destination {
+                        "b" => Box::new(bit::rlc::RLC_B::new()),
+                        "c" => Box::new(bit::rlc::RLC_C::new()),
+                        "d" => Box::new(bit::rlc::RLC_D::new()),
+                        "e" => Box::new(bit::rlc::RLC_E::new()),
+                        "h" => Box::new(bit::rlc::RLC_H::new()),
+                        "l" => Box::new(bit::rlc::RLC_L::new()),
+                        "a" => Box::new(bit::rlc::RLC_A::new()),
+                        "(hl)" => Box::new(bit::rlc::rlc_phl::RLC_PHL::new()),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
+                        }
+                    },
+                }
+            }
+            "rrc" => {
+                let destination = get_op(2)?;
+                match is_val(destination) {
+                    Ok(ImmediateValue::OffsetIX(offset)) => {
+                        Box::new(bit::rrc::rrc_pixd::RRC_PIXD::new_with_value(offset))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(bit::rrc::rrc_piyd::RRC_PIYD::new_with_value(offset))
+                    }
+                    _ => match destination {
+                        "b" => Box::new(bit::rrc::RRC_B::new()),
+                        "c" => Box::new(bit::rrc::RRC_C::new()),
+                        "d" => Box::new(bit::rrc::RRC_D::new()),
+                        "e" => Box::new(bit::rrc::RRC_E::new()),
+                        "h" => Box::new(bit::rrc::RRC_H::new()),
+                        "l" => Box::new(bit::rrc::RRC_L::new()),
+                        "a" => Box::new(bit::rrc::RRC_A::new()),
+                        "(hl)" => Box::new(bit::rrc::rrc_phl::RRC_PHL::new()),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
+                        }
+                    },
+                }
+            }
             "rl" => {
                 let destination = get_op(2)?;
                 match is_val(destination) {
@@ -1209,16 +1261,22 @@ impl InstructionParser<Z80> for Z80Parser {
             0xCB => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
-                    //0x00
-                    //0x01
-                    //0x02
-                    //0x03
-                    //0x04
-                    //0x05
-                    //0x06
-                    //0x07
-                    //0x08
-                    //0x09
+                    0x00 => Box::new(bit::rlc::RLC_B::new()),
+                    0x01 => Box::new(bit::rlc::RLC_C::new()),
+                    0x02 => Box::new(bit::rlc::RLC_D::new()),
+                    0x03 => Box::new(bit::rlc::RLC_E::new()),
+                    0x04 => Box::new(bit::rlc::RLC_H::new()),
+                    0x05 => Box::new(bit::rlc::RLC_L::new()),
+                    0x06 => Box::new(bit::rlc::rlc_phl::RLC_PHL::new()),
+                    0x07 => Box::new(bit::rlc::RLC_A::new()),
+                    0x08 => Box::new(bit::rrc::RRC_B::new()),
+                    0x09 => Box::new(bit::rrc::RRC_C::new()),
+                    0x0A => Box::new(bit::rrc::RRC_D::new()),
+                    0x0B => Box::new(bit::rrc::RRC_E::new()),
+                    0x0C => Box::new(bit::rrc::RRC_H::new()),
+                    0x0D => Box::new(bit::rrc::RRC_L::new()),
+                    0x0E => Box::new(bit::rrc::rrc_phl::RRC_PHL::new()),
+                    0x0F => Box::new(bit::rrc::RRC_A::new()),
                     0x10 => Box::new(bit::rl::RL_B::new()),
                     0x11 => Box::new(bit::rl::RL_C::new()),
                     0x12 => Box::new(bit::rl::RL_D::new()),
@@ -1531,8 +1589,8 @@ impl InstructionParser<Z80> for Z80Parser {
                     0xCB => {
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
-                            // 0x06
-                            // 0x0E
+                            0x06 => Box::new(bit::rlc::rlc_pixd::RLC_PIXD::new(memory, pos)?),
+                            0x0E => Box::new(bit::rrc::rrc_pixd::RRC_PIXD::new(memory, pos)?),
                             0x16 => Box::new(bit::rl::rl_pixd::RL_PIXD::new(memory, pos)?),
                             0x1E => Box::new(bit::rr::rr_pixd::RR_PIXD::new(memory, pos)?),
                             0x26 => Box::new(bit::sla::sla_pixd::SLA_PIXD::new(memory, pos)?),
@@ -1687,6 +1745,8 @@ impl InstructionParser<Z80> for Z80Parser {
                     0xCB => {
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
+                            0x06 => Box::new(bit::rlc::rlc_piyd::RLC_PIYD::new(memory, pos)?),
+                            0x0E => Box::new(bit::rrc::rrc_piyd::RRC_PIYD::new(memory, pos)?),
                             0x16 => Box::new(bit::rl::rl_piyd::RL_PIYD::new(memory, pos)?),
                             0x1E => Box::new(bit::rr::rr_piyd::RR_PIYD::new(memory, pos)?),
                             0x26 => Box::new(bit::sla::sla_piyd::SLA_PIYD::new(memory, pos)?),
