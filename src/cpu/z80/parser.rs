@@ -93,6 +93,7 @@ impl InstructionParser<Z80> for Z80Parser {
             "ccf" => Box::new(ccf::CCF::new()),
             "exx" => Box::new(exx::EXX::new()),
             "di" => Box::new(di::DI::new()),
+            "ei" => Box::new(ei::EI::new()),
             "ld" => {
                 let destination = get_op(2)?;
                 let source = get_op(3)?;
@@ -1667,7 +1668,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xF8 => Box::new(ret::ret_m::RET_M::new()),
             0xF9 => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
             0xFA => Box::new(jump::jp::jp_m_nn::JP_M_NN::new(memory, pos)?),
-            // 0xFB
+            0xFB => Box::new(ei::EI::new()),
             0xFC => Box::new(call::call_m_nn::CALL_M_NN::new(memory, pos)?),
             // 0xFD => {
             //     let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;

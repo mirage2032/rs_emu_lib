@@ -7,37 +7,37 @@ use crate::io::IO;
 use crate::memory::Memory;
 
 #[derive(Debug)]
-pub struct DI {
+pub struct EI {
     common: InstructionCommon,
 }
 
-impl DI {
-    pub fn new() -> DI {
-        DI {
+impl EI {
+    pub fn new() -> EI {
+        EI {
             common: InstructionCommon::new(1, 4, true),
         }
     }
 }
 
-impl Display for DI {
+impl Display for EI {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "DI")
+        write!(f, "EI")
     }
 }
 
-impl BaseInstruction for DI {
+impl BaseInstruction for EI {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xf3]
+        vec![0xfb]
     }
 }
 
-impl ExecutableInstruction<Z80> for DI {
+impl ExecutableInstruction<Z80> for EI {
     fn execute(&mut self, _memory: &mut Memory, _cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        io.iff1 = false;
-        io.iff2 = false;
+        io.iff1 = true;
+        io.iff2 = true;
         Ok(())
     }
 }
@@ -47,6 +47,6 @@ mod tests {
     use crate::cpu::test::test_instruction_parse;
     use crate::cpu::z80::test::*;
 
-    test_z80!("f3");
-    test_instruction_parse!(DI);
+    test_z80!("fb");
+    test_instruction_parse!(EI);
 }

@@ -23,3 +23,4 @@ pub mod rst;
 pub mod io;
 pub mod exx;
 pub mod di;
+pub mod ei;
