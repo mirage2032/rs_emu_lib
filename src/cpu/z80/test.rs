@@ -41,9 +41,19 @@ pub struct TestData {
     #[serde(rename = "final")]
     final_state: TestState,
     cycles: Vec<(u16, Option<u8>, String)>,
+    ports: Option<Vec<(u16, u8, String)>>,
 }
 
-fn setup_z80(emulator: &mut Emulator<Z80>, state: &TestState) -> Result<(), String> {
+fn setup_z80(emulator: &mut Emulator<Z80>, data: &TestData) -> Result<(), String> {
+    if let Some(ports) = &data.ports {
+        for (address, value, op) in ports{
+            let address_le = address.to_le_bytes();
+            if op == "r"{
+                emulator.io.write(address_le[0], *value).expect("Failed to write to port");
+            }
+        }
+    }
+    let state = &data.initial_state;
     let registers = &mut emulator.cpu.registers;
     registers.pc = state.pc;
     registers.sp = state.sp;
@@ -76,43 +86,54 @@ fn setup_z80(emulator: &mut Emulator<Z80>, state: &TestState) -> Result<(), Stri
     Ok(())
 }
 
-fn assert_z80(emulator: &mut Emulator<Z80>, test_state: &TestState) {
+fn assert_z80(emulator: &mut Emulator<Z80>, data: &TestData) {
+    if let Some(ports) = &data.ports {
+        for (address, value, op) in ports{
+            let address_le = address.to_le_bytes();
+            if op == "w"{
+                let emu_val = emulator.io.read(address_le[0]).expect("Failed to read from port");
+                assert_eq!(emu_val, *value);
+            }
+        }
+    }
+    let state = &data.final_state;
     let registers = &emulator.cpu.registers;
-    assert_eq!(registers.gp.a, test_state.a);
-    assert_eq!(registers.gp.b, test_state.b);
-    assert_eq!(registers.gp.c, test_state.c);
-    assert_eq!(registers.gp.d, test_state.d);
-    assert_eq!(registers.gp.e, test_state.e);
+    assert_eq!(registers.gp.a, state.a);
+    assert_eq!(registers.gp.b, state.b);
+    assert_eq!(registers.gp.c, state.c);
+    assert_eq!(registers.gp.d, state.d);
+    assert_eq!(registers.gp.e, state.e);
+    // assert_eq!(registers.gp.f, state.f.into());
     let mut result_flags = registers.gp.f;//TODO: Fix unused flags
     result_flags.set_bit3(false);
     result_flags.set_bit5(false);
-    assert_eq!(result_flags, (test_state.f & 0b11010111).into());
-    assert_eq!(registers.gp.h, test_state.h);
-    assert_eq!(registers.gp.l, test_state.l);
-    assert_eq!(registers.i, test_state.i);
-    assert_eq!(registers.r, test_state.r);
-    assert_eq!(registers.gp_alt.af, test_state.af_);
-    assert_eq!(registers.gp_alt.bc, test_state.bc_);
-    assert_eq!(registers.gp_alt.de, test_state.de_);
-    assert_eq!(registers.gp_alt.hl, test_state.hl_);
-    assert_eq!(registers.ix, test_state.ix);
-    assert_eq!(registers.iy, test_state.iy);
-    assert_eq!(registers.pc, test_state.pc);
-    assert_eq!(registers.sp, test_state.sp);
+    assert_eq!(result_flags, (state.f & 0b11010111).into());
+    assert_eq!(registers.gp.h, state.h);
+    assert_eq!(registers.gp.l, state.l);
+    assert_eq!(registers.i, state.i);
+    assert_eq!(registers.r, state.r);
+    assert_eq!(registers.gp_alt.af, state.af_);
+    assert_eq!(registers.gp_alt.bc, state.bc_);
+    assert_eq!(registers.gp_alt.de, state.de_);
+    assert_eq!(registers.gp_alt.hl, state.hl_);
+    assert_eq!(registers.ix, state.ix);
+    assert_eq!(registers.iy, state.iy);
+    assert_eq!(registers.pc, state.pc);
+    assert_eq!(registers.sp, state.sp);
     //assert_eq!(registers.other["wz"],BaseRegister::Bit16(test_state.wz));
     assert_eq!(
         emulator.io.iff1,
-        if test_state.iff1 == 1 { true } else { false }
+        state.iff1 == 1
     );
     assert_eq!(
         emulator.io.iff2,
-        if test_state.iff2 == 1 { true } else { false }
+        state.iff2 == 1
     );
     //assert_eq!(registers.other["im"],BaseRegister::Bit8(test_state.im));
     //assert_eq!(registers.other["ei"],BaseRegister::Bit8(test_state.ei));
     //assert_eq!(registers.other["p"],BaseRegister::Bit16(test_state.p));
     //assert_eq!(registers.other["q"],BaseRegister::Bit16(test_state.q));
-    for (address, value) in &test_state.ram {
+    for (address, value) in &state.ram {
         assert_eq!(emulator.memory.read_8(*address).unwrap(), *value);
     }
 }
@@ -123,10 +144,9 @@ pub fn test_z80_w_data(test_data_vec: Vec<TestData>) {
         let rom = RAM::new(0x10000);
         memory.add_device(Box::new(rom));
         let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
-        // println!("Running test: {}",test_data.name);
-        setup_z80(&mut emulator, &test_data.initial_state).expect("Failed to setup Z80");
+        setup_z80(&mut emulator, &test_data).expect("Failed to setup Z80");
         emulator.step().expect("Failed to step");
-        assert_z80(&mut emulator, &test_data.final_state);
+        assert_z80(&mut emulator, &test_data);
         assert_eq!(emulator.cycles, test_data.cycles.len());
     }
 }

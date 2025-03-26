@@ -91,6 +91,8 @@ impl InstructionParser<Z80> for Z80Parser {
             "nop" => Box::new(nop::NOP::new()),
             "scf" => Box::new(scf::SCF::new()),
             "ccf" => Box::new(ccf::CCF::new()),
+            "exx" => Box::new(exx::EXX::new()),
+            "di" => Box::new(di::DI::new()),
             "ld" => {
                 let destination = get_op(2)?;
                 let source = get_op(3)?;
@@ -932,6 +934,44 @@ impl InstructionParser<Z80> for Z80Parser {
                     }
                 }
             }
+            "out" => {
+                let port = get_op(2)?;
+                let register = get_op(3)?;
+                match is_val(port) {
+                    Ok(ImmediateValue::Val8(val)) => match register {
+                        "a" => Box::new(io::out_n_a::OUT_N_A::new_with_value(val)),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
+                        }
+                    },
+                    _ => {
+                        return Err(ParseError::InvalidInstruction(
+                            "Invalid instruction".to_string(),
+                        ))
+                    }
+                }
+            }
+            "in" => {
+                let register = get_op(2)?;
+                let port = get_op(3)?;
+                match is_val(port) {
+                    Ok(ImmediateValue::Val8(val)) => match register {
+                        "a" => Box::new(io::in_a_n::IN_A_N::new_with_value(val)),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(
+                                "Invalid instruction".to_string(),
+                            ))
+                        }
+                    },
+                    _ => {
+                        return Err(ParseError::InvalidInstruction(
+                            "Invalid instruction".to_string(),
+                        ))
+                    }
+                }
+            }
             "daa" => Box::new(daa::DAA::new()),
             "cpl" => Box::new(cpl::CPL::new()),
             _ => {
@@ -1421,15 +1461,15 @@ impl InstructionParser<Z80> for Z80Parser {
             0xD0 => Box::new(ret::ret_nc::RET_NC::new()),
             0xD1 => Box::new(stack::pop::POP_DE::new()),
             0xD2 => Box::new(jump::jp::jp_nc_nn::JP_NC_NN::new(memory, pos)?),
-            // 0xD3
+            0xD3 => Box::new(io::out_n_a::OUT_N_A::new(memory, pos)?),
             0xD4 => Box::new(call::call_nc_nn::CALL_NC_NN::new(memory, pos)?),
             0xD5 => Box::new(stack::push::PUSH_DE::new()),
             0xD6 => Box::new(math::sub::sub_n::SUB_N::new(memory, pos)?),
             0xD7 => Box::new(rst::RST_0x10::new()),
             0xD8 => Box::new(ret::ret_c::RET_C::new()),
-            // 0xD9
+            0xD9 => Box::new(exx::EXX::new()),
             0xDA => Box::new(jump::jp::jp_c_nn::JP_C_NN::new(memory, pos)?),
-            // 0xDB
+            0xDB => Box::new(io::in_a_n::IN_A_N::new(memory, pos)?),
             0xDC => Box::new(call::call_c_nn::CALL_C_NN::new(memory, pos)?),
             0xDD => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
@@ -1619,7 +1659,7 @@ impl InstructionParser<Z80> for Z80Parser {
             0xF0 => Box::new(ret::ret_p::RET_P::new()),
             0xF1 => Box::new(stack::pop::POP_AF::new()),
             0xF2 => Box::new(jump::jp::jp_p_nn::JP_P_NN::new(memory, pos)?),
-            // 0xF3
+            0xF3 => Box::new(di::DI::new()),
             0xF4 => Box::new(call::call_p_nn::CALL_P_NN::new(memory, pos)?),
             0xF5 => Box::new(stack::push::PUSH_AF::new()),
             0xF6 => Box::new(math::or::or_n::OR_N::new(memory, pos)?),
