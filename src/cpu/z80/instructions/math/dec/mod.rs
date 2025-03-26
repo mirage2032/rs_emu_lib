@@ -14,6 +14,8 @@ use crate::memory::Memory;
 pub mod dec_phl;
 pub mod dec_sp;
 mod generics;
+pub mod dec_ix;
+pub mod dec_pixd;
 
 generics::dec_r::dec_r!(b, "05", "B");
 generics::dec_r::dec_r!(c, "0d", "C");
