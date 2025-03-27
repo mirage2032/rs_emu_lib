@@ -1,3 +1,4 @@
+use crate::memory::errors::MemoryReadError;
 use std::fmt::Display;
 use crate::memory::MemoryDevice;
 use crate::cpu::instruction::InstructionCommon;
@@ -10,6 +11,8 @@ use crate::io::IO;
 use crate::memory::Memory;
 use hex_literal::hex;
 use std::fmt;
+use crate::cpu::z80::instructions::bit::set::generics::set_b_pixd::set_b_pixd;
+use crate::cpu::z80::instructions::bit::set::generics::set_b_piyd::set_b_piyd;
 
 mod generics;
 
@@ -84,4 +87,21 @@ set_b_r!(7, h, "H", "fc");
 set_b_r!(7, l, "L", "fd");
 set_b_phl!(7, "fe");
 set_b_r!(7, a, "A", "ff");
+
+set_b_pixd!(0, "c6");
+set_b_pixd!(1, "ce");
+set_b_pixd!(2, "d6");
+set_b_pixd!(3, "de");
+set_b_pixd!(4, "e6");
+set_b_pixd!(5, "ee");
+set_b_pixd!(6, "f6");
+set_b_pixd!(7, "fe");
+set_b_piyd!(0, "c6");
+set_b_piyd!(1, "ce");
+set_b_piyd!(2, "d6");
+set_b_piyd!(3, "de");
+set_b_piyd!(4, "e6");
+set_b_piyd!(5, "ee");
+set_b_piyd!(6, "f6");
+set_b_piyd!(7, "fe");
 
