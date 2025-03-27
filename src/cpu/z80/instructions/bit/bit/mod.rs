@@ -12,6 +12,7 @@ use crate::memory::Memory;
 use hex_literal::hex;
 use std::fmt;
 use crate::cpu::z80::instructions::bit::bit::generics::bit_b_pixd::bit_b_pixd;
+use crate::cpu::z80::instructions::bit::bit::generics::bit_b_piyd::bit_b_piyd;
 use crate::memory::errors::MemoryReadError;
 
 mod generics;
@@ -89,4 +90,21 @@ bit_b_phl!(7, "7e");
 bit_b_r!(7, a, "A", "7f");
 
 bit_b_pixd!(0, "46");
+bit_b_pixd!(1, "4e");
+bit_b_pixd!(2, "56");
+bit_b_pixd!(3, "5e");
+bit_b_pixd!(4, "66");
+bit_b_pixd!(5, "6e");
+bit_b_pixd!(6, "76");
+bit_b_pixd!(7, "7e");
+
+bit_b_piyd!(0, "46");
+bit_b_piyd!(1, "4e");
+bit_b_piyd!(2, "56");
+bit_b_piyd!(3, "5e");
+bit_b_piyd!(4, "66");
+bit_b_piyd!(5, "6e");
+bit_b_piyd!(6, "76");
+bit_b_piyd!(7, "7e");
+
 
