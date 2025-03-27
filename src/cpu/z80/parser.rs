@@ -804,55 +804,41 @@ impl InstructionParser<Z80> for Z80Parser {
             }
             "sbc" => {
                 let destination = get_op(2)?;
-                let source = get_op(3)?;
-                match (is_val(destination), is_val(source)) {
-                    (Err(_), Ok(ImmediateValue::Val8(val))) => match destination {
-                        "a" => Box::new(math::sbc::sbc_a_n::SBC_A_N::new_with_value(val)),
-                        _ => {
-                            return Err(ParseError::InvalidInstruction(format!(
-                                "Invalid destination \"{0}\"",
-                                destination
-                            )))
+                match destination {
+                    "a" => {
+                        let source = get_op(3)?;
+                        match is_val(source) {
+                            Ok(ImmediateValue::Val8(val)) => {
+                                Box::new(math::sbc::sbc_a_n::SBC_A_N::new_with_value(val))
+                            }
+                            Ok(ImmediateValue::OffsetIX(offset)) => {
+                                Box::new(math::sbc::sbc_a_pixd::SBC_A_PIXD::new_with_value(offset))
+                            }
+                            Ok(ImmediateValue::OffsetIY(offset)) => {
+                                Box::new(math::sbc::sbc_a_piyd::SBC_A_PIYD::new_with_value(offset))
+                            }
+                            _ => match source {
+                                "a" => Box::new(math::sbc::SBC_A_A::new()),
+                                "b" => Box::new(math::sbc::SBC_A_B::new()),
+                                "c" => Box::new(math::sbc::SBC_A_C::new()),
+                                "d" => Box::new(math::sbc::SBC_A_D::new()),
+                                "e" => Box::new(math::sbc::SBC_A_E::new()),
+                                "h" => Box::new(math::sbc::SBC_A_H::new()),
+                                "l" => Box::new(math::sbc::SBC_A_L::new()),
+                                "(hl)" => Box::new(math::sbc::sbc_a_phl::SBC_A_PHL::new()),
+                                _ => {
+                                    return Err(ParseError::InvalidInstruction(format!(
+                                        "Invalid source \"{0}\"",
+                                        source
+                                    )))
+                                }
+                            },
                         }
-                    },
-                    (Err(_), Ok(ImmediateValue::OffsetIX(offset))) => match destination {
-                        "a" => Box::new(math::sbc::sbc_a_pixd::SBC_A_PIXD::new_with_value(offset)),
-                        _ => {
-                            return Err(ParseError::InvalidInstruction(format!(
-                                "Invalid destination \"{0}\"",
-                                destination
-                            )))
-                        }
-                    },
-                    (Err(_), Ok(ImmediateValue::OffsetIY(offset))) => match destination {
-                        "a" => Box::new(math::sbc::sbc_a_piyd::SBC_A_PIYD::new_with_value(offset)),
-                        _ => {
-                            return Err(ParseError::InvalidInstruction(format!(
-                                "Invalid destination \"{0}\"",
-                                destination
-                            )))
-                        }
-                    },
-                    (Err(_), Err(_)) => match (destination, source) {
-                        ("a", "a") => Box::new(math::sbc::SBC_A_A::new()),
-                        ("a", "b") => Box::new(math::sbc::SBC_A_B::new()),
-                        ("a", "c") => Box::new(math::sbc::SBC_A_C::new()),
-                        ("a", "d") => Box::new(math::sbc::SBC_A_D::new()),
-                        ("a", "e") => Box::new(math::sbc::SBC_A_E::new()),
-                        ("a", "h") => Box::new(math::sbc::SBC_A_H::new()),
-                        ("a", "l") => Box::new(math::sbc::SBC_A_L::new()),
-                        ("a", "(hl)") => Box::new(math::sbc::sbc_a_phl::SBC_A_PHL::new()),
-                        _ => {
-                            return Err(ParseError::InvalidInstruction(format!(
-                                "Invalid operands \"{0}\" and \"{1}\"",
-                                destination, source
-                            )))
-                        }
-                    },
+                    }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
-                            "Invalid operands \"{0}\" and \"{1}\"",
-                            destination, source
+                            "Invalid destination \"{0}\"",
+                            destination
                         )))
                     }
                 }
