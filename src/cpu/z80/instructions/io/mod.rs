@@ -1,2 +1,9 @@
 pub mod out_n_a;
 pub mod in_a_n;
+pub mod in_b_c;
+pub mod in_d_c;
+pub mod in_e_c;
+pub mod in_c_c;
+pub mod in_h_c;
+pub mod in_l_c;
+pub mod in_a_c;
