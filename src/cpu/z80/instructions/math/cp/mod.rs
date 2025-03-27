@@ -15,6 +15,7 @@ pub mod cp_n;
 pub mod cp_phl;
 mod generics;
 pub mod cp_pixd;
+pub mod cp_piyd;
 
 generics::cp_r::cp_r!(b, "b8", "B");
 generics::cp_r::cp_r!(c, "b9", "C");

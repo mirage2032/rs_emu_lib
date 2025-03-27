@@ -16,6 +16,7 @@ pub mod generics;
 pub mod sbc_a_n;
 pub mod sbc_a_phl;
 pub mod sbc_a_pixd;
+pub mod sbc_a_piyd;
 
 sbc_a_r!(b,"98", "B");
 sbc_a_r!(c,"99", "C");

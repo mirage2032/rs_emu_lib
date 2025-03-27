@@ -533,6 +533,7 @@ impl InstructionParser<Z80> for Z80Parser {
 
                         ("sp", "hl") => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
                         ("sp", "ix") => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
+                        ("sp", "iy") => Box::new(ld::ld_sp_iy::LD_SP_IY::new()),
                         _ => {
                             return Err(ParseError::InvalidInstruction(format!(
                                 "Invalid operands \"{0}\" and \"{1}\"",
@@ -690,6 +691,9 @@ impl InstructionParser<Z80> for Z80Parser {
                             Ok(ImmediateValue::OffsetIX(offset)) => {
                                 Box::new(math::add::add_a_pixd::ADD_A_PIXD::new_with_value(offset))
                             }
+                            Ok(ImmediateValue::OffsetIY(offset)) => {
+                                Box::new(math::add::add_a_piyd::ADD_A_PIYD::new_with_value(offset))
+                            }
                             Ok(ImmediateValue::Val8(val)) => {
                                 Box::new(math::add::add_a_n::ADD_A_N::new_with_value(val))
                             }
@@ -720,6 +724,9 @@ impl InstructionParser<Z80> for Z80Parser {
                             }
                             Ok(ImmediateValue::OffsetIX(offset)) => {
                                 Box::new(math::adc::adc_a_pixd::ADC_A_PIXD::new_with_value(offset))
+                            }
+                            Ok(ImmediateValue::OffsetIY(offset)) =>{
+                                Box::new(math::adc::adc_a_piyd::ADC_A_PIYD::new_with_value(offset))
                             }
                             _ => match source {
                                 "a" => Box::new(math::adc::ADC_A_A::new()),
@@ -769,6 +776,15 @@ impl InstructionParser<Z80> for Z80Parser {
                             )))
                         }
                     },
+                    (Err(_), Ok(ImmediateValue::OffsetIY(offset))) => match destination {
+                        "a" => Box::new(math::sbc::sbc_a_piyd::SBC_A_PIYD::new_with_value(offset)),
+                        _ => {
+                            return Err(ParseError::InvalidInstruction(format!(
+                                "Invalid destination \"{0}\"",
+                                destination
+                            )))
+                        }
+                    },
                     (Err(_), Err(_)) => match (destination, source) {
                         ("a", "a") => Box::new(math::sbc::SBC_A_A::new()),
                         ("a", "b") => Box::new(math::sbc::SBC_A_B::new()),
@@ -801,6 +817,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(math::xor::xor_pixd::XOR_PIXD::new_with_value(offset))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(math::xor::xor_piyd::XOR_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "a" => Box::new(math::xor::XOR_A::new()),
@@ -863,6 +882,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(math::cp::cp_pixd::CP_PIXD::new_with_value(offset))
                     }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(math::cp::cp_piyd::CP_PIYD::new_with_value(offset))
+                    }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid operator \"{0}\"",
@@ -895,6 +917,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(math::and::and_pixd::AND_PIXD::new_with_value(offset))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(math::and::and_piyd::AND_PIYD::new_with_value(offset))
                     }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
@@ -929,6 +954,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(math::sub::sub_pixd::SUB_PIXD::new_with_value(offset))
                     }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(math::sub::sub_piyd::SUB_PIYD::new_with_value(offset))
+                    }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid operator \"{0}\"",
@@ -960,7 +988,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         Box::new(math::or::or_n::OR_N::new_with_value(val))
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(math::or::or_ixd::OR_IXD::new_with_value(offset))
+                        Box::new(math::or::or_pixd::OR_PIXD::new_with_value(offset))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(math::or::or_piyd::OR_PIYD::new_with_value(offset))
                     }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
@@ -1951,7 +1982,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x9e => Box::new(math::sbc::sbc_a_pixd::SBC_A_PIXD::new(memory, pos)?),
                     0xA6 => Box::new(math::and::and_pixd::AND_PIXD::new(memory, pos)?),
                     0xAE => Box::new(math::xor::xor_pixd::XOR_PIXD::new(memory, pos)?),
-                    0xB6 => Box::new(math::or::or_ixd::OR_IXD::new(memory, pos)?),
+                    0xB6 => Box::new(math::or::or_pixd::OR_PIXD::new(memory, pos)?),
                     0xBE => Box::new(math::cp::cp_pixd::CP_PIXD::new(memory, pos)?),
                     0xCB => {
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
@@ -2057,6 +2088,14 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x75 => Box::new(ld::LD_PIYD_L::new(memory, pos)?),
                     0x77 => Box::new(ld::LD_PIYD_A::new(memory, pos)?),
                     0x7e => Box::new(ld::LD_A_PIYD::new(memory, pos)?),
+                    0x86 => Box::new(math::add::add_a_piyd::ADD_A_PIYD::new(memory, pos)?),
+                    0x8E => Box::new(math::adc::adc_a_piyd::ADC_A_PIYD::new(memory, pos)?),
+                    0x96 => Box::new(math::sub::sub_piyd::SUB_PIYD::new(memory, pos)?),
+                    0x9E => Box::new(math::sbc::sbc_a_piyd::SBC_A_PIYD::new(memory, pos)?),
+                    0xA6 => Box::new(math::and::and_piyd::AND_PIYD::new(memory, pos)?),
+                    0xAE => Box::new(math::xor::xor_piyd::XOR_PIYD::new(memory, pos)?),
+                    0xB6 => Box::new(math::or::or_piyd::OR_PIYD::new(memory, pos)?),
+                    0xBE => Box::new(math::cp::cp_piyd::CP_PIYD::new(memory, pos)?),
                     0xCB => {
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
@@ -2080,6 +2119,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0xE3 => Box::new(ex::ex_psp_iy::EX_PSP_IY::new()),
                     0xE5 => Box::new(stack::push::push_iy::PUSH_IY::new()),
                     0xE9 => Box::new(jump::jp::jp_piy::JP_PIY::new()),
+                    0xF9 => Box::new(ld::ld_sp_iy::LD_SP_IY::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid IY instruction 0x{:02x}",

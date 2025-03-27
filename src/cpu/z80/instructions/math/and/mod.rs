@@ -15,6 +15,7 @@ pub mod and_pixd;
 pub mod and_n;
 pub mod and_phl;
 mod generics;
+pub mod and_piyd;
 
 generics::and_r::and_r!(b, "a0", "B");
 generics::and_r::and_r!(c, "a1", "C");

@@ -24,6 +24,7 @@ pub mod add_iy_bc;
 pub mod add_iy_de;
 pub mod add_iy_iy;
 pub mod add_iy_sp;
+pub mod add_a_piyd;
 
 generics::add_r_r::add_r_r!(a, b, "80", "A", "B");
 generics::add_r_r::add_r_r!(a, c, "81", "A", "C");

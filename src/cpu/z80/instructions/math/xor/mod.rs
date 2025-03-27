@@ -15,6 +15,7 @@ mod generics;
 pub mod xor_n;
 pub mod xor_phl;
 pub mod xor_pixd;
+pub mod xor_piyd;
 
 generics::xor_r::xor_r!(b, "a8", "B");
 generics::xor_r::xor_r!(c, "a9", "C");

@@ -7,37 +7,37 @@ use crate::io::IO;
 use crate::memory::Memory;
 
 #[derive(Debug)]
-pub struct INC_IY {
+pub struct LD_SP_IY {
     common: InstructionCommon,
 }
 
-impl INC_IY {
-    pub fn new() -> INC_IY {
-        INC_IY {
+impl LD_SP_IY {
+    pub fn new() -> LD_SP_IY {
+        LD_SP_IY {
             common: InstructionCommon::new(2, 10, true),
         }
     }
 }
 
-impl Display for INC_IY {
+impl Display for LD_SP_IY {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "INC IY",)
+        write!(f, "LD SP, IY",)
     }
 }
 
-impl BaseInstruction for INC_IY {
+impl BaseInstruction for LD_SP_IY {
     fn common(&self) -> &InstructionCommon {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xfd, 0x23]
+        vec![0xfd, 0xe9]
     }
 }
 
-impl ExecutableInstruction<Z80> for INC_IY {
+impl ExecutableInstruction<Z80> for LD_SP_IY {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.iy = cpu.registers.iy.wrapping_add(1);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.sp = cpu.registers.ix;
+        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
         Ok(())
     }
 }
@@ -47,6 +47,6 @@ mod tests {
     use crate::cpu::test::*;
     use crate::cpu::z80::test::*;
 
-    test_z80!("fd", "23");
-    test_instruction_parse!(INC_IY);
+    test_z80!("fd e9");
+    test_instruction_parse!(LD_SP_IY);
 }
