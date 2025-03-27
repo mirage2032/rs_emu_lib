@@ -1998,7 +1998,8 @@ impl InstructionParser<Z80> for Z80Parser {
                     }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
-                            "Invalid IY instruction"
+                            "Invalid IY instruction 0x{:02x}",
+                            ins_byte1
                         )))
                     }
                 }
