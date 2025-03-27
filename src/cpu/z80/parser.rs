@@ -617,6 +617,21 @@ impl InstructionParser<Z80> for Z80Parser {
                             }
                         }
                     }
+                    "iy" => {
+                        let source = get_op(3)?;
+                        match source {
+                            "bc" => Box::new(math::add::add_iy_bc::ADD_IY_BC::new()),
+                            "de" => Box::new(math::add::add_iy_de::ADD_IY_DE::new()),
+                            "sp" => Box::new(math::add::add_iy_sp::ADD_IY_SP::new()),
+                            "iy" => Box::new(math::add::add_iy_iy::ADD_IY_IY::new()),
+                                _ => {
+                            return Err(ParseError::InvalidInstruction(format!(
+                            "Invalid source \"{0}\"",
+                            source
+                            )))
+                            }
+                        }
+                    }
                     "a" => {
                         let source = get_op(3)?;
                         match is_val(source) {
@@ -1977,6 +1992,10 @@ impl InstructionParser<Z80> for Z80Parser {
             0xFD => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
+                    0x09 => Box::new(math::add::add_iy_bc::ADD_IY_BC::new()),
+                    0x19 => Box::new(math::add::add_iy_de::ADD_IY_DE::new()),
+                    0x29 => Box::new(math::add::add_iy_iy::ADD_IY_IY::new()),
+                    0x39 => Box::new(math::add::add_iy_sp::ADD_IY_SP::new()),
                     0xCB => {
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
