@@ -20,6 +20,9 @@ pub mod ld_sp_ix;
 pub mod ld_sp_nn;
 pub mod ld_pnn_ix;
 pub mod ld_ix_pnn;
+pub mod ld_iy_nn;
+pub mod ld_pnn_iy;
+pub mod ld_iy_pnn;
 
 generics::ld_r_r::ld_r_r!(a, b, "78", "A", "B");
 generics::ld_r_r::ld_r_r!(a, c, "79", "A", "C");
@@ -131,6 +134,14 @@ generics::ld_pixd_r::ld_pixd_r!(h, "74", "H");
 generics::ld_pixd_r::ld_pixd_r!(l, "75", "L");
 generics::ld_pixd_r::ld_pixd_r!(a, "77", "A");
 
+generics::ld_piyd_r::ld_piyd_r!(b, "70", "B");
+generics::ld_piyd_r::ld_piyd_r!(c, "71", "C");
+generics::ld_piyd_r::ld_piyd_r!(d, "72", "D");
+generics::ld_piyd_r::ld_piyd_r!(e, "73", "E");
+generics::ld_piyd_r::ld_piyd_r!(h, "74", "H");
+generics::ld_piyd_r::ld_piyd_r!(l, "75", "L");
+generics::ld_piyd_r::ld_piyd_r!(a, "77", "A");
+
 generics::ld_r_pixd::ld_r_pixd!(b, "46", "B");
 generics::ld_r_pixd::ld_r_pixd!(c, "4e", "C");
 generics::ld_r_pixd::ld_r_pixd!(d, "56", "D");
@@ -138,3 +149,13 @@ generics::ld_r_pixd::ld_r_pixd!(e, "5e", "E");
 generics::ld_r_pixd::ld_r_pixd!(h, "66", "H");
 generics::ld_r_pixd::ld_r_pixd!(l, "6e", "L");
 generics::ld_r_pixd::ld_r_pixd!(a, "7e", "A");
+
+generics::ld_r_piyd::ld_r_piyd!(b, "46", "B");
+generics::ld_r_piyd::ld_r_piyd!(c, "4e", "C");
+generics::ld_r_piyd::ld_r_piyd!(d, "56", "D");
+generics::ld_r_piyd::ld_r_piyd!(e, "5e", "E");
+generics::ld_r_piyd::ld_r_piyd!(h, "66", "H");
+generics::ld_r_piyd::ld_r_piyd!(l, "6e", "L");
+generics::ld_r_piyd::ld_r_piyd!(a, "7e", "A");
+
+

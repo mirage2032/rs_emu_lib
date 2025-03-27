@@ -16,6 +16,7 @@ pub mod inc_phl;
 pub mod inc_sp;
 pub mod inc_ix;
 pub mod inc_pixd;
+pub mod inc_iy;
 
 generics::inc_r::inc_r!(b, "04", "B");
 generics::inc_r::inc_r!(c, "0c", "C");

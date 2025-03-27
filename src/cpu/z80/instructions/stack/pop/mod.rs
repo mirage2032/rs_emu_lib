@@ -15,6 +15,8 @@ use crate::memory::MemoryDevice;
 pub mod pop_ix;
 
 mod generics;
+pub mod pop_iy;
+
 generics::pop_rr::pop_rr!(bc, "c1", "BC");
 generics::pop_rr::pop_rr!(de, "d1", "DE");
 generics::pop_rr::pop_rr!(hl, "e1", "HL");
