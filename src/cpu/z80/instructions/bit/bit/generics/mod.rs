@@ -1,5 +1,6 @@
 pub mod bit_b_r;
 pub mod bit_b_phl;
+pub mod bit_b_pixd;
 
 macro_rules! bit_b_r_setf {
     ($reg1:expr, $bit:expr, $flags:expr) => {
