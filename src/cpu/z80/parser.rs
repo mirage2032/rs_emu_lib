@@ -1450,15 +1450,15 @@ impl InstructionParser<Z80> for Z80Parser {
             "out" => {
                 let port = get_op(2)?;
                 let register = get_op(3)?;
-                match is_val(port) {
-                    Ok(ImmediateValue::Val8(val)) => match register {
-                        "a" => Box::new(io::out_n_a::OUT_N_A::new_with_value(val)),
-                        _ => {
-                            return Err(ParseError::InvalidInstruction(
-                                "Invalid instruction".to_string(),
-                            ))
-                        }
-                    },
+                match (port, register, is_val(port)) {
+                    (_, "a", Ok(ImmediateValue::Val8(val))) => Box::new(io::out_n_a::OUT_N_A::new_with_value(val)),
+                    ("(c)", "b", _) => Box::new(io::out_c_b::OUT_C_B::new()),
+                    ("(c)", "c", _) => Box::new(io::out_c_c::OUT_C_C::new()),
+                    ("(c)", "d", _) => Box::new(io::out_c_d::OUT_C_D::new()),
+                    ("(c)", "e", _) => Box::new(io::out_c_e::OUT_C_E::new()),
+                    ("(c)", "h", _) => Box::new(io::out_c_h::OUT_C_H::new()),
+                    ("(c)", "l", _) => Box::new(io::out_c_l::OUT_C_L::new()),
+                    ("(c)", "a", _) => Box::new(io::out_c_a::OUT_C_A::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(
                             "Invalid instruction".to_string(),
@@ -2093,16 +2093,23 @@ impl InstructionParser<Z80> for Z80Parser {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
                     0x40 => Box::new(io::in_b_c::IN_B_C::new()),
+                    0x41 => Box::new(io::out_c_b::OUT_C_B::new()),
                     0x44 => Box::new(neg::NEG::new()),
                     0x48 => Box::new(io::in_c_c::IN_C_C::new()),
+                    0x49 => Box::new(io::out_c_c::OUT_C_C::new()),
                     0x4B => Box::new(ld::LD_MISC_BC_PNN::new(memory, pos)?),
                     0x50 => Box::new(io::in_d_c::IN_D_C::new()),
+                    0x51 => Box::new(io::out_c_d::OUT_C_D::new()),
                     0x58 => Box::new(io::in_e_c::IN_E_C::new()),
+                    0x59 => Box::new(io::out_c_e::OUT_C_E::new()),
                     0x5B => Box::new(ld::LD_MISC_DE_PNN::new(memory, pos)?),
                     0x60 => Box::new(io::in_h_c::IN_H_C::new()),
+                    0x61 => Box::new(io::out_c_h::OUT_C_H::new()),
                     0x68 => Box::new(io::in_l_c::IN_L_C::new()),
+                    0x69 => Box::new(io::out_c_l::OUT_C_L::new()),
                     0x6B => Box::new(ld::LD_MISC_HL_PNN::new(memory, pos)?),
                     0x78 => Box::new(io::in_a_c::IN_A_C::new()),
+                    0x79 => Box::new(io::out_c_a::OUT_C_A::new()),
                     0x7B => Box::new(ld::ld_sp_pnn::LD_MISC_SP_PNN::new(memory, pos)?),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(

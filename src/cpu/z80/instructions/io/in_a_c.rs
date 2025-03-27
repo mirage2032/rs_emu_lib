@@ -4,9 +4,7 @@ use std::fmt::Display;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
-use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
-use crate::memory::MemoryDevice;
 
 #[derive(Debug)]
 pub struct IN_A_C {
