@@ -58,9 +58,9 @@ fn main() {
     let stop_reason = emulator.run_with_callback(
         freq,
         Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {
-            // println!("{}", instruction);
+            println!("{}", instruction);
             //
-            // print_registers(emu.cpu.registers());
+            // print_registers(emu.cpu.registers);
         }),
         // 1
         freq as f64 / refresh_rate,

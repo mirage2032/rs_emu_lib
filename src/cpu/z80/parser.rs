@@ -96,6 +96,17 @@ impl InstructionParser<Z80> for Z80Parser {
             "di" => Box::new(di::DI::new()),
             "ei" => Box::new(ei::EI::new()),
             "neg" => Box::new(neg::NEG::new()),
+            "im" => match get_op(2)? {
+                "0" => Box::new(im0::IM0::new()),
+                "1" => Box::new(im1::IM1::new()),
+                "2" => Box::new(im2::IM2::new()),
+                _ => {
+                    return Err(ParseError::InvalidInstruction(format!(
+                        "Invalid IM operand: {}",
+                        get_op(2)?
+                    )))
+                }
+            },
             "bit" => {
                 let bit = get_op(2)?;
                 let destination = get_op(3)?;
@@ -2237,6 +2248,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x43 => Box::new(ld::ld_pnn_bc_misc::LD_PNN_BC::new(memory, pos)?),
                     0x44 => Box::new(neg::NEG::new()),
                     0x45 => Box::new(retn::RETN::new()),
+                    0x46 => Box::new(im0::IM0::new()),
                     0x47 => Box::new(ld::ld_i_a::LD_I_A::new()),
                     0x48 => Box::new(io::in_c_c::IN_C_C::new()),
                     0x49 => Box::new(io::out_c_c::OUT_C_C::new()),
@@ -2246,11 +2258,13 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x51 => Box::new(io::out_c_d::OUT_C_D::new()),
                     0x52 => Box::new(math::sbc::sbc_hl_de::SBC_HL_DE::new()),
                     0x53 => Box::new(ld::ld_pnn_de_misc::LD_PNN_DE::new(memory, pos)?),
+                    0x56 => Box::new(im1::IM1::new()),
                     0x57 => Box::new(ld::ld_a_i::LD_A_I::new()),
                     0x58 => Box::new(io::in_e_c::IN_E_C::new()),
                     0x59 => Box::new(io::out_c_e::OUT_C_E::new()),
                     0x5A => Box::new(math::adc::adc_hl_de::ADC_HL_DE::new()),
                     0x5B => Box::new(ld::LD_MISC_DE_PNN::new(memory, pos)?),
+                    0x5E => Box::new(im2::IM2::new()),
                     0x60 => Box::new(io::in_h_c::IN_H_C::new()),
                     0x61 => Box::new(io::out_c_h::OUT_C_H::new()),
                     0x62 => Box::new(math::sbc::sbc_hl_hl::SBC_HL_HL::new()),

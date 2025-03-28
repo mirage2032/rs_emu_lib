@@ -26,4 +26,7 @@ pub mod rrca;
 pub mod rst;
 pub mod scf;
 pub mod stack;
+pub mod im2;
+pub mod im0;
+pub mod im1;
 // pub mod im0;
