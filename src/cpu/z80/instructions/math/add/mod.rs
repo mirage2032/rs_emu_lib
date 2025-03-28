@@ -11,20 +11,20 @@ use crate::cpu::BaseInstruction;
 use crate::io::IO;
 use crate::memory::Memory;
 
+pub mod add_a_n;
 pub mod add_a_phl;
 pub mod add_a_pixd;
+pub mod add_a_piyd;
 pub mod add_hl_sp;
-pub mod add_ix_sp;
-pub mod add_a_n;
-mod generics;
 pub mod add_ix_bc;
 pub mod add_ix_de;
 pub mod add_ix_ix;
+pub mod add_ix_sp;
 pub mod add_iy_bc;
 pub mod add_iy_de;
 pub mod add_iy_iy;
 pub mod add_iy_sp;
-pub mod add_a_piyd;
+mod generics;
 
 generics::add_r_r::add_r_r!(a, b, "80", "A", "B");
 generics::add_r_r::add_r_r!(a, c, "81", "A", "C");

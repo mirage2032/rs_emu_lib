@@ -1,18 +1,18 @@
-use crate::memory::errors::MemoryReadError;
-use crate::cpu::z80::instructions::bit::res::fmt::Display;
-use crate::memory::MemoryDevice;
 use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::instructions::bit::res::generics::res_b_r::res_b_r;
+use crate::cpu::z80::instructions::bit::res::fmt::Display;
 use crate::cpu::z80::instructions::bit::res::generics::res_b_phl::res_b_phl;
+use crate::cpu::z80::instructions::bit::res::generics::res_b_pixd::res_b_pixd;
+use crate::cpu::z80::instructions::bit::res::generics::res_b_piyd::res_b_piyd;
+use crate::cpu::z80::instructions::bit::res::generics::res_b_r::res_b_r;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;
 use crate::cpu::ExecutableInstruction;
 use crate::io::IO;
+use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
+use crate::memory::MemoryDevice;
 use hex_literal::hex;
 use std::fmt;
-use crate::cpu::z80::instructions::bit::res::generics::res_b_pixd::res_b_pixd;
-use crate::cpu::z80::instructions::bit::res::generics::res_b_piyd::res_b_piyd;
 
 mod generics;
 
@@ -105,4 +105,3 @@ res_b_piyd!(4, "a6");
 res_b_piyd!(5, "ae");
 res_b_piyd!(6, "b6");
 res_b_piyd!(7, "be");
-

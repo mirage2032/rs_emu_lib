@@ -3,8 +3,10 @@ use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
+use crate::memory::errors::{
+    MemoryRWCommonError, MemoryReadError, MemorySaveLoadError, MemoryWriteError,
+};
 use errors::{FileError, MemoryRWError};
-use crate::memory::errors::{MemoryRWCommonError, MemoryReadError, MemorySaveLoadError, MemoryWriteError};
 
 pub mod errors;
 pub mod memdevices;
@@ -16,7 +18,7 @@ pub struct Memory {
     writecallback: Option<fn(u16, u8)>,
 }
 
-pub trait MemoryDevice: Send + Sync{
+pub trait MemoryDevice: Send + Sync {
     fn size(&self) -> usize;
     fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError>;
     fn read_16(&self, addr: u16) -> Result<u16, MemoryReadError> {
@@ -105,10 +107,7 @@ impl Memory {
         let mut data = Vec::new();
         for device in &self.data {
             for byte in 0..device.size() {
-                data.push(
-                    device
-                        .read_8(byte as u16)?,
-                );
+                data.push(device.read_8(byte as u16)?);
             }
         }
         Ok(data)
@@ -118,18 +117,19 @@ impl Memory {
         if fs::metadata(&filename).is_ok() {
             return Err(FileError::FileExists(filename).into());
         }
-        fs::write(
-            &filename, 
-            &self.save().map_err(MemoryRWError::MemRead)?
-        )
+        fs::write(&filename, &self.save().map_err(MemoryRWError::MemRead)?)
             .map_err(|_| FileError::FileCreate(filename))?;
         Ok(())
     }
 
-    pub fn load(&mut self, data: &[u8],force:bool) -> Result<(), Vec<MemoryWriteError>> {
+    pub fn load(&mut self, data: &[u8], force: bool) -> Result<(), Vec<MemoryWriteError>> {
         let write_8 = match force {
-            true => |device:&mut Box<dyn MemoryDevice>,offset,byte| device.write_8_force(offset,byte),
-            false => |device:&mut Box<dyn MemoryDevice>,offset,byte| device.write_8(offset,byte),
+            true => |device: &mut Box<dyn MemoryDevice>, offset, byte| {
+                device.write_8_force(offset, byte)
+            },
+            false => {
+                |device: &mut Box<dyn MemoryDevice>, offset, byte| device.write_8(offset, byte)
+            }
         };
         let mut result: Vec<MemoryWriteError> = vec![];
         let mut index: usize = 0;
@@ -141,7 +141,7 @@ impl Memory {
                     break;
                 }
                 let byte = data[index];
-                if let Err(err) = write_8(device,offset as u16, byte) {
+                if let Err(err) = write_8(device, offset as u16, byte) {
                     result.push(err);
                 }
                 offset += 1;
@@ -155,7 +155,11 @@ impl Memory {
         }
     }
 
-    pub fn load_file(&mut self, filename: &Path,force:bool) -> Result<(), Vec<MemorySaveLoadError>> {
+    pub fn load_file(
+        &mut self,
+        filename: &Path,
+        force: bool,
+    ) -> Result<(), Vec<MemorySaveLoadError>> {
         if fs::metadata(filename).is_err() {
             return Err(vec![
                 FileError::FileDoesNotExist(filename.to_path_buf()).into()
@@ -165,12 +169,14 @@ impl Memory {
             Ok(file) => {
                 let reader = BufReader::new(file);
                 self.load(
-                    &reader.bytes().map(
-                        |b|
-                            b.unwrap()
-                    ).collect::<Vec<u8>>(),
-                    force
-                ).map_err(|e| e.iter().map(|e| MemoryRWError::MemWrite(e.clone()).into()).collect())
+                    &reader.bytes().map(|b| b.unwrap()).collect::<Vec<u8>>(),
+                    force,
+                )
+                .map_err(|e| {
+                    e.iter()
+                        .map(|e| MemoryRWError::MemWrite(e.clone()).into())
+                        .collect()
+                })
             }
             Err(_) => Err(vec![FileError::FileCreate(filename.to_path_buf()).into()]),
         }

@@ -1,7 +1,7 @@
-use core::fmt;
-use std::fmt::Display;
 use crate::memory::errors::MemoryReadError;
+use core::fmt;
 use hex_literal::hex;
+use std::fmt::Display;
 
 use crate::cpu::instruction::InstructionCommon;
 use crate::cpu::z80::ExecutableInstruction;
@@ -13,17 +13,23 @@ use crate::memory::MemoryDevice;
 
 pub mod generics;
 pub mod ld_ix_nn;
-pub mod ld_sp_pnn;
-pub mod ld_pixd_n;
-pub mod ld_sp_hl;
-pub mod ld_sp_ix;
-pub mod ld_sp_nn;
-pub mod ld_pnn_ix;
 pub mod ld_ix_pnn;
 pub mod ld_iy_nn;
-pub mod ld_pnn_iy;
 pub mod ld_iy_pnn;
+pub mod ld_pixd_n;
+pub mod ld_pnn_bc_misc;
+pub mod ld_pnn_de_misc;
+pub mod ld_pnn_hl_misc;
+pub mod ld_pnn_ix;
+pub mod ld_pnn_iy;
+pub mod ld_pnn_sp;
+pub mod ld_sp_hl;
+pub mod ld_sp_ix;
 pub mod ld_sp_iy;
+pub mod ld_sp_nn;
+pub mod ld_sp_pnn;
+pub mod ld_i_a;
+pub mod ld_a_i;
 
 generics::ld_r_r::ld_r_r!(a, b, "78", "A", "B");
 generics::ld_r_r::ld_r_r!(a, c, "79", "A", "C");
@@ -123,7 +129,11 @@ generics::ld_prr_r::ld_prr_r!(hl, h, "74", "HL", "H");
 generics::ld_prr_r::ld_prr_r!(hl, l, "75", "HL", "L");
 
 generics::ld_pnn_r::ld_pnn_r!(a, "32", "A");
-generics::ld_pnn_rr::ld_pnn_rr!(hl, "22", "HL");
+generics::ld_pnn_rr::ld_pnn_rr!(hl, "22", "HL"); //posibly remove generic as it's only used once
+
+// generics::ld_pnn_rr::ld_pnn_rr!(bc, "ed 43", "BC");
+// generics::ld_pnn_rr::ld_pnn_rr!(de, "ed 53", "DE");
+// generics::ld_pnn_rr::ld_pnn_rr!(de, "ed 63", "DE");
 
 generics::ld_prr_n::ld_prr_n!(hl, "36", "HL");
 
@@ -158,5 +168,3 @@ generics::ld_r_piyd::ld_r_piyd!(e, "5e", "E");
 generics::ld_r_piyd::ld_r_piyd!(h, "66", "H");
 generics::ld_r_piyd::ld_r_piyd!(l, "6e", "L");
 generics::ld_r_piyd::ld_r_piyd!(a, "7e", "A");
-
-

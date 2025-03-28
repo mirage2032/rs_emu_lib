@@ -2,12 +2,12 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::cpu::z80::instructions::math::sbc::generics::sbc_r_r;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
-use crate::cpu::z80::instructions::math::sbc::generics::sbc_r_r;
 
 #[derive(Debug)]
 pub struct SBC_A_PIXD {

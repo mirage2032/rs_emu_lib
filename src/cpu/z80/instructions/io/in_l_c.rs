@@ -30,7 +30,7 @@ impl BaseInstruction for IN_L_C {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xed,0x68]
+        vec![0xed, 0x68]
     }
 }
 
@@ -38,7 +38,10 @@ impl ExecutableInstruction<Z80> for IN_L_C {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
         cpu.registers.gp.l = io.read(cpu.registers.gp.c)?;
         cpu.registers.gp.f.set_half_carry(false);
-        cpu.registers.gp.f.set_parity_overflow(cpu.registers.gp.l.count_ones() % 2 == 0);
+        cpu.registers
+            .gp
+            .f
+            .set_parity_overflow(cpu.registers.gp.l.count_ones() % 2 == 0);
         cpu.registers.gp.f.set_zero(cpu.registers.gp.l == 0);
         cpu.registers.gp.f.set_add_sub(false);
         cpu.registers.gp.f.set_sign(cpu.registers.gp.l & 0x80 != 0);

@@ -1,7 +1,7 @@
-pub mod bit_b_r;
 pub mod bit_b_phl;
 pub mod bit_b_pixd;
 pub mod bit_b_piyd;
+pub mod bit_b_r;
 
 macro_rules! bit_b_r_setf {
     ($reg1:expr, $bit:expr, $flags:expr) => {
@@ -11,7 +11,7 @@ macro_rules! bit_b_r_setf {
         $flags.set_add_sub(false);
         if $bit == 7 {
             $flags.set_sign(test_bit);
-        }else{
+        } else {
             $flags.set_sign(false);
         }
         $flags.set_parity_overflow(!test_bit);

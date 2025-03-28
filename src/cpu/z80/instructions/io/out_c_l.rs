@@ -30,7 +30,7 @@ impl BaseInstruction for OUT_C_L {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xed,0x69]
+        vec![0xed, 0x69]
     }
 }
 

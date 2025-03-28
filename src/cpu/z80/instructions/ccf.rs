@@ -36,7 +36,10 @@ impl BaseInstruction for CCF {
 
 impl ExecutableInstruction<Z80> for CCF {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.gp.f.set_half_carry(cpu.registers.gp.f.carry());
+        cpu.registers
+            .gp
+            .f
+            .set_half_carry(cpu.registers.gp.f.carry());
         cpu.registers.gp.f.set_carry(!cpu.registers.gp.f.carry());
         cpu.registers.gp.f.set_add_sub(false);
         Ok(())

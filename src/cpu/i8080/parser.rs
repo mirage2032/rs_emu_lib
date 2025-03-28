@@ -1,7 +1,7 @@
 use crate::cpu::i8080::I8080;
 use crate::cpu::instruction::{ExecutableInstruction, ParseError};
 use crate::cpu::InstructionParser;
-use crate::memory::{MemoryDevice};
+use crate::memory::MemoryDevice;
 
 #[derive(Debug, Default, Clone)]
 pub struct I8080Parser {}

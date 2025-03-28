@@ -4,9 +4,9 @@ use std::fmt::Display;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
+use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
-use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct DEC_PIXD {
@@ -32,7 +32,7 @@ impl DEC_PIXD {
 
 impl Display for DEC_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "DEC (IX+0x{:02x})",self.d)
+        write!(f, "DEC (IX+0x{:02x})", self.d)
     }
 }
 
@@ -47,7 +47,7 @@ impl BaseInstruction for DEC_PIXD {
 
 impl ExecutableInstruction<Z80> for DEC_PIXD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let mem_addr = cpu.registers.ix.wrapping_add(self.  d as u16);
+        let mem_addr = cpu.registers.ix.wrapping_add(self.d as u16);
         let val = memory.read_8(mem_addr)?;
         cpu.registers.gp.f.set_half_carry(val & 0x0f == 0);
         let val = val.wrapping_sub(1);

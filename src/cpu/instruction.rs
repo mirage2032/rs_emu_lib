@@ -53,9 +53,9 @@ pub trait InstructionParser<T: Cpu> {
         &self,
         instruction: &str,
     ) -> Result<Box<(dyn ExecutableInstruction<T>)>, ParseError>;
-    fn check_asm_lines(&self,lines: &[String]) -> Result<(), Vec<(u16, ParseError)>>{
+    fn check_asm_lines(&self, lines: &[String]) -> Result<(), Vec<(u16, ParseError)>> {
         let mut errors = Vec::new();
-        for (idx,line) in lines.iter().enumerate() {
+        for (idx, line) in lines.iter().enumerate() {
             match self.ins_from_asm_string(line) {
                 Ok(_) => (),
                 Err(e) => errors.push((idx as u16, e)),
@@ -68,7 +68,10 @@ pub trait InstructionParser<T: Cpu> {
         }
     }
 
-    fn ins_vec_from_asm_lines(&self,lines: &Vec<String>) -> Result<Vec<Box<(dyn ExecutableInstruction<T>)>>, ParseError> {
+    fn ins_vec_from_asm_lines(
+        &self,
+        lines: &Vec<String>,
+    ) -> Result<Vec<Box<(dyn ExecutableInstruction<T>)>>, ParseError> {
         let mut instructions = Vec::new();
         for line in lines {
             instructions.push(self.ins_from_asm_string(line)?);
@@ -127,7 +130,5 @@ macro_rules! pop_16 {
     }};
 }
 
-pub(crate) use pop_16;
-use crate::cpu::z80::parser::Z80Parser;
-use crate::cpu::z80::Z80;
 use crate::memory::errors::MemoryReadError;
+pub(crate) use pop_16;

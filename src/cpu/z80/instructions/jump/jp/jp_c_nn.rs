@@ -4,8 +4,8 @@ use std::fmt::Display;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
-use crate::memory::{Memory, MemoryDevice};
 use crate::memory::errors::MemoryReadError;
+use crate::memory::{Memory, MemoryDevice};
 
 #[derive(Debug)]
 pub struct JP_C_NN {
@@ -24,7 +24,7 @@ impl JP_C_NN {
     pub fn new_with_value(nn: u16) -> JP_C_NN {
         JP_C_NN {
             common: InstructionCommon::new(3, 10, true),
-            nn
+            nn,
         }
     }
 }

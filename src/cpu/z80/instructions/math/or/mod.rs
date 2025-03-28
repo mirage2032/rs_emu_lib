@@ -12,9 +12,9 @@ use crate::io::IO;
 use crate::memory::Memory;
 
 mod generics;
-pub mod or_pixd;
 pub mod or_n;
 pub mod or_phl;
+pub mod or_pixd;
 pub mod or_piyd;
 
 generics::or_r::or_r!(b, "b0", "B");

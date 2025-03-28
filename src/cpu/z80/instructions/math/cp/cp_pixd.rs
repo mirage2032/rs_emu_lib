@@ -2,12 +2,12 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::cpu::z80::instructions::math::cp::cp_r_setf;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
-use crate::cpu::z80::instructions::math::cp::cp_r_setf;
 
 #[derive(Debug)]
 pub struct CP_PIXD {

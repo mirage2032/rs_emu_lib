@@ -1,9 +1,9 @@
+pub mod call_c_nn;
+pub mod call_m_nn;
+pub mod call_nc_nn;
 pub mod call_nn;
 pub mod call_nz_nn;
-pub mod call_z_nn;
-pub mod call_nc_nn;
-pub mod call_c_nn;
-pub mod call_po_nn;
-pub mod call_pe_nn;
 pub mod call_p_nn;
-pub mod call_m_nn;
+pub mod call_pe_nn;
+pub mod call_po_nn;
+pub mod call_z_nn;

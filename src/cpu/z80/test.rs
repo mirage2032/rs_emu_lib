@@ -46,10 +46,13 @@ pub struct TestData {
 
 fn setup_z80(emulator: &mut Emulator<Z80>, data: &TestData) -> Result<(), String> {
     if let Some(ports) = &data.ports {
-        for (address, value, op) in ports{
+        for (address, value, op) in ports {
             let address_le = address.to_le_bytes();
-            if op == "r"{
-                emulator.io.write(address_le[0], *value).expect("Failed to write to port");
+            if op == "r" {
+                emulator
+                    .io
+                    .write(address_le[0], *value)
+                    .expect("Failed to write to port");
             }
         }
     }
@@ -88,10 +91,13 @@ fn setup_z80(emulator: &mut Emulator<Z80>, data: &TestData) -> Result<(), String
 
 fn assert_z80(emulator: &mut Emulator<Z80>, data: &TestData) {
     if let Some(ports) = &data.ports {
-        for (address, value, op) in ports{
+        for (address, value, op) in ports {
             let address_le = address.to_le_bytes();
-            if op == "w"{
-                let emu_val = emulator.io.read(address_le[0]).expect("Failed to read from port");
+            if op == "w" {
+                let emu_val = emulator
+                    .io
+                    .read(address_le[0])
+                    .expect("Failed to read from port");
                 assert_eq!(emu_val, *value);
             }
         }
@@ -104,7 +110,7 @@ fn assert_z80(emulator: &mut Emulator<Z80>, data: &TestData) {
     assert_eq!(registers.gp.d, state.d);
     assert_eq!(registers.gp.e, state.e);
     // assert_eq!(registers.gp.f, state.f.into());
-    let mut result_flags = registers.gp.f;//TODO: Fix unused flags
+    let mut result_flags = registers.gp.f; //TODO: Fix unused flags
     result_flags.set_bit3(false);
     result_flags.set_bit5(false);
     assert_eq!(result_flags, (state.f & 0b11010111).into());
@@ -121,14 +127,8 @@ fn assert_z80(emulator: &mut Emulator<Z80>, data: &TestData) {
     assert_eq!(registers.pc, state.pc);
     assert_eq!(registers.sp, state.sp);
     //assert_eq!(registers.other["wz"],BaseRegister::Bit16(test_state.wz));
-    assert_eq!(
-        emulator.io.iff1,
-        state.iff1 == 1
-    );
-    assert_eq!(
-        emulator.io.iff2,
-        state.iff2 == 1
-    );
+    assert_eq!(emulator.io.iff1, state.iff1 == 1);
+    assert_eq!(emulator.io.iff2, state.iff2 == 1);
     //assert_eq!(registers.other["im"],BaseRegister::Bit8(test_state.im));
     //assert_eq!(registers.other["ei"],BaseRegister::Bit8(test_state.ei));
     //assert_eq!(registers.other["p"],BaseRegister::Bit16(test_state.p));

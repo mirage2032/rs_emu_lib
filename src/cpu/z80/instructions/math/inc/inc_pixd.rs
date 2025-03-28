@@ -4,9 +4,9 @@ use std::fmt::Display;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
+use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
-use crate::memory::errors::MemoryReadError;
 
 #[derive(Debug)]
 pub struct INC_PIXD {
@@ -32,7 +32,7 @@ impl INC_PIXD {
 
 impl Display for INC_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "INC (IX+0x{:02x})",self.d)
+        write!(f, "INC (IX+0x{:02x})", self.d)
     }
 }
 

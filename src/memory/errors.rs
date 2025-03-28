@@ -23,7 +23,7 @@ pub enum MemoryRWCommonError {
 }
 
 #[derive(Debug, Error, Clone)]
-pub enum MemoryReadError{
+pub enum MemoryReadError {
     #[error("Memory read error: {0}")]
     CommonRWError(#[from] MemoryRWCommonError),
 }
@@ -34,7 +34,7 @@ impl From<MemoryReadError> for String {
     }
 }
 #[derive(Debug, Error, Clone)]
-pub enum MemoryWriteError{
+pub enum MemoryWriteError {
     #[error("Memory write error: {0}")]
     CommonRWError(#[from] MemoryRWCommonError),
     #[error("Attempted to write memory at read only address: d:{0} h:{0:x}")]

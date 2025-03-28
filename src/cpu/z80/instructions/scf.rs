@@ -39,8 +39,14 @@ impl ExecutableInstruction<Z80> for SCF {
         cpu.registers.gp.f.set_carry(true);
         cpu.registers.gp.f.set_half_carry(false);
         cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.gp.f.set_bit3(((cpu.registers.gp.f.into_bits() | cpu.registers.gp.a) >> 3) & 1 == 1);
-        cpu.registers.gp.f.set_bit5(((cpu.registers.gp.f.into_bits() | cpu.registers.gp.a) >> 5) & 1 == 1);
+        cpu.registers
+            .gp
+            .f
+            .set_bit3(((cpu.registers.gp.f.into_bits() | cpu.registers.gp.a) >> 3) & 1 == 1);
+        cpu.registers
+            .gp
+            .f
+            .set_bit5(((cpu.registers.gp.f.into_bits() | cpu.registers.gp.a) >> 5) & 1 == 1);
         // cpu.registers.gp.f.set_bit3((((cpu.registers.gp.f.into_bits() | cpu.registers.gp.a) & 0x08) >> 3)==1);
         // cpu.registers.gp.f.set_bit5((((cpu.registers.gp.f.into_bits() | cpu.registers.gp.a) & 0x20) >> 5)==1);
         Ok(())

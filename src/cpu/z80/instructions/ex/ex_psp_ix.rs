@@ -50,6 +50,6 @@ mod tests {
     use crate::cpu::test::*;
     use crate::cpu::z80::test::*;
 
-    test_z80!("dd","e3");
+    test_z80!("dd", "e3");
     test_instruction_parse!(EX_PSP_IX);
 }

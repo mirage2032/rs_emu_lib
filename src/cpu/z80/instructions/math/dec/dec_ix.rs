@@ -30,7 +30,7 @@ impl BaseInstruction for DEC_IX {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xdd,0x2b]
+        vec![0xdd, 0x2b]
     }
 }
 

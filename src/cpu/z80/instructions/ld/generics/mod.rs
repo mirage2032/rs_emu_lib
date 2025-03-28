@@ -12,6 +12,6 @@ pub mod ld_rr_pnn;
 
 pub mod ld_misc_rr_pnn;
 pub mod ld_pixd_r;
+pub mod ld_piyd_r;
 pub mod ld_r_pixd;
 pub mod ld_r_piyd;
-pub mod ld_piyd_r;

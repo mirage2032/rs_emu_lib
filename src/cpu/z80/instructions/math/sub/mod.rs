@@ -12,9 +12,9 @@ use crate::io::IO;
 use crate::memory::Memory;
 
 mod generics;
-pub mod sub_pixd;
 pub mod sub_n;
 pub mod sub_phl;
+pub mod sub_pixd;
 pub mod sub_piyd;
 
 generics::sub_r::sub_r!(b, "90", "B");

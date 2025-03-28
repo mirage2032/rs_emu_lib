@@ -4,7 +4,7 @@ use std::fmt::Display;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
-use crate::memory::{Memory};
+use crate::memory::Memory;
 
 #[derive(Debug)]
 pub struct JP_PHL {
@@ -12,7 +12,7 @@ pub struct JP_PHL {
 }
 
 impl JP_PHL {
-    pub fn new() -> JP_PHL{
+    pub fn new() -> JP_PHL {
         JP_PHL {
             common: InstructionCommon::new(1, 4, false),
         }

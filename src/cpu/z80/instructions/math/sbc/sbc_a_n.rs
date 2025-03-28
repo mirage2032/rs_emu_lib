@@ -5,8 +5,8 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::instructions::math::sbc::generics::sbc_r_r;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
-use crate::memory::{Memory, MemoryDevice};
 use crate::memory::errors::MemoryReadError;
+use crate::memory::{Memory, MemoryDevice};
 
 #[derive(Debug)]
 pub struct SBC_A_N {

@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex,Weak};
 use iodevice::IODevice;
 use iodevice::IORegister;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex, Weak};
 
 pub mod iodevice;
 
@@ -66,7 +66,8 @@ impl IO {
         device
             .upgrade()
             .ok_or("Attempting to read from removed device")?
-            .lock().expect("Failed to get IO lock")
+            .lock()
+            .expect("Failed to get IO lock")
             .read(port)
     }
 
@@ -78,7 +79,8 @@ impl IO {
         device
             .upgrade()
             .ok_or("Attempting to write to removed device")?
-            .lock().expect("Failed to get IO lock")
+            .lock()
+            .expect("Failed to get IO lock")
             .write(port, data)
     }
 
@@ -131,7 +133,13 @@ impl IO {
     pub fn get_interrupt(&self) -> Option<(InterruptType, usize)> {
         let mut min_im = None;
         for (i, device) in self.devices.iter().enumerate() {
-            match (device.lock().expect("Failed to get IO lock").will_interrupt(), &min_im) {
+            match (
+                device
+                    .lock()
+                    .expect("Failed to get IO lock")
+                    .will_interrupt(),
+                &min_im,
+            ) {
                 (Some(InterruptType::NMI), _) => {
                     return Some((InterruptType::NMI, i));
                 }

@@ -5,8 +5,8 @@ use crate::cpu::instruction::push_16;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
-use crate::memory::{Memory, MemoryDevice};
 use crate::memory::errors::MemoryReadError;
+use crate::memory::{Memory, MemoryDevice};
 
 #[derive(Debug)]
 pub struct CALL_P_NN {

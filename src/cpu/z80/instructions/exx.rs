@@ -1,10 +1,10 @@
-use std::fmt;
-use std::fmt::Display;
-use std::mem::swap;
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::Memory;
+use std::fmt;
+use std::fmt::Display;
+use std::mem::swap;
 
 #[derive(Debug)]
 pub struct EXX {
