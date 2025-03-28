@@ -29,4 +29,6 @@ pub mod stack;
 pub mod im2;
 pub mod im0;
 pub mod im1;
+pub mod ldir;
+pub mod ldi;
 // pub mod im0;

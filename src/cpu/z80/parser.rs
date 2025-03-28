@@ -96,6 +96,8 @@ impl InstructionParser<Z80> for Z80Parser {
             "di" => Box::new(di::DI::new()),
             "ei" => Box::new(ei::EI::new()),
             "neg" => Box::new(neg::NEG::new()),
+            "ldi" => Box::new(ldi::LDI::new()),
+            "ldir" => Box::new(ldir::LDIR::new()),
             "im" => match get_op(2)? {
                 "0" => Box::new(im0::IM0::new()),
                 "1" => Box::new(im1::IM1::new()),
@@ -2279,6 +2281,8 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x79 => Box::new(io::out_c_a::OUT_C_A::new()),
                     0x7A => Box::new(math::adc::adc_hl_sp::ADC_HL_SP::new()),
                     0x7B => Box::new(ld::ld_sp_pnn::LD_MISC_SP_PNN::new(memory, pos)?),
+                    0xA0 => Box::new(ldi::LDI::new()),
+                    0xB0 => Box::new(ldir::LDIR::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid MISC instruction: 0x{:02x}",
