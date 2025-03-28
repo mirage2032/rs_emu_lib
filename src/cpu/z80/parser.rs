@@ -727,8 +727,8 @@ impl InstructionParser<Z80> for Z80Parser {
                         ("l", "(hl)") => Box::new(ld::LD_L_PHL::new()),
                         ("l", "a") => Box::new(ld::LD_L_A::new()),
 
-                        ("i","a") => Box::new(ld::ld_i_a::LD_I_A::new()),
-                        ("a","i") => Box::new(ld::ld_a_i::LD_A_I::new()),
+                        ("i", "a") => Box::new(ld::ld_i_a::LD_I_A::new()),
+                        ("a", "i") => Box::new(ld::ld_a_i::LD_A_I::new()),
 
                         ("sp", "hl") => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
                         ("sp", "ix") => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
@@ -914,41 +914,33 @@ impl InstructionParser<Z80> for Z80Parser {
             }
             "adc" => {
                 let destination = get_op(2)?;
-                match destination {
-                    "a" => {
-                        let source = get_op(3)?;
-                        match is_val(source) {
-                            Ok(ImmediateValue::Val8(val)) => {
-                                Box::new(math::adc::adc_a_n::ADC_A_N::new_with_value(val))
-                            }
-                            Ok(ImmediateValue::OffsetIX(offset)) => {
-                                Box::new(math::adc::adc_a_pixd::ADC_A_PIXD::new_with_value(offset))
-                            }
-                            Ok(ImmediateValue::OffsetIY(offset)) => {
-                                Box::new(math::adc::adc_a_piyd::ADC_A_PIYD::new_with_value(offset))
-                            }
-                            _ => match source {
-                                "a" => Box::new(math::adc::ADC_A_A::new()),
-                                "b" => Box::new(math::adc::ADC_A_B::new()),
-                                "c" => Box::new(math::adc::ADC_A_C::new()),
-                                "d" => Box::new(math::adc::ADC_A_D::new()),
-                                "e" => Box::new(math::adc::ADC_A_E::new()),
-                                "h" => Box::new(math::adc::ADC_A_H::new()),
-                                "l" => Box::new(math::adc::ADC_A_L::new()),
-                                "(hl)" => Box::new(math::adc::adc_a_phl::ADC_A_PHL::new()),
-                                _ => {
-                                    return Err(ParseError::InvalidInstruction(format!(
-                                        "Invalid source \"{0}\"",
-                                        source
-                                    )))
-                                }
-                            },
-                        }
+                let source = get_op(3)?;
+                match (destination, is_val(source), source) {
+                    ("a", Ok(ImmediateValue::Val8(val)), _) => {
+                        Box::new(math::adc::adc_a_n::ADC_A_N::new_with_value(val))
                     }
+                    ("a", Ok(ImmediateValue::OffsetIX(offset)), _) => {
+                        Box::new(math::adc::adc_a_pixd::ADC_A_PIXD::new_with_value(offset))
+                    }
+                    ("a", Ok(ImmediateValue::OffsetIY(offset)), _) => {
+                        Box::new(math::adc::adc_a_piyd::ADC_A_PIYD::new_with_value(offset))
+                    }
+                    ("a", Err(_), "a") => Box::new(math::adc::ADC_A_A::new()),
+                    ("a", Err(_), "b") => Box::new(math::adc::ADC_A_B::new()),
+                    ("a", Err(_), "c") => Box::new(math::adc::ADC_A_C::new()),
+                    ("a", Err(_), "d") => Box::new(math::adc::ADC_A_D::new()),
+                    ("a", Err(_), "e") => Box::new(math::adc::ADC_A_E::new()),
+                    ("a", Err(_), "h") => Box::new(math::adc::ADC_A_H::new()),
+                    ("a", Err(_), "l") => Box::new(math::adc::ADC_A_L::new()),
+                    ("a", Err(_), "(hl)") => Box::new(math::adc::adc_a_phl::ADC_A_PHL::new()),
+                    ("hl", Err(_), "bc") => Box::new(math::adc::adc_hl_bc::ADC_HL_BC::new()),
+                    ("hl", _, "de") => Box::new(math::adc::adc_hl_de::ADC_HL_DE::new()),
+                    ("hl", _, "hl") => Box::new(math::adc::adc_hl_hl::ADC_HL_HL::new()),
+                    ("hl", _, "sp") => Box::new(math::adc::adc_hl_sp::ADC_HL_SP::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
-                            "Invalid destination \"{0}\"",
-                            destination
+                            "Invalid operands \"{0}\" and \"{1}\"",
+                            destination, source
                         )))
                     }
                 }
@@ -2248,6 +2240,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x47 => Box::new(ld::ld_i_a::LD_I_A::new()),
                     0x48 => Box::new(io::in_c_c::IN_C_C::new()),
                     0x49 => Box::new(io::out_c_c::OUT_C_C::new()),
+                    0x4A => Box::new(math::adc::adc_hl_bc::ADC_HL_BC::new()),
                     0x4B => Box::new(ld::LD_MISC_BC_PNN::new(memory, pos)?),
                     0x50 => Box::new(io::in_d_c::IN_D_C::new()),
                     0x51 => Box::new(io::out_c_d::OUT_C_D::new()),
@@ -2256,6 +2249,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x57 => Box::new(ld::ld_a_i::LD_A_I::new()),
                     0x58 => Box::new(io::in_e_c::IN_E_C::new()),
                     0x59 => Box::new(io::out_c_e::OUT_C_E::new()),
+                    0x5A => Box::new(math::adc::adc_hl_de::ADC_HL_DE::new()),
                     0x5B => Box::new(ld::LD_MISC_DE_PNN::new(memory, pos)?),
                     0x60 => Box::new(io::in_h_c::IN_H_C::new()),
                     0x61 => Box::new(io::out_c_h::OUT_C_H::new()),
@@ -2263,11 +2257,13 @@ impl InstructionParser<Z80> for Z80Parser {
                     // 0x63 => Box::new(ld::ld_pnn_hl_misc::LD_PNN_HL::new(memory, pos)?),
                     0x68 => Box::new(io::in_l_c::IN_L_C::new()),
                     0x69 => Box::new(io::out_c_l::OUT_C_L::new()),
+                    0x6A => Box::new(math::adc::adc_hl_hl::ADC_HL_HL::new()),
                     0x6B => Box::new(ld::LD_MISC_HL_PNN::new(memory, pos)?),
                     0x72 => Box::new(math::sbc::sbc_hl_sp::SBC_HL_SP::new()),
                     0x73 => Box::new(ld::ld_pnn_sp::LD_PNN_SP::new(memory, pos)?),
                     0x78 => Box::new(io::in_a_c::IN_A_C::new()),
                     0x79 => Box::new(io::out_c_a::OUT_C_A::new()),
+                    0x7A => Box::new(math::adc::adc_hl_sp::ADC_HL_SP::new()),
                     0x7B => Box::new(ld::ld_sp_pnn::LD_MISC_SP_PNN::new(memory, pos)?),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(

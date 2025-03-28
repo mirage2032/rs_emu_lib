@@ -17,6 +17,10 @@ pub mod adc_a_n;
 pub mod adc_a_phl;
 pub mod adc_a_pixd;
 pub mod adc_a_piyd;
+pub mod adc_hl_bc;
+pub mod adc_hl_de;
+pub mod adc_hl_hl;
+pub mod adc_hl_sp;
 
 generics::adc_r_r::adc_r_r!(a, b, "88", "A", "B");
 generics::adc_r_r::adc_r_r!(a, c, "89", "A", "C");
