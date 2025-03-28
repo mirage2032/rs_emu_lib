@@ -44,7 +44,7 @@ fn main() {
     memory.add_device(Box::new(dsp));
     memory.add_device(Box::new(RAM::new(0x20000 - res.0*res.1 - 0x1000)));
     let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
-    let rom_path: PathBuf = PathBuf::from("roms/color2.bin");
+    let rom_path: PathBuf = PathBuf::from("roms/main.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
     match emulator.memory.load_file(&rom_path,true) {
         Ok(_) => {}
@@ -54,7 +54,7 @@ fn main() {
     };
     println!("Running emulator");
     // print_registers(emulator.cpu.registers());
-    let freq = 3_500_000.0;
+    let freq = 13_500_000.0;
     let stop_reason = emulator.run_with_callback(
         freq,
         Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {
