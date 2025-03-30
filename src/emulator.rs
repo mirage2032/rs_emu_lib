@@ -108,7 +108,7 @@ impl<T: Cpu> Emulator<T> {
                 // println!("Sleeping for {:?}", difference);
                 std::thread::sleep(difference)
             } else {
-                println!("Warning: Emulator is running too slow");
+                println!("Warning: Emulator is unable to keep up required frequency of {}Hz", frequency);
             }
         }
     }

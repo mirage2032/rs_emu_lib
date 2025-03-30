@@ -7,7 +7,7 @@ use emu_lib::cpu::{
 use emu_lib::cpu::instruction::ExecutableInstruction;
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
-use emu_lib::memory::{errors::MemoryRWError, memdevices::RAM, Memory};
+use emu_lib::memory::{memdevices::RAM, Memory};
 
 mod memdsp;
 use memdsp::MemViz;
@@ -40,9 +40,9 @@ fn main() {
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
     let mut memory = Memory::new();
-    memory.add_device(Box::new(RAM::new(0x2000)));
-    memory.add_device(Box::new(dsp));
-    memory.add_device(Box::new(RAM::new(0x20000 - res.0*res.1 - 0x1000)));
+    memory.add_device(Box::new(RAM::new(0x3000)));
+    memory.add_device(Box::new(dsp));//uses 256x192=C000 space
+    memory.add_device(Box::new(RAM::new(0x10000- 0x3000 - 0xC000)));
     let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
     let rom_path: PathBuf = PathBuf::from("roms/main.bin");
     println!("Loading rom: {}", rom_path.to_str().unwrap());
@@ -54,7 +54,7 @@ fn main() {
     };
     println!("Running emulator");
     // print_registers(emulator.cpu.registers());
-    let freq = 13_500_000.0;
+    let freq = 3_500_000.0;
     let stop_reason = emulator.run_with_callback(
         freq,
         Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {
