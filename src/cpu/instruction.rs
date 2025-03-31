@@ -22,7 +22,7 @@ impl InstructionCommon {
     }
 }
 
-pub trait BaseInstruction: Display + Debug {
+pub trait BaseInstruction: Display + Debug + Send + Sync + 'static {
     fn common(&self) -> &InstructionCommon;
     fn to_bytes(&self) -> Vec<u8>;
 }
