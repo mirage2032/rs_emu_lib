@@ -26,7 +26,7 @@ macro_rules! ld_misc_rr_pnn {
 
             impl Display for [<LD_MISC_ $cdest _PNN>] {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    write!(f, "LD {}, ({:04})", $cdest, self.nn)
+                    write!(f, "LD {}, (0x{:04X})", $cdest, self.nn)
                 }
             }
 
