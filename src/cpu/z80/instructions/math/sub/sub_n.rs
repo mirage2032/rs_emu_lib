@@ -32,7 +32,7 @@ impl SUB_N {
 
 impl Display for SUB_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SUB 0x{:02x}", self.n)
+        write!(f, "SUB 0x{:02X}", self.n)
     }
 }
 

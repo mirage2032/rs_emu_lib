@@ -31,7 +31,7 @@ impl LD_IX_NN {
 
 impl Display for LD_IX_NN {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD IX, 0x{:04x}", self.nn)
+        write!(f, "LD IX, 0x{:04X}", self.nn)
     }
 }
 

@@ -31,7 +31,7 @@ impl XOR_N {
 
 impl Display for XOR_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "XOR 0x{:02x}", self.n)
+        write!(f, "XOR 0x{:02X}", self.n)
     }
 }
 

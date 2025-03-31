@@ -32,7 +32,7 @@ impl CALL_P_NN {
 
 impl Display for CALL_P_NN {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "CALL P, 0x{:04x}", self.nn)
+        write!(f, "CALL P, 0x{:04X}", self.nn)
     }
 }
 

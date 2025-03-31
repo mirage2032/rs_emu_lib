@@ -32,7 +32,7 @@ impl OR_PIYD {
 
 impl Display for OR_PIYD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "OR (IY+0x{:02x})", self.d)
+        write!(f, "OR (IY+0x{:02X})", self.d)
     }
 }
 

@@ -32,7 +32,7 @@ impl SBC_A_N {
 
 impl Display for SBC_A_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SBC A, 0x{:02x}", self.n)
+        write!(f, "SBC A, 0x{:02X}", self.n)
     }
 }
 

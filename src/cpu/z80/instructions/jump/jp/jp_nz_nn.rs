@@ -31,7 +31,7 @@ impl JP_NZ_NN {
 
 impl Display for JP_NZ_NN {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "JP NZ, 0x{:04x}", self.nn)
+        write!(f, "JP NZ, 0x{:04X}", self.nn)
     }
 }
 

@@ -32,7 +32,7 @@ impl OUT_N_A {
 
 impl Display for OUT_N_A {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "OUT 0x{:02x}, A", self.n)
+        write!(f, "OUT 0x{:02X}, A", self.n)
     }
 }
 

@@ -31,7 +31,7 @@ impl LD_PNN_SP {
 
 impl Display for LD_PNN_SP {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD (0x{:04x}), SP", self.nn)
+        write!(f, "LD (0x{:04X}), SP", self.nn)
     }
 }
 

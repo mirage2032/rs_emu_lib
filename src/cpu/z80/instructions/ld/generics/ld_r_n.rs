@@ -26,7 +26,7 @@ macro_rules! ld_r_n {
 
             impl Display for [<LD_ $cdest _N>] {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                    write!(f, "LD {}, 0x{:02x}", $cdest, self.n)
+                    write!(f, "LD {}, 0x{:02X}", $cdest, self.n)
                 }
             }
 

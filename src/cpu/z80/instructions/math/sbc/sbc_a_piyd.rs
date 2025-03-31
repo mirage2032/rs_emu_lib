@@ -33,7 +33,7 @@ impl SBC_A_PIYD {
 
 impl Display for SBC_A_PIYD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SBC A, (IY+0x{:02x})", self.d as u8)
+        write!(f, "SBC A, (IY+0x{:02X})", self.d as u8)
     }
 }
 

@@ -31,7 +31,7 @@ impl DJNZ_D {
 
 impl Display for DJNZ_D {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "DJNZ 0x{:02x}", self.d)
+        write!(f, "DJNZ 0x{:02X}", self.d)
     }
 }
 

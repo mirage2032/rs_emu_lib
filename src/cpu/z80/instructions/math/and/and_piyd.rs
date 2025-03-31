@@ -32,7 +32,7 @@ impl AND_PIYD {
 
 impl Display for AND_PIYD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "AND (IY+0x{:02x})", self.d)
+        write!(f, "AND (IY+0x{:02X})", self.d)
     }
 }
 

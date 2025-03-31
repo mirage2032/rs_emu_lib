@@ -32,7 +32,7 @@ impl ADC_A_N {
 
 impl Display for ADC_A_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ADC A, 0x{:02x}", self.n)
+        write!(f, "ADC A, 0x{:02X}", self.n)
     }
 }
 

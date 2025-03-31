@@ -32,7 +32,7 @@ impl INC_PIXD {
 
 impl Display for INC_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "INC (IX+0x{:02x})", self.d)
+        write!(f, "INC (IX+0x{:02X})", self.d)
     }
 }
 

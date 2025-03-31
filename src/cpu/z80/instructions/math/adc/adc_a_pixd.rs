@@ -33,7 +33,7 @@ impl ADC_A_PIXD {
 
 impl Display for ADC_A_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ADC A, (IX+0x{:02x})", self.d as u8)
+        write!(f, "ADC A, (IX+0x{:02X})", self.d as u8)
     }
 }
 

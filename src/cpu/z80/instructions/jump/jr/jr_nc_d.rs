@@ -31,7 +31,7 @@ impl JR_NC_D {
 
 impl Display for JR_NC_D {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "JR NC, 0x{:02x}", self.d)
+        write!(f, "JR NC, 0x{:02X}", self.d)
     }
 }
 

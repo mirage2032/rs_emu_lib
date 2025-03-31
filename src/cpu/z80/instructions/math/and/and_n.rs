@@ -32,7 +32,7 @@ impl AND_N {
 
 impl Display for AND_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "AND 0x{:02x}", self.n)
+        write!(f, "AND 0x{:02X}", self.n)
     }
 }
 

@@ -32,7 +32,7 @@ impl OR_N {
 
 impl Display for OR_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "OR 0x{:02x}", self.n)
+        write!(f, "OR 0x{:02X}", self.n)
     }
 }
 

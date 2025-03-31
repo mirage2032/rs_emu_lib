@@ -32,7 +32,7 @@ impl CP_N {
 
 impl Display for CP_N {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "CP 0x{:02x}", self.n)
+        write!(f, "CP 0x{:02X}", self.n)
     }
 }
 

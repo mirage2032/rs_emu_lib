@@ -32,7 +32,7 @@ impl XOR_PIXD {
 
 impl Display for XOR_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "XOR (IX+0x{:02x})", self.d as u8)
+        write!(f, "XOR (IX+0x{:02X})", self.d as u8)
     }
 }
 

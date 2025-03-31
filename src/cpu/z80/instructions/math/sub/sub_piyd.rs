@@ -32,7 +32,7 @@ impl SUB_PIYD {
 
 impl Display for SUB_PIYD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SUB (IY+0x{:02x})", self.d)
+        write!(f, "SUB (IY+0x{:02X})", self.d)
     }
 }
 

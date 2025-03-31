@@ -32,7 +32,7 @@ impl AND_PIXD {
 
 impl Display for AND_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "AND (IX+0x{:02x})", self.d)
+        write!(f, "AND (IX+0x{:02X})", self.d)
     }
 }
 

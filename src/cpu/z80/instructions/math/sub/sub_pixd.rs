@@ -32,7 +32,7 @@ impl SUB_PIXD {
 
 impl Display for SUB_PIXD {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SUB (IX+0x{:02x})", self.d)
+        write!(f, "SUB (IX+0x{:02X})", self.d)
     }
 }
 
