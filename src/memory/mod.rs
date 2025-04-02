@@ -2,7 +2,7 @@ use std::fs;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
-
+use bincode::Options;
 use crate::memory::errors::{
     MemoryRWCommonError, MemoryReadError, MemorySaveLoadError, MemoryWriteError,
 };
@@ -82,6 +82,11 @@ impl Memory {
             changes.clear();
         }
     }
+    
+    pub fn get_changes(&self) -> &Option<Vec<u16>> {
+        &self.changes
+    }
+    
     pub fn add_write_callback(&mut self, callback: Option<fn(u16, u8)>) {
         self.writecallback = callback;
     }
