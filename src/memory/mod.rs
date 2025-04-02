@@ -83,6 +83,15 @@ impl Memory {
         }
     }
     
+    pub fn clear_change(&mut self, addr: u16) {
+        //remove addr
+        if let Some(changes) = &mut self.changes {
+            if let Some(pos) = changes.iter().position(|&x| x == addr) {
+                changes.remove(pos);
+            }
+        }
+    }
+    
     pub fn get_changes(&self) -> &Option<Vec<u16>> {
         &self.changes
     }
