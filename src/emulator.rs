@@ -26,6 +26,7 @@ pub struct Emulator<T: Cpu> {
     pub breakpoints: Vec<u16>,
     pub io: IO,
     pub cycles: usize,
+    pub instructions: usize,
 }
 
 impl<T: Cpu+'static> Default for Emulator<T> {
@@ -36,6 +37,7 @@ impl<T: Cpu+'static> Default for Emulator<T> {
             breakpoints: Vec::new(),
             io: IO::default(),
             cycles: 0,
+            instructions: 0,
         }
     }
 }
@@ -48,6 +50,7 @@ impl<T: Cpu +'static> Emulator<T> {
             breakpoints: Vec::new(),
             io: IO::default(),
             cycles: 0,
+            instructions: 0,
         }
     }
     pub fn step(&mut self) -> Result<Box<dyn ExecutableInstruction<T>>, String> {
@@ -58,6 +61,7 @@ impl<T: Cpu +'static> Emulator<T> {
         let instruction = self.cpu.step(&mut self.memory, &mut self.io);
         if let Ok(instruction) = &instruction {
             self.cycles += instruction.common().cycles as usize;
+            self.instructions += 1;
         }
         instruction
     }
