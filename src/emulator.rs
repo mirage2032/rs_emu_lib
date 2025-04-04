@@ -151,4 +151,8 @@ impl<T: Cpu +'static> Emulator<T> {
         self.breakpoints = state.breakpoints;
         Ok(())
     }
+    pub fn reset_counters(&mut self) {
+        self.cycles=0;
+        self.instructions=0;
+    }
 }
