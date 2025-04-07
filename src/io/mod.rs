@@ -22,23 +22,6 @@ pub struct IO {
     pub iff2: bool,
 }
 
-impl IO {
-    pub fn new() -> IO {
-        let registers: Arc<Mutex<Box<dyn IODevice>>> =
-            Arc::new(Mutex::new(Box::new(IORegister::default())));
-        let mut port_map = HashMap::new();
-        for port in registers.lock().expect("Failed to get IO Lock").ports() {
-            port_map.insert(port, Arc::downgrade(&registers));
-        }
-        IO {
-            port_map,
-            devices: vec![registers],
-            iff1: false,
-            iff2: false,
-        }
-    }
-}
-
 impl Default for IO {
     fn default() -> IO {
         let registers: Arc<Mutex<Box<dyn IODevice>>> =
@@ -57,7 +40,26 @@ impl Default for IO {
 }
 
 impl IO {
+    pub fn new() -> IO{
+        IO{
+            port_map: HashMap::new(),
+            devices: Vec::new(),
+            iff1: false,
+            iff2: false,
+        }
+    }
     pub fn read(&self, port: u8) -> Result<u8, &str> {
+        // let device: Weak<Mutex<Box<dyn IODevice>>> = self
+        //     .port_map
+        //     .get(&port)
+        //     .ok_or("Attempting to read from unconnected port")?
+        //     .clone();
+        // device
+        //     .upgrade()
+        //     .ok_or("Attempting to read from removed device")?
+        //     .lock()
+        //     .expect("Failed to get IO lock")
+        //     .read(port)
         let device: Weak<Mutex<Box<dyn IODevice>>> = self
             .port_map
             .get(&port)

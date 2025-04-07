@@ -8,6 +8,8 @@ use emu_lib::cpu::{
 use emu_lib::cpu::instruction::ExecutableInstruction;
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
+use emu_lib::io::IO;
+use emu_lib::io::iodevice::IORegister;
 use emu_lib::memory::{memdevices::RAM, Memory};
 
 mod memdsp;
@@ -35,11 +37,13 @@ fn print_registers(registers: &AllRegisters) {
 
 fn main() {
     let refresh_rate = 50.08;
-    let dsp = MemViz::new(4.0, refresh_rate);
+    let dsp = MemViz::new(2.0, refresh_rate);
     let bitmap_mem = dsp.bmp_buffer();
     let bitmap_len = bitmap_mem.size();
     let attribute_mem = dsp.attribute_buffer();
     let attribute_len = attribute_mem.size();
+    let border_io = dsp.border_io();
+    let timer_io = dsp.timer_io();
     // dsp.randomize();
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
@@ -49,6 +53,18 @@ fn main() {
     memory.add_device(attribute_mem);
     memory.add_device(Box::new(RAM::new(0x10000-bitmap_len-attribute_len-0x4000)));
     let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
+    let mut io = IO::new();
+    //vec with all 0..FF except 0xFE
+    let mut other_io = vec![];
+    for v in 0..0x100 {
+        if v!=0xFE {
+            other_io.push(v as u8);
+        }
+    }
+    io.add_device(Box::new(IORegister::new(other_io))).unwrap();
+    io.add_device(timer_io).expect("Failed to add device");
+    io.add_device(border_io).expect("Failed to add device");
+    emulator.io = io;
     let rom_path: PathBuf = PathBuf::from("roms/zx48.rom");
     // let z80_file = include_bytes!("../roms/f.z80");
     //a .z80 file, byte 5 and 6 of the file store the pc
@@ -72,6 +88,7 @@ fn main() {
         freq,
         Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {
             // println!("{}", instruction);
+            // println!("{:?}",emu.io.read(0xFE));
             //
             // print_registers(emu.cpu.registers);
         }),

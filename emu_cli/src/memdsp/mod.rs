@@ -4,8 +4,10 @@ use std::thread;
 
 use emu_lib::memory::MemoryDevice;
 use rand::random;
+use emu_lib::io::InterruptType;
+use emu_lib::io::iodevice::IODevice;
 use emu_lib::memory::errors::{MemoryRWCommonError, MemoryReadError, MemoryWriteError};
-use crate::memdsp::fbzxdisplay::{zx_height, zx_width, FBZXDisplay};
+use crate::memdsp::fbzxdisplay::{zx_inner_height, zx_inner_width, FBZXDisplay};
 
 mod fbdisplay;
 mod fbzxdisplay;
@@ -20,22 +22,30 @@ pub struct MemViz {
     attribute_buffer: MemBuffer,
     event_sender: mpsc::Sender<Event>,
     thread: Option<thread::JoinHandle<()>>,
+    border_io: DisplayIO,
+    timer_io: TimerIO
 }
 
 impl MemViz {
     pub fn new(scale: f32,refresh_rate:f64) -> MemViz {
         let (event_sender, event_receiver) = mpsc::channel();
-        let bitmap_buffer = MemBuffer::new(zx_width * zx_height / 8);
+        let bitmap_buffer = MemBuffer::new(zx_inner_width * zx_inner_height / 8);
         let bitmap_buffer_clone = bitmap_buffer.clone();
-        let attribute_buffer = MemBuffer::new(zx_width * zx_height / (8 * 8));
+        let attribute_buffer = MemBuffer::new(zx_inner_width * zx_inner_height / (8 * 8));
         let attribute_buffer_clone = attribute_buffer.clone();
+        let border_io = DisplayIO{val:Arc::new(Mutex::new(0))};
+        let border_io_clone = border_io.clone();
+        let timer_io = TimerIO{should_interrupt:Arc::new(Mutex::new(false))};
+        let timer_io_clone = timer_io.clone();
         let thread = Some(thread::spawn(move || {
             let mut fbdisplay = FBZXDisplay::new(
                 bitmap_buffer_clone,
                 attribute_buffer_clone,
+                border_io_clone,
+                timer_io_clone,
                 scale,
                 event_receiver,
-                refresh_rate,
+                refresh_rate
             );
             fbdisplay.run();
         }));
@@ -44,6 +54,9 @@ impl MemViz {
             attribute_buffer,
             event_sender,
             thread,
+            border_io,
+            timer_io
+
         }
     }
     pub fn bmp_buffer(&self) -> Box<impl MemoryDevice>{
@@ -52,6 +65,14 @@ impl MemViz {
 
     pub fn attribute_buffer(&self) -> Box<impl MemoryDevice>{
         Box::new(self.attribute_buffer.clone())
+    }
+
+    pub fn border_io(&self) -> Box<impl IODevice> {
+        Box::new(self.border_io.clone())
+    }
+    
+    pub fn timer_io(&self) -> Box<impl IODevice> {
+        Box::new(self.timer_io.clone())
     }
 
     pub fn randomize(&mut self) {
@@ -122,5 +143,76 @@ impl MemoryDevice for MemBuffer {
 
     fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
         self.write_8(addr, data)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct DisplayIO{
+    val: Arc<Mutex<u8>>,
+}
+
+impl IODevice for DisplayIO {
+    fn ports(&self) -> Vec<u8> {
+        vec![0xFE]
+    }
+    fn read(&self, _port: u8) -> Result<u8, &'static str> {
+        Ok(*self.val.lock().map_err(|_| "Could not acquire lock")?)
+    }
+
+    fn write(&mut self, _pin: u8, data: u8) -> Result<(), &'static str> {
+        *self.val.lock().map_err(|_| "Could not acquire lock")? = data;
+        Ok(())
+    }
+
+    fn step(&mut self) {
+
+    }
+
+    fn will_interrupt(&self) -> Option<InterruptType> {
+        None
+    }
+
+    fn ack_int(&mut self) -> Result<(), &'static str> {
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct TimerIO{
+    should_interrupt: Arc<Mutex<bool>>,
+}
+
+impl TimerIO{
+    pub fn interrupt(&self){
+        *self.should_interrupt.lock().expect("Could not lock interrupt") = true;
+    }
+}
+
+impl IODevice for TimerIO {
+    fn ports(&self) -> Vec<u8> {
+        vec![]
+    }
+    fn read(&self, _port: u8) -> Result<u8, &'static str> {
+        Err("Cannot read timer")
+    }
+
+    fn write(&mut self, _: u8, _: u8) -> Result<(), &'static str> {
+        Err("Cannot write timer")
+    }
+
+    fn step(&mut self) {
+    }
+
+    fn will_interrupt(&self) -> Option<InterruptType> {
+        if *self.should_interrupt.lock().expect("Could not lock interrupt") {
+            Some(InterruptType::IM1)
+        } else {
+            None
+        }
+    }
+
+    fn ack_int(&mut self) -> Result<(), &'static str> {
+        *self.should_interrupt.lock().map_err(|_| "Could not acquire lock")? = false;
+        Ok(())
     }
 }

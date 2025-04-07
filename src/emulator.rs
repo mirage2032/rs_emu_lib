@@ -59,6 +59,7 @@ impl<T: Cpu +'static> Emulator<T> {
         }
         self.memory.clear_changes();
         let instruction = self.cpu.step(&mut self.memory, &mut self.io);
+        self.io.step();
         if let Ok(instruction) = &instruction {
             self.cycles += instruction.common().cycles as usize;
             self.instructions += 1;

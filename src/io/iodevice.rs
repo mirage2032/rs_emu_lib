@@ -16,7 +16,7 @@ pub struct IORegister {
 }
 
 impl IORegister {
-    fn new(pins: Vec<u8>) -> IORegister {
+    pub fn new(pins: Vec<u8>) -> IORegister {
         let mut registers = HashMap::new();
         for pin in pins {
             registers.insert(pin, 0);
