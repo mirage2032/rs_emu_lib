@@ -3,9 +3,9 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use emu_lib::memory::MemoryDevice;
-use fbdisplay::FBDisplay;
 use rand::random;
 use emu_lib::memory::errors::{MemoryRWCommonError, MemoryReadError, MemoryWriteError};
+use crate::memdsp::fbzxdisplay::{zx_height, zx_width, FBZXDisplay};
 
 mod fbdisplay;
 mod fbzxdisplay;
@@ -16,38 +16,52 @@ enum Event {
 }
 
 pub struct MemViz {
-    buffer: Arc<Mutex<Vec<u8>>>,
+    bitmap_buffer: MemBuffer,
+    attribute_buffer: MemBuffer,
     event_sender: mpsc::Sender<Event>,
     thread: Option<thread::JoinHandle<()>>,
 }
 
 impl MemViz {
-    pub fn new(size: usize, width: usize, scale: f32,refresh_rate:f64) -> MemViz {
-        let buffer = Arc::new(Mutex::new(vec![0; size]));
-        let buffer_clone = buffer.clone();
+    pub fn new(scale: f32,refresh_rate:f64) -> MemViz {
         let (event_sender, event_receiver) = mpsc::channel();
+        let bitmap_buffer = MemBuffer::new(zx_width * zx_height / 8);
+        let bitmap_buffer_clone = bitmap_buffer.clone();
+        let attribute_buffer = MemBuffer::new(zx_width * zx_height / (8 * 8));
+        let attribute_buffer_clone = attribute_buffer.clone();
         let thread = Some(thread::spawn(move || {
-            let mut fbdisplay = FBDisplay::new(
-                width,
-                size.div_ceil(width),
+            let mut fbdisplay = FBZXDisplay::new(
+                bitmap_buffer_clone,
+                attribute_buffer_clone,
                 scale,
-                buffer_clone,
                 event_receiver,
                 refresh_rate,
             );
             fbdisplay.run();
         }));
         MemViz {
-            buffer,
+            bitmap_buffer,
+            attribute_buffer,
             event_sender,
             thread,
         }
     }
+    pub fn bmp_buffer(&self) -> Box<impl MemoryDevice>{
+        Box::new(self.bitmap_buffer.clone())
+    }
+
+    pub fn attribute_buffer(&self) -> Box<impl MemoryDevice>{
+        Box::new(self.attribute_buffer.clone())
+    }
 
     pub fn randomize(&mut self) {
-        let mut buffer = self.buffer.lock().expect("Failed to lock buffer");
-        for i in buffer.iter_mut() {
-            *i = random();
+        let mut bmp_buff = self.bitmap_buffer.buffer.lock().expect("Could not lock buffer");
+        for v in bmp_buff.iter_mut() {
+            *v = random();
+        }
+        let mut attribute_buff = self.attribute_buffer.buffer.lock().expect("Could not lock buffer");
+        for v in attribute_buff.iter_mut() {
+            *v = random()
         }
     }
 
@@ -71,29 +85,42 @@ impl Drop for MemViz {
     }
 }
 
-impl MemoryDevice for MemViz {
+#[derive(Debug,Clone)]
+struct MemBuffer {
+    buffer: Arc<Mutex<Vec<u8>>>,
+}
+
+impl MemBuffer {
+    pub fn new(size: usize) -> MemBuffer {
+        MemBuffer {
+            buffer: Arc::new(Mutex::new(vec![0; size])),
+        }
+    }
+}
+
+impl MemoryDevice for MemBuffer {
     fn size(&self) -> usize {
         self.buffer.lock().expect("Failed to lock buffer").len()
     }
+
     fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
-        self.buffer
-            .lock()
-            .or(Err(MemoryRWCommonError::CustomError("Failed to lock buffer".to_string())))?
-            .get(addr as usize)
-            .copied()
-            .ok_or(MemoryReadError::CommonRWError(MemoryRWCommonError::OutOfBounds(addr)))
+        let lockbuf = self.buffer.lock().expect("Failed to lock buffer");
+        if addr as usize >= lockbuf.len() {
+            return Err(MemoryRWCommonError::OutOfBounds(addr).into());
+        }
+        Ok(lockbuf[addr as usize])
     }
+
     fn write_8(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
-        self.buffer
-            .lock()
-            .or(Err(MemoryRWCommonError::CustomError("Failed to lock buffer".to_string())))?
-            .get_mut(addr as usize)
-            .map(|v| *v = data)
-            .ok_or(MemoryWriteError::CommonRWError(MemoryRWCommonError::OutOfBounds(addr)))?;
+        let mut lockbuf = self.buffer.lock().expect("Failed to lock buffer");
+        if addr as usize >= lockbuf.len() {
+            return Err(MemoryRWCommonError::OutOfBounds(addr).into());
+        }
+        lockbuf[addr as usize] = data;
         Ok(())
     }
 
     fn write_8_force(&mut self, addr: u16, data: u8) -> Result<(), MemoryWriteError> {
-        Self::write_8(self, addr, data)
+        self.write_8(addr, data)
     }
 }

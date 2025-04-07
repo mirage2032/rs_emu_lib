@@ -31,4 +31,5 @@ pub mod im0;
 pub mod im1;
 pub mod ldir;
 pub mod ldi;
+pub mod lddr;
 // pub mod im0;

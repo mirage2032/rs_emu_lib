@@ -1,3 +1,4 @@
+use emu_lib::memory::MemoryDevice;
 use std::path::PathBuf;
 use emu_lib::cpu::Cpu;
 
@@ -33,20 +34,32 @@ fn print_registers(registers: &AllRegisters) {
 }
 
 fn main() {
-    let res = (256,192);
     let refresh_rate = 50.08;
-    let dsp = MemViz::new(res.0 * res.1, res.0,4.0, refresh_rate);
+    let dsp = MemViz::new(4.0, refresh_rate);
+    let bitmap_mem = dsp.bmp_buffer();
+    let bitmap_len = bitmap_mem.size();
+    let attribute_mem = dsp.attribute_buffer();
+    let attribute_len = attribute_mem.size();
     // dsp.randomize();
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
     let mut memory = Memory::new();
-    memory.add_device(Box::new(RAM::new(0x3000)));
-    memory.add_device(Box::new(dsp));//uses 256x192=C000 space
-    memory.add_device(Box::new(RAM::new(0x10000- 0x3000 - 0xC000)));
+    memory.add_device(Box::new(RAM::new(0x4000)));
+    memory.add_device(bitmap_mem);
+    memory.add_device(attribute_mem);
+    memory.add_device(Box::new(RAM::new(0x10000-bitmap_len-attribute_len-0x4000)));
     let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
-    let rom_path: PathBuf = PathBuf::from("roms/main.bin");
-    println!("Loading rom: {}", rom_path.to_str().unwrap());
-    match emulator.memory.load_file(&rom_path,true) {
+    let rom_path: PathBuf = PathBuf::from("roms/zx48.rom");
+    // let z80_file = include_bytes!("../roms/f.z80");
+    //a .z80 file, byte 5 and 6 of the file store the pc
+    // let pc = u16::from_le_bytes([z80_file[5],z80_file[6]]);
+    // let sp =  u16::from_le_bytes([z80_file[6],z80_file[7]]);
+    // emulator.cpu.registers.pc = pc;
+    // println!("{:04X}",pc);
+    // emulator.cpu.registers.sp = sp;
+    // let rom = &z80_file[87..];
+    // println!("Loading rom: {}", rom_path.to_str().unwrap());
+    match emulator.memory.load_file(&rom_path,true){
         Ok(_) => {}
         Err(e) => {
             panic!("Error loading rom: {:?}", e);

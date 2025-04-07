@@ -98,6 +98,7 @@ impl InstructionParser<Z80> for Z80Parser {
             "neg" => Box::new(neg::NEG::new()),
             "ldi" => Box::new(ldi::LDI::new()),
             "ldir" => Box::new(ldir::LDIR::new()),
+            "lddr" => Box::new(lddr::LDDR::new()),
             "im" => match get_op(2)? {
                 "0" => Box::new(im0::IM0::new()),
                 "1" => Box::new(im1::IM1::new()),
@@ -605,6 +606,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     (Ok(ImmediateValue::OffsetIX(offset)), Ok(ImmediateValue::Val8(val))) => {
                         Box::new(ld::ld_pixd_n::LD_PIXD_N::new_with_value(offset, val))
                     }
+                    (Ok(ImmediateValue::OffsetIY(offset)), Ok(ImmediateValue::Val8(val))) => {
+                        Box::new(ld::ld_piyd_n::LD_PIYD_N::new_with_value(offset, val))
+                    }
                     (Ok(ImmediateValue::OffsetIX(offset)), Err(_)) => match source {
                         "b" => Box::new(ld::LD_PIXD_B::new_with_value(offset)),
                         "c" => Box::new(ld::LD_PIXD_C::new_with_value(offset)),
@@ -802,6 +806,9 @@ impl InstructionParser<Z80> for Z80Parser {
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(math::dec::dec_pixd::DEC_PIXD::new_with_value(offset as i8))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) =>{
+                        Box::new(math::dec::dec_piyd::DEC_PIYD::new_with_value(offset as i8))
                     }
                     Err(_) => match destination {
                         "bc" => Box::new(math::dec::DEC_BC::new()),
@@ -2283,6 +2290,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x7B => Box::new(ld::ld_sp_pnn::LD_MISC_SP_PNN::new(memory, pos)?),
                     0xA0 => Box::new(ldi::LDI::new()),
                     0xB0 => Box::new(ldir::LDIR::new()),
+                    0xB8 => Box::new(lddr::LDDR::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid MISC instruction: 0x{:02x}",
@@ -2317,6 +2325,8 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x2A => Box::new(ld::ld_iy_pnn::LD_IY_PNN::new(memory, pos)?),
                     0x2B => Box::new(math::dec::dec_iy::DEC_IY::new()),
                     0x29 => Box::new(math::add::add_iy_iy::ADD_IY_IY::new()),
+                    0x35 => Box::new(math::dec::dec_piyd::DEC_PIYD::new(memory,pos)?),
+                    0x36 => Box::new(ld::ld_piyd_n::LD_PIYD_N::new(memory,pos)?),
                     0x39 => Box::new(math::add::add_iy_sp::ADD_IY_SP::new()),
                     0x46 => Box::new(ld::LD_B_PIYD::new(memory, pos)?),
                     0x4e => Box::new(ld::LD_C_PIYD::new(memory, pos)?),
