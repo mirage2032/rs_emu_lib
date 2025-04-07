@@ -8,6 +8,7 @@ use rand::random;
 use emu_lib::memory::errors::{MemoryRWCommonError, MemoryReadError, MemoryWriteError};
 
 mod fbdisplay;
+mod fbzxdisplay;
 
 enum Event {
     Exit,
