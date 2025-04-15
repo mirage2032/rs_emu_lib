@@ -148,6 +148,7 @@ impl Memory {
         let mut result: Vec<MemoryWriteError> = vec![];
         let mut index: usize = 0;
         for device in &mut self.data {
+            let start_addr = index;
             let mut offset = 0;
             let dev_size = device.size();
             while offset < dev_size {
@@ -157,6 +158,10 @@ impl Memory {
                 let byte = data[index];
                 if let Err(err) = write_8(device, offset as u16, byte) {
                     result.push(err);
+                } else {
+                    if let Some(changes) = &mut self.changes {
+                        changes.push((offset + start_addr) as u16);
+                    }
                 }
                 offset += 1;
                 index += 1;
