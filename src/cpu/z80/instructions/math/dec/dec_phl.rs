@@ -22,7 +22,7 @@ impl DEC_PHL {
 
 impl Display for DEC_PHL {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "INC (HL)")
+        write!(f, "DEC (HL)")
     }
 }
 
@@ -31,7 +31,7 @@ impl BaseInstruction for DEC_PHL {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0x34]
+        vec![0x35]
     }
 }
 

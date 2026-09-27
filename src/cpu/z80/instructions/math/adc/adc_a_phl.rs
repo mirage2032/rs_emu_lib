@@ -22,7 +22,7 @@ impl ADC_A_PHL {
 
 impl Display for ADC_A_PHL {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "LD A, (HL)",)
+        write!(f, "ADC A, (HL)",)
     }
 }
 

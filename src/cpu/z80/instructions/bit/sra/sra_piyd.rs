@@ -41,7 +41,7 @@ impl BaseInstruction for SRA_PIYD {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xdd, 0xcb, self.d as u8, 0x2e]
+        vec![0xfd, 0xcb, self.d as u8, 0x2e]
     }
 }
 
