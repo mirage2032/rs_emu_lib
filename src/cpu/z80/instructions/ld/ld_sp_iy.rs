@@ -30,7 +30,7 @@ impl BaseInstruction for LD_SP_IY {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xfd, 0xe9]
+        vec![0xfd, 0xf9]
     }
 }
 

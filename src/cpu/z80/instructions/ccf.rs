@@ -30,7 +30,7 @@ impl BaseInstruction for CCF {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0x37]
+        vec![0x3F]
     }
 }
 

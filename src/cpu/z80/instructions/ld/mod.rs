@@ -120,7 +120,7 @@ generics::ld_rr_nn::ld_rr_nn!(hl, "21", "HL");
 
 generics::ld_prr_r::ld_prr_r!(bc, a, "02", "BC", "A");
 generics::ld_prr_r::ld_prr_r!(de, a, "12", "DE", "A");
-generics::ld_prr_r::ld_prr_r!(hl, a, "71", "HL", "A");
+generics::ld_prr_r::ld_prr_r!(hl, a, "77", "HL", "A");
 generics::ld_prr_r::ld_prr_r!(hl, b, "70", "HL", "B");
 generics::ld_prr_r::ld_prr_r!(hl, c, "71", "HL", "C");
 generics::ld_prr_r::ld_prr_r!(hl, d, "72", "HL", "D");

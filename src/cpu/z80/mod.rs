@@ -11,6 +11,8 @@ pub mod instructions;
 pub mod parser;
 
 #[cfg(test)]
+mod roundtrip;
+#[cfg(test)]
 mod test;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]

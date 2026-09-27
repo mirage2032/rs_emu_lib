@@ -33,7 +33,7 @@ macro_rules! set_b_piyd {
                     &self.common
                 }
                 fn to_bytes(&self) -> Vec<u8> {
-                    vec![0xdd,0xcb,self.d as u8,hex!( $opcode )[0]]
+                    vec![0xfd,0xcb,self.d as u8,hex!( $opcode )[0]]
                 }
             }
 
