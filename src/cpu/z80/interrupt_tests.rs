@@ -367,3 +367,33 @@ fn a_device_can_hold_int_and_supply_the_im2_vector() {
     assert_eq!(step(&mut emu).0, "INT IM2 (0x4020) -> 0x1234");
     assert!(!emu.io.int_pending(), "the device was acknowledged");
 }
+
+#[test]
+fn other_threads_raise_interrupts_through_a_handle() {
+    // IM 1; EI; HALT
+    let mut emu = emulator(&with_im1_handler(&[0xED, 0x56, 0xFB, 0x76]));
+    for _ in 0..3 {
+        step(&mut emu);
+    }
+    let handle = emu.interrupt_handle();
+    std::thread::spawn(move || handle.int(0xFF)).join().unwrap();
+    assert_eq!(step(&mut emu).0, "INT IM1 -> 0x0038");
+
+    // DI; HALT: an NMI waiting in the handle means the CPU isn't stuck.
+    let mut emu = emulator(&[0xF3, 0x76]);
+    step(&mut emu);
+    step(&mut emu);
+    let handle = emu.interrupt_handle();
+    std::thread::spawn(move || handle.nmi()).join().unwrap();
+    emu.run_ticks(11.0, &NO_CALLBACK).unwrap();
+    assert_eq!(emu.cpu.registers.pc, 0x0066);
+}
+
+#[test]
+fn loading_a_state_drops_requests_made_before_it() {
+    let mut emu = emulator(&[0xF3, 0x76]); // DI; HALT
+    let state = emu.save().unwrap();
+    emu.interrupt_handle().nmi();
+    emu.load(state, false, true).unwrap();
+    assert_eq!(step(&mut emu).0, "DI");
+}

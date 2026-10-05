@@ -4,6 +4,8 @@ use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
+use std::sync::atomic::{AtomicBool, AtomicU16, Ordering};
+use std::sync::Arc;
 use std::time::{Duration, SystemTime};
 
 #[derive(Debug)]
@@ -22,6 +24,42 @@ pub struct EmuState {
     pub breakpoints: Vec<u16>,
 }
 
+/// Raises interrupts on an [`Emulator`] from another thread: a timer, a UI, or a
+/// device that holds a clone (an NMI from a device goes this way). The CPU takes
+/// the requests before its next step. Get one with [`Emulator::interrupt_handle`].
+#[derive(Clone, Debug)]
+pub struct InterruptHandle(Arc<PendingInterrupts>);
+
+#[derive(Debug, Default)]
+struct PendingInterrupts {
+    nmi: AtomicBool,
+    /// `0x100 | data_bus` while an INT request is waiting, 0 otherwise.
+    int: AtomicU16,
+}
+
+impl InterruptHandle {
+    /// Requests a non-maskable interrupt, like [`Emulator::request_nmi`].
+    pub fn nmi(&self) {
+        self.0.nmi.store(true, Ordering::Release);
+    }
+
+    /// Requests a maskable interrupt with `data_bus`, like [`Emulator::request_int`].
+    pub fn int(&self, data_bus: u8) {
+        self.0.int.store(0x100 | data_bus as u16, Ordering::Release);
+    }
+
+    /// Takes the waiting requests: whether there was an NMI, and an INT's data-bus
+    /// byte. Runs every step, so it only swaps once a plain load sees a request.
+    fn take(&self) -> (bool, Option<u8>) {
+        let nmi = self.0.nmi.load(Ordering::Relaxed) && self.0.nmi.swap(false, Ordering::AcqRel);
+        let int = match self.0.int.load(Ordering::Relaxed) {
+            0 => 0,
+            _ => self.0.int.swap(0, Ordering::AcqRel),
+        };
+        (nmi, (int & 0x100 != 0).then_some(int as u8))
+    }
+}
+
 pub struct Emulator<T: Cpu> {
     pub memory: Memory,
     pub cpu: T,
@@ -29,6 +67,7 @@ pub struct Emulator<T: Cpu> {
     pub io: IO,
     pub cycles: usize,
     pub instructions: usize,
+    interrupt_handle: InterruptHandle,
 }
 
 impl<T: Cpu+'static> Default for Emulator<T> {
@@ -40,6 +79,7 @@ impl<T: Cpu+'static> Default for Emulator<T> {
             io: IO::default(),
             cycles: 0,
             instructions: 0,
+            interrupt_handle: InterruptHandle(Arc::default()),
         }
     }
 }
@@ -53,11 +93,13 @@ impl<T: Cpu +'static> Emulator<T> {
             io: IO::default(),
             cycles: 0,
             instructions: 0,
+            interrupt_handle: InterruptHandle(Arc::default()),
         }
     }
     /// Runs one step: an instruction, the acceptance of an interrupt, or one idle
     /// cycle of a halted CPU.
     pub fn step(&mut self) -> Result<Box<dyn ExecutableInstruction<T>>, String> {
+        self.take_handle_requests();
         self.memory.clear_changes();
         let instruction = self.cpu.step(&mut self.memory, &mut self.io);
         self.io.step();
@@ -75,8 +117,12 @@ impl<T: Cpu +'static> Emulator<T> {
     ) -> Result<f64, StopReason> {
         let mut current_ticks = 0.0;
         while current_ticks < ticks {
-            if self.cpu.halted() && self.cpu.deadlocked() {
-                return Err(StopReason::Halt);
+            if self.cpu.halted() {
+                // An NMI waiting in the interrupt handle can still wake the CPU.
+                self.take_handle_requests();
+                if self.cpu.deadlocked() {
+                    return Err(StopReason::Halt);
+                }
             }
             let instruction = self.step().map_err(|e| StopReason::Error(e))?;
             current_ticks += instruction.common().cycles as f64;
@@ -153,6 +199,8 @@ impl<T: Cpu +'static> Emulator<T> {
             }
         }
         self.breakpoints = state.breakpoints;
+        // Requests made before the load belong to the state it replaced.
+        self.interrupt_handle.take();
         Ok(())
     }
     pub fn reset_counters(&mut self) {
@@ -179,5 +227,21 @@ impl<T: Cpu +'static> Emulator<T> {
     /// interrupt is taken again each time interrupts are enabled.
     pub fn set_int_line(&mut self, asserted: bool, data_bus: u8) {
         self.cpu.set_int_line(asserted, data_bus);
+    }
+
+    /// A handle that raises interrupts on this emulator from other threads.
+    pub fn interrupt_handle(&self) -> InterruptHandle {
+        self.interrupt_handle.clone()
+    }
+
+    /// Passes the requests made through the interrupt handle on to the CPU.
+    fn take_handle_requests(&mut self) {
+        let (nmi, int) = self.interrupt_handle.take();
+        if nmi {
+            self.cpu.request_nmi();
+        }
+        if let Some(data_bus) = int {
+            self.cpu.request_int(data_bus);
+        }
     }
 }

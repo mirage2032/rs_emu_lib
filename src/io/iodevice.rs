@@ -6,7 +6,8 @@ pub trait IODevice: Send + Sync {
     fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str>;
     fn step(&mut self) {}
     /// Whether the device is holding INT active, asking for a maskable interrupt.
-    /// For devices that drive INT themselves, like a Z80 CTC.
+    /// For devices that drive INT themselves, like a Z80 CTC. Anything else,
+    /// including a device raising an NMI, can use `Emulator::interrupt_handle`.
     fn int_pending(&self) -> bool {
         false
     }
