@@ -37,6 +37,8 @@ fn print_registers(registers: &AllRegisters) {
 
 /// T-states per frame on a 48K Spectrum.
 const FRAME_TSTATES: usize = 69_888;
+/// T-states the ULA holds INT active for, at the start of each frame.
+const INT_TSTATES: usize = 32;
 
 fn main() {
     let refresh_rate = 50.08;
@@ -87,13 +89,11 @@ fn main() {
     let freq = 3_500_000.0;
     let stop_reason = emulator.run_with_callback(
         freq,
-        Some(move |emu: &mut Emulator<Z80>, instruction: &dyn ExecutableInstruction<Z80>| {
-            // The ULA interrupts once per frame, every 69,888 T-states. 0xFF is what
-            // the floating data bus reads.
-            let before = emu.cycles - instruction.common().cycles as usize;
-            if before / FRAME_TSTATES != emu.cycles / FRAME_TSTATES {
-                emu.request_int(0xFF);
-            }
+        Some(move |emu: &mut Emulator<Z80>, _instruction: &dyn ExecutableInstruction<Z80>| {
+            // The ULA interrupts once per frame by holding INT for its first 32
+            // T-states; if interrupts are disabled all that time, the interrupt is
+            // lost. 0xFF is what the floating data bus reads.
+            emu.set_int_line(emu.cycles % FRAME_TSTATES < INT_TSTATES, 0xFF);
             // println!("{}", instruction);
             // println!("{:?}",emu.io.read(0xFE));
             //

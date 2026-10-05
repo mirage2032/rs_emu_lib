@@ -1,13 +1,16 @@
 //! Boots the ZX Spectrum 48K ROM (the one emu_cli runs) with its 50 Hz frame
-//! interrupt, raised every 69,888 T-states as emu_cli does, and checks that the
-//! ROM's interrupt handler runs exactly once per frame.
+//! interrupt, INT held for the first 32 T-states of every 69,888 T-state frame as
+//! emu_cli does, and checks that the ROM's interrupt handler runs exactly once per
+//! frame.
 
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use emu_lib::memory::{Memory, MemoryDevice};
 
-/// T-states per frame on a 48K Spectrum; the ULA interrupts once per frame.
+/// T-states per frame on a 48K Spectrum.
 const FRAME_TSTATES: usize = 69_888;
+/// T-states the ULA holds INT active for, at the start of each frame.
+const INT_TSTATES: usize = 32;
 /// FRAMES, the ROM's frame counter, which its IM 1 handler increments.
 const FRAMES: u16 = 0x5C78;
 
@@ -26,11 +29,11 @@ fn zx48_rom_boots_and_takes_one_interrupt_per_frame() {
             if let Err(error) = emu.step() {
                 panic!("frame {frame}, PC 0x{:04X}: {error}", emu.cpu.registers.pc);
             }
+            emu.set_int_line(emu.cycles % FRAME_TSTATES < INT_TSTATES, 0xFF);
         }
         if frame == 140 {
             frames_at_140 = frames(&emu);
         }
-        emu.request_int(0xFF);
     }
 
     assert_eq!(emu.cpu.interrupts.im, 1);
