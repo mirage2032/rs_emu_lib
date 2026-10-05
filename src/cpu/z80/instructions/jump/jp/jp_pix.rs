@@ -37,7 +37,7 @@ impl BaseInstruction for JP_PIX {
 impl ExecutableInstruction<Z80> for JP_PIX {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.registers.pc = cpu.registers.ix;
-        cpu.registers.r += 1;
+        cpu.registers.inc_r();
         Ok(())
     }
 }
@@ -49,4 +49,18 @@ mod tests {
 
     test_z80!("dd", "e9");
     test_instruction_parse!(JP_PIX);
+
+    #[test]
+    fn r_counts_up_in_its_low_7_bits() {
+        use crate::cpu::z80::Z80;
+        use crate::emulator::Emulator;
+        use crate::memory::Memory;
+
+        let mut memory = Memory::new_full_ram();
+        memory.load(&[0xDD, 0xE9], true).unwrap(); // two opcode fetches
+        let mut emu: Emulator<Z80> = Emulator::new_w_mem(memory);
+        emu.cpu.registers.r = 0xFE;
+        emu.step().unwrap();
+        assert_eq!(emu.cpu.registers.r, 0x80); // 0xFE -> 0xFF -> 0x80
+    }
 }

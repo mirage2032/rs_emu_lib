@@ -42,7 +42,7 @@ macro_rules! bit_b_pixd {
                     let offset = cpu.registers.ix.wrapping_add(self.d as u16);
                     let value = memory.read_8(offset as u16)?;
                     bit_b_r_setf!(value,$bit, cpu.registers.gp.f);
-                    cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+                    cpu.registers.inc_r();
                     Ok(())
                 }
             }

@@ -51,7 +51,7 @@ impl ExecutableInstruction<Z80> for DEC_PIYD {
         let mut val = memory.read_8(offset)?;
         dec_r_setf!(&mut val,&mut cpu.registers.gp.f);
         memory.write_8(offset,val)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

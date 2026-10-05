@@ -45,7 +45,7 @@ impl ExecutableInstruction<Z80> for ADC_HL_BC {
             cpu.registers.gp.bc,
             &mut cpu.registers.gp.f
         );
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

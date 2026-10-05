@@ -51,7 +51,7 @@ impl ExecutableInstruction<Z80> for LDIR {
         cpu.registers.gp.f.set_add_sub(false);
         cpu.registers.gp.f.set_half_carry(false);
         cpu.registers.gp.f.set_parity_overflow(cpu.registers.gp.bc != 0);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

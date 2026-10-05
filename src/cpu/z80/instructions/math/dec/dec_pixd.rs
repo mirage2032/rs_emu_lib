@@ -56,7 +56,7 @@ impl ExecutableInstruction<Z80> for DEC_PIXD {
         cpu.registers.gp.f.set_zero(val == 0);
         cpu.registers.gp.f.set_add_sub(true);
         memory.write_8(mem_addr, val)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

@@ -49,7 +49,7 @@ impl ExecutableInstruction<Z80> for LD_IX_PNN {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let val = memory.read_16(self.nn)?;
         cpu.registers.ix = val;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

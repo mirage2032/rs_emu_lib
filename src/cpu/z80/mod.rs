@@ -34,6 +34,11 @@ impl Z80Registers {
     pub fn swap(&mut self) {
         std::mem::swap(&mut self.gp, &mut self.gp_alt);
     }
+    /// Counts R up, as each opcode fetch does. Only the low 7 bits count; bit 7
+    /// keeps what LD R,A put there.
+    pub fn inc_r(&mut self) {
+        self.r = (self.r & 0x80) | (self.r.wrapping_add(1) & 0x7F);
+    }
 }
 impl Default for Z80Registers {
     fn default() -> Self {
@@ -118,9 +123,11 @@ impl Cpu for Z80 {
         };
         // println!("Executing: {:?}", self.registers.gp[0].f);
         // println!("HL: {:X},BC:{:X}", self.registers.gp[0].hl,self.registers.gp[0].bc);
+        // The opcode fetch counts R up before the instruction runs, so LD A,R
+        // reads R with it counted. A prefixed instruction counts its second fetch.
+        self.registers.inc_r();
         instruction.execute(memory, self, io)?;
         let common = instruction.common();
-        self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
         if common.increment_pc {
             let inst_length = common.length;
             let new_pc = self.registers.pc.wrapping_add(inst_length);

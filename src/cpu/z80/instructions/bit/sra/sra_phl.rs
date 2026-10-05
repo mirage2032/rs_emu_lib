@@ -40,7 +40,7 @@ impl ExecutableInstruction<Z80> for SRA_PHL {
         let mut value = memory.read_8(cpu.registers.gp.hl)?;
         sra_r_setf!(value, cpu.registers.gp.f);
         memory.write_8(cpu.registers.gp.hl, value)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

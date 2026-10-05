@@ -48,7 +48,7 @@ impl BaseInstruction for LD_PNN_BC {
 impl ExecutableInstruction<Z80> for LD_PNN_BC {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         memory.write_16(self.nn, cpu.registers.gp.bc)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

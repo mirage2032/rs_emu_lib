@@ -43,7 +43,7 @@ macro_rules! ld_r_piyd {
                 fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let addr = cpu.registers.iy.wrapping_add(self.d as u16);
                     cpu.registers.gp.$dest = memory.read_8(addr)?;
-                    cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+                    cpu.registers.inc_r();
                     Ok(())
                 }
             }

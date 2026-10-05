@@ -162,11 +162,12 @@ fn a_halted_cpu_idles_until_an_interrupt_and_resumes_after_the_halt() {
     assert_eq!(step(&mut emu), ("HALT".to_string(), 4));
     assert!(emu.cpu.halted());
     assert_eq!(emu.cpu.registers.pc, 0x0004);
-    let r = emu.cpu.registers.r;
-    for idle in 1..=3 {
+    let mut counted = emu.cpu.registers; // each idle step is a fetch, so R counts up
+    for _ in 0..3 {
         assert_eq!(step(&mut emu), ("HALT (idle)".to_string(), 4));
         assert_eq!(emu.cpu.registers.pc, 0x0004);
-        assert_eq!(emu.cpu.registers.r, r + idle);
+        counted.inc_r();
+        assert_eq!(emu.cpu.registers.r, counted.r);
     }
     emu.request_int(0xFF);
     assert_eq!(step(&mut emu).0, "INT IM1 -> 0x0038");

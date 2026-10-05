@@ -42,7 +42,7 @@ impl ExecutableInstruction<Z80> for LD_A_I {
         cpu.registers.gp.f.set_sign(cpu.registers.i & 0x80 != 0);
         cpu.registers.gp.f.set_zero(cpu.registers.i == 0);
         cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

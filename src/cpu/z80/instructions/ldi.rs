@@ -49,7 +49,7 @@ impl ExecutableInstruction<Z80> for LDI {
         } else {
             cpu.registers.gp.f.set_parity_overflow(true);
         }
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

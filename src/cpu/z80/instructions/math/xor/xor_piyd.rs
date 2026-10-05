@@ -50,7 +50,7 @@ impl ExecutableInstruction<Z80> for XOR_PIYD {
         let offset = cpu.registers.iy.wrapping_add(self.d as u16);
         let value = memory.read_8(offset as u16)?;
         super::xor_r_r_setf!(&mut cpu.registers.gp.a, &value, &mut cpu.registers.gp.f);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

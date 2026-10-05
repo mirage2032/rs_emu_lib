@@ -51,7 +51,7 @@ impl ExecutableInstruction<Z80> for RRC_PIXD {
         let mut value = memory.read_8(addr)?;
         rrc_r_setf!(value, cpu.registers.gp.f);
         memory.write_8(addr, value)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

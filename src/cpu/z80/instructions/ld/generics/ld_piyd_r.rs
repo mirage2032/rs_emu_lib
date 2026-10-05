@@ -44,7 +44,7 @@ macro_rules! ld_piyd_r {
 
                 let addr = cpu.registers.iy.wrapping_add(self.d as u16);
                 memory.write_8(addr, cpu.registers.gp.$dest)?;
-                cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+                cpu.registers.inc_r();
         Ok(())
                 }
             }

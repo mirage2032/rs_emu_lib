@@ -36,7 +36,7 @@ macro_rules! set_b_phl {
                     //set bit to 0
                     value = value | (1 << $bit);
                     memory.write_8(cpu.registers.gp.hl, value)?;
-                    cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+                    cpu.registers.inc_r();
 
                     Ok(())
                 }

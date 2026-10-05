@@ -51,7 +51,7 @@ impl ExecutableInstruction<Z80> for ADD_A_PIXD {
         let offset = cpu.registers.ix.wrapping_add(self.d as u16);
         let value = memory.read_8(offset as u16)?;
         add_r_r_setf!(&mut cpu.registers.gp.a, value, &mut cpu.registers.gp.f);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

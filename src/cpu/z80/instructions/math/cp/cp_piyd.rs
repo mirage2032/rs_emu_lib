@@ -51,7 +51,7 @@ impl ExecutableInstruction<Z80> for CP_PIYD {
         let offset = cpu.registers.iy.wrapping_add(self.d as u16);
         let value = memory.read_8(offset as u16)?;
         cp_r_setf!(cpu.registers.gp.a, value, cpu.registers.gp.f);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

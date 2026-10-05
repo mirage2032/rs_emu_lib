@@ -49,7 +49,7 @@ impl ExecutableInstruction<Z80> for NEG {
             .set_half_carry(cpu.registers.gp.a & 0x0f != 0);
         cpu.registers.gp.f.set_add_sub(true);
         cpu.registers.gp.f.set_sign(cpu.registers.gp.a & 0x80 != 0);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

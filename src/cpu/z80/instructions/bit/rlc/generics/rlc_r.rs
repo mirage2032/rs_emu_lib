@@ -34,7 +34,7 @@ macro_rules! rlc_r {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
                     rlc_r_setf!(gp.$src, gp.f);
-                    cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+                    cpu.registers.inc_r();
                     Ok(())
                 }
             }

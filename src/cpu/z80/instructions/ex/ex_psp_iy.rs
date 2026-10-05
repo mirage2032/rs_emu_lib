@@ -40,7 +40,7 @@ impl ExecutableInstruction<Z80> for EX_PSP_IY {
         let val = memory.read_16(cpu.registers.sp)?;
         memory.write_16(cpu.registers.sp, cpu.registers.iy)?;
         cpu.registers.iy = val;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

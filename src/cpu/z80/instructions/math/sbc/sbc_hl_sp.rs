@@ -38,7 +38,7 @@ impl BaseInstruction for SBC_HL_SP {
 impl ExecutableInstruction<Z80> for SBC_HL_SP {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         sbc_rr_rr!(cpu.registers.gp.hl, cpu.registers.sp, cpu.registers.gp.f);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1);
+        cpu.registers.inc_r();
         Ok(())
     }
 }

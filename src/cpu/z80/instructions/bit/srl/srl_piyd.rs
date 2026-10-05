@@ -51,7 +51,7 @@ impl ExecutableInstruction<Z80> for SRL_PIYD {
         let mut value = memory.read_8(addr)?;
         srl_r_setf!(value, cpu.registers.gp.f);
         memory.write_8(addr, value)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

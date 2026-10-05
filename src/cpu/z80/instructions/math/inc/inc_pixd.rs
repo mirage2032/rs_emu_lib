@@ -55,7 +55,7 @@ impl ExecutableInstruction<Z80> for INC_PIXD {
         cpu.registers.gp.f.set_zero(val == 0x00);
         cpu.registers.gp.f.set_parity_overflow(val == 0x80);
         cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

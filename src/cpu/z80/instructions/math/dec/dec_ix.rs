@@ -37,7 +37,7 @@ impl BaseInstruction for DEC_IX {
 impl ExecutableInstruction<Z80> for DEC_IX {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.ix = cpu.registers.ix.wrapping_sub(1);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

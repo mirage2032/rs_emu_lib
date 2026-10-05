@@ -38,7 +38,7 @@ impl BaseInstruction for ADD_IY_IY {
 impl ExecutableInstruction<Z80> for ADD_IY_IY {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         add_rr_rr_setf!(cpu.registers.iy, cpu.registers.iy, cpu.registers.gp.f);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

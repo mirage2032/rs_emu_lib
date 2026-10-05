@@ -33,7 +33,7 @@ macro_rules! set_b_r {
             impl ExecutableInstruction<Z80> for [<SET_ $bit _ $srclit>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     cpu.registers.gp.$src |= (1 << $bit);
-                    cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+                    cpu.registers.inc_r();
 
                     Ok(())
                 }

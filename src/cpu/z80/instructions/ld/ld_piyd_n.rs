@@ -50,7 +50,7 @@ impl BaseInstruction for LD_PIYD_N {
 impl ExecutableInstruction<Z80> for LD_PIYD_N {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         memory.write_8(cpu.registers.iy.wrapping_add(self.d as u16), self.n)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

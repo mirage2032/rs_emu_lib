@@ -45,7 +45,7 @@ impl ExecutableInstruction<Z80> for IN_E_C {
         cpu.registers.gp.f.set_zero(cpu.registers.gp.e == 0);
         cpu.registers.gp.f.set_add_sub(false);
         cpu.registers.gp.f.set_sign(cpu.registers.gp.e & 0x80 != 0);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1);
+        cpu.registers.inc_r();
         Ok(())
     }
 }

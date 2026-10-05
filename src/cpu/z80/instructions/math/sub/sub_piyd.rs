@@ -49,7 +49,7 @@ impl ExecutableInstruction<Z80> for SUB_PIYD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let val = memory.read_8(cpu.registers.iy.wrapping_add(self.d as u16))?;
         sub_r_setf!(cpu.registers.gp.a, val, cpu.registers.gp.f);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        cpu.registers.inc_r();
         Ok(())
     }
 }

@@ -50,7 +50,7 @@ impl ExecutableInstruction<Z80> for OR_PIYD {
         let val = memory.read_8(cpu.registers.iy.wrapping_add(self.d as u16))?;
         or_r_setf!(cpu.registers.gp.a, val, cpu.registers.gp.f);
 
-        cpu.registers.r = cpu.registers.r.wrapping_add(1);
+        cpu.registers.inc_r();
         Ok(())
     }
 }
