@@ -18,6 +18,7 @@ pub mod math;
 pub mod neg;
 pub mod nop;
 pub mod ret;
+pub mod reti;
 pub mod retn;
 pub mod rla;
 pub mod rlca;
