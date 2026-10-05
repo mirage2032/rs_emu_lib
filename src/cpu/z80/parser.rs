@@ -747,6 +747,8 @@ impl InstructionParser<Z80> for Z80Parser {
 
                         ("i", "a") => Box::new(ld::ld_i_a::LD_I_A::new()),
                         ("a", "i") => Box::new(ld::ld_a_i::LD_A_I::new()),
+                        ("r", "a") => Box::new(ld::ld_r_a::LD_R_A::new()),
+                        ("a", "r") => Box::new(ld::ld_a_r::LD_A_R::new()),
 
                         ("sp", "hl") => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
                         ("sp", "ix") => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
@@ -2265,6 +2267,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x4A => Box::new(math::adc::adc_hl_bc::ADC_HL_BC::new()),
                     0x4B => Box::new(ld::LD_MISC_BC_PNN::new(memory, pos)?),
                     0x4D => Box::new(reti::RETI::new()),
+                    0x4F => Box::new(ld::ld_r_a::LD_R_A::new()),
                     0x50 => Box::new(io::in_d_c::IN_D_C::new()),
                     0x51 => Box::new(io::out_c_d::OUT_C_D::new()),
                     0x52 => Box::new(math::sbc::sbc_hl_de::SBC_HL_DE::new()),
@@ -2276,6 +2279,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x5A => Box::new(math::adc::adc_hl_de::ADC_HL_DE::new()),
                     0x5B => Box::new(ld::LD_MISC_DE_PNN::new(memory, pos)?),
                     0x5E => Box::new(im2::IM2::new()),
+                    0x5F => Box::new(ld::ld_a_r::LD_A_R::new()),
                     0x60 => Box::new(io::in_h_c::IN_H_C::new()),
                     0x61 => Box::new(io::out_c_h::OUT_C_H::new()),
                     0x62 => Box::new(math::sbc::sbc_hl_hl::SBC_HL_HL::new()),

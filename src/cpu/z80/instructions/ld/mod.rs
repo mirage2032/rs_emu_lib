@@ -29,6 +29,8 @@ pub mod ld_sp_nn;
 pub mod ld_sp_pnn;
 pub mod ld_i_a;
 pub mod ld_a_i;
+pub mod ld_r_a;
+pub mod ld_a_r;
 pub mod ld_piyd_n;
 
 generics::ld_r_r::ld_r_r!(a, b, "78", "A", "B");
