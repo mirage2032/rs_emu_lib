@@ -10,12 +10,20 @@ use crate::memory::Memory;
 #[derive(Debug)]
 pub struct IM0 {
     common: InstructionCommon,
+    opcode: u8,
 }
 
 impl IM0 {
     pub fn new() -> IM0 {
+        IM0::with_opcode(0x46)
+    }
+
+    /// IM 0 encoded as `ED opcode`: 0x46, or the undocumented 0x4E, 0x66 or 0x6E.
+    pub fn with_opcode(opcode: u8) -> IM0 {
+        debug_assert!(matches!(opcode, 0x46 | 0x4E | 0x66 | 0x6E), "IM 0 isn't ED {opcode:02X}");
         IM0 {
             common: InstructionCommon::new(2, 8, true),
+            opcode,
         }
     }
 }
@@ -31,7 +39,7 @@ impl BaseInstruction for IM0 {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xed, 0x46]
+        vec![0xed, self.opcode]
     }
 }
 
@@ -50,4 +58,23 @@ mod tests {
 
     test_z80!("ed", "46");
     test_instruction_parse!(IM0);
+
+    // The undocumented mirrors behave the same.
+    mod ed_4e {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "4e");
+    }
+
+    mod ed_66 {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "66");
+    }
+
+    mod ed_6e {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "6e");
+    }
 }

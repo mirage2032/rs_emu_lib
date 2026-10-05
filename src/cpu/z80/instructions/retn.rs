@@ -10,12 +10,24 @@ use crate::memory::Memory;
 #[derive(Debug)]
 pub struct RETN {
     common: InstructionCommon,
+    opcode: u8,
 }
 
 impl RETN {
     pub fn new() -> RETN {
+        RETN::with_opcode(0x45)
+    }
+
+    /// RETN encoded as `ED opcode`: 0x45, or the undocumented 0x55, 0x5D, 0x65,
+    /// 0x6D, 0x75 or 0x7D.
+    pub fn with_opcode(opcode: u8) -> RETN {
+        debug_assert!(
+            matches!(opcode, 0x45 | 0x55 | 0x5D | 0x65 | 0x6D | 0x75 | 0x7D),
+            "RETN isn't ED {opcode:02X}"
+        );
         RETN {
             common: InstructionCommon::new(2, 14, false),
+            opcode,
         }
     }
 }
@@ -31,7 +43,7 @@ impl BaseInstruction for RETN {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xed, 0x45]
+        vec![0xed, self.opcode]
     }
 }
 
@@ -51,4 +63,41 @@ mod tests {
 
     test_z80!("ed", "45");
     test_instruction_parse!(RETN);
+
+    // The undocumented mirrors behave the same.
+    mod ed_55 {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "55");
+    }
+
+    mod ed_5d {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "5d");
+    }
+
+    mod ed_65 {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "65");
+    }
+
+    mod ed_6d {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "6d");
+    }
+
+    mod ed_75 {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "75");
+    }
+
+    mod ed_7d {
+        use crate::cpu::z80::test::*;
+
+        test_z80!("ed", "7d");
+    }
 }
