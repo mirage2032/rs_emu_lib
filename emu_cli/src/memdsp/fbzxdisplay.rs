@@ -1,8 +1,7 @@
 use std::sync::{mpsc, Arc, Mutex};
 
-use crate::memdsp::{DisplayIO, Event, MemBuffer, TimerIO};
+use crate::memdsp::{DisplayIO, Event, MemBuffer};
 use minifb::{Key, Window, WindowOptions};
-use emu_lib::io::InterruptType;
 use emu_lib::io::iodevice::IODevice;
 
 fn create_window(width: f32, height: f32, scale: f32) -> Window {
@@ -51,7 +50,6 @@ pub struct FBZXDisplay {
     bitmap_buffer: MemBuffer,
     attribute_buffer: MemBuffer,
     border_io: DisplayIO,
-    timer_io: TimerIO,
     should_close: bool,
 }
 
@@ -60,7 +58,6 @@ impl FBZXDisplay {
         bitmap_buffer: MemBuffer,
         attribute_buffer: MemBuffer,
         border_io: DisplayIO,
-        timer_io: TimerIO,
         scale: f32,
         event_receiver: mpsc::Receiver<Event>,
         refresh_rate: f64,
@@ -76,7 +73,6 @@ impl FBZXDisplay {
             bitmap_buffer,
             border_io,
             attribute_buffer,
-            timer_io,
             should_close: false,
         }
     }
@@ -178,7 +174,6 @@ impl FBZXDisplay {
             self.window
                 .update_with_buffer(&dsp_buffer, zx_outer_width, zx_outer_height)
                 .expect("Could not update display");
-            self.timer_io.interrupt();
         }
     }
 }

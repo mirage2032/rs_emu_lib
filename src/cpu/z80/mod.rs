@@ -1,15 +1,19 @@
-use crate::cpu::instruction::{push_16, ExecutableInstruction, InstructionParser};
+use crate::cpu::instruction::{ExecutableInstruction, InstructionParser};
 use crate::cpu::registers::{AllMutRegisters, AllRegisters, GPByteRegisters};
 use crate::cpu::Cpu;
-use crate::io::{InterruptType, IO};
+use crate::io::IO;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use super::super::memory::{memdevices::ROM, Memory, MemoryDevice};
+use super::super::memory::Memory;
+use interrupt::{Halted, InterruptAck};
 
 pub mod instructions;
+pub mod interrupt;
 pub mod parser;
 
+#[cfg(test)]
+mod interrupt_tests;
 #[cfg(test)]
 mod roundtrip;
 #[cfg(test)]
@@ -45,53 +49,50 @@ impl Default for Z80Registers {
         }
     }
 }
+/// The Z80's interrupt state: the interrupt flip-flops, the interrupt mode, and the
+/// requests waiting to be accepted. It is part of the CPU, so save states carry it
+/// and `Z80::default()` (a reset) clears it.
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct InterruptState {
+    /// IFF1: maskable interrupts (INT) are accepted only while it is set.
+    pub iff1: bool,
+    /// IFF2: keeps IFF1's state while an NMI is serviced. RETN and RETI copy it back
+    /// into IFF1, and LD A,I reads it into P/V.
+    pub iff2: bool,
+    /// The interrupt mode set by IM 0, IM 1 or IM 2.
+    pub im: u8,
+    /// Set by EI: INT isn't accepted until the instruction after EI has run.
+    pub ei_delay: bool,
+    /// An NMI is waiting to be accepted. NMI is edge-triggered, so a request latches.
+    pub nmi_pending: bool,
+    /// INT held active (level-triggered) by `set_int_line`, with the byte the
+    /// interrupting device puts on the data bus.
+    pub int_line: Option<u8>,
+    /// INT requested by `request_int`, with its data-bus byte. Cleared when accepted.
+    pub int_request: Option<u8>,
+}
+
 #[derive(Debug, Copy, Clone, Default, Serialize, Deserialize)]
 pub struct Z80 {
     pub registers: Z80Registers,
+    pub interrupts: InterruptState,
     halted: bool,
 }
 
 impl Z80 {
-    fn handle_interrupt(
-        &mut self,
-        memory: &mut Memory,
-        io: &mut IO,
-    ) -> Result<Option<Box<dyn ExecutableInstruction<Z80>>>, String> {
-        match io.get_interrupt() {
-            Some((int_vector, id)) => {
-                let ret_instr: Option<Box<dyn ExecutableInstruction<Z80>>> = match int_vector {
-                    InterruptType::NMI => {
-                        self.registers.pc = 0x66;
-                        None
-                    }
-                    InterruptType::IM0(instruction) => {
-                        let rom: ROM = vec![instruction].into();
-                        let instruction = parser::Z80_PARSER
-                            .ins_from_machinecode(&rom, 0)
-                            .map_err(|e| e.to_string())?;
-                        Some(instruction)
-                    }
-                    remaining => {
-                        push_16!(self.registers.pc, memory, self.registers.sp);
-                        // self.registers.swap(); // TODO: Check if registers are swapped automatically
-                        match remaining {
-                            InterruptType::IM1 => {
-                                self.registers.pc = 0x38;
-                            }
-                            InterruptType::IM2(int_vector) => {
-                                self.registers.pc =
-                                    u16::from_le_bytes([int_vector, self.registers.i]);
-                            }
-                            _ => unreachable!("IM0/NMI should have been handled"),
-                        }
-                        None
-                    }
-                };
-                io.ack_int(id)?;
-                Ok(ret_instr)
-            }
-            None => Ok(None),
+    /// The data-bus byte of the maskable interrupt to accept before the next
+    /// instruction, if INT is active and enabled. A `request_int` comes first, then
+    /// the line held by `set_int_line`, then the first device holding INT, which is
+    /// acknowledged.
+    fn int_to_accept(&mut self, after_ei: bool, io: &mut IO) -> Option<u8> {
+        if !self.interrupts.iff1 || after_ei {
+            return None;
         }
+        self.interrupts
+            .int_request
+            .take()
+            .or(self.interrupts.int_line)
+            .or_else(|| io.int_ack())
     }
 }
 
@@ -101,12 +102,19 @@ impl Cpu for Z80 {
         memory: &mut Memory,
         io: &mut IO,
     ) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
-        let res = self.handle_interrupt(memory, io)?; // If IM1 interrupt it will be returned and executed
-        let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
-            Some(instruction) => instruction,
-            None => parser::Z80_PARSER
+        // Interrupts are checked before each instruction, NMI first. EI holds INT off
+        // for one instruction, but never NMI.
+        let after_ei = std::mem::take(&mut self.interrupts.ei_delay);
+        let mut instruction: Box<dyn ExecutableInstruction<Z80>> = if self.interrupts.nmi_pending {
+            Box::new(InterruptAck::nmi())
+        } else if let Some(data_bus) = self.int_to_accept(after_ei, io) {
+            Box::new(InterruptAck::int(self.interrupts.im, data_bus))
+        } else if self.halted {
+            Box::new(Halted::new())
+        } else {
+            parser::Z80_PARSER
                 .ins_from_machinecode(memory, self.registers.pc)
-                .map_err(|e| e.to_string())?,
+                .map_err(|e| e.to_string())?
         };
         // println!("Executing: {:?}", self.registers.gp[0].f);
         // println!("HL: {:X},BC:{:X}", self.registers.gp[0].hl,self.registers.gp[0].bc);
@@ -164,5 +172,17 @@ impl Cpu for Z80 {
     }
     fn set_halted(&mut self, halted: bool) {
         self.halted = halted;
+    }
+    fn request_nmi(&mut self) {
+        self.interrupts.nmi_pending = true;
+    }
+    fn request_int(&mut self, data_bus: u8) {
+        self.interrupts.int_request = Some(data_bus);
+    }
+    fn set_int_line(&mut self, asserted: bool, data_bus: u8) {
+        self.interrupts.int_line = asserted.then_some(data_bus);
+    }
+    fn deadlocked(&self) -> bool {
+        self.halted && !self.interrupts.iff1 && !self.interrupts.nmi_pending
     }
 }

@@ -37,7 +37,7 @@ impl BaseInstruction for IM0 {
 
 impl ExecutableInstruction<Z80> for IM0 {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        // io.set_im(0); TODO: Implement IM0
+        cpu.interrupts.im = 0;
         cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
         Ok(())
     }

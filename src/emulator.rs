@@ -9,6 +9,8 @@ use std::time::{Duration, SystemTime};
 #[derive(Debug)]
 pub enum StopReason {
     Breakpoint,
+    /// The CPU is halted with maskable interrupts disabled, so only an NMI can wake
+    /// it. A halted CPU that an INT could wake keeps running (idling) instead.
     Halt,
     Error(String),
 }
@@ -53,10 +55,9 @@ impl<T: Cpu +'static> Emulator<T> {
             instructions: 0,
         }
     }
+    /// Runs one step: an instruction, the acceptance of an interrupt, or one idle
+    /// cycle of a halted CPU.
     pub fn step(&mut self) -> Result<Box<dyn ExecutableInstruction<T>>, String> {
-        if self.cpu.halted() {
-            return Err("CPU is halted".to_string());
-        }
         self.memory.clear_changes();
         let instruction = self.cpu.step(&mut self.memory, &mut self.io);
         self.io.step();
@@ -74,15 +75,17 @@ impl<T: Cpu +'static> Emulator<T> {
     ) -> Result<f64, StopReason> {
         let mut current_ticks = 0.0;
         while current_ticks < ticks {
+            if self.cpu.halted() && self.cpu.deadlocked() {
+                return Err(StopReason::Halt);
+            }
             let instruction = self.step().map_err(|e| StopReason::Error(e))?;
             current_ticks += instruction.common().cycles as f64;
             if let Some(callback) = &callback {
                 callback(self, &*instruction);
             }
-            if self.cpu.halted() {
-                return Err(StopReason::Halt);
-            }
-            if self.breakpoints.contains(&self.cpu.pc()) {
+            // A halted CPU stays at the same PC; a breakpoint there fires once the
+            // CPU gets back to it by running, not on every idle cycle.
+            if !self.cpu.halted() && self.breakpoints.contains(&self.cpu.pc()) {
                 return Err(StopReason::Breakpoint);
             }
         }
@@ -155,5 +158,26 @@ impl<T: Cpu +'static> Emulator<T> {
     pub fn reset_counters(&mut self) {
         self.cycles=0;
         self.instructions=0;
+    }
+
+    /// Requests a non-maskable interrupt, taken before the next instruction.
+    pub fn request_nmi(&mut self) {
+        self.cpu.request_nmi();
+    }
+
+    /// Requests a maskable interrupt (INT), held until the CPU accepts it: a request
+    /// made while interrupts are disabled waits for EI, and repeated requests merge
+    /// into one. `data_bus` is the byte the interrupting device supplies: the
+    /// instruction to run in IM 0 (0xFF is RST 38h), the low byte of the vector
+    /// address in IM 2, and ignored in IM 1. For an interrupt that is only active
+    /// for a while (a Spectrum's lasts 32 T-states), use `set_int_line`.
+    pub fn request_int(&mut self, data_bus: u8) {
+        self.cpu.request_int(data_bus);
+    }
+
+    /// Holds INT active with `data_bus` (`asserted`), or releases it. While held, the
+    /// interrupt is taken again each time interrupts are enabled.
+    pub fn set_int_line(&mut self, asserted: bool, data_bus: u8) {
+        self.cpu.set_int_line(asserted, data_bus);
     }
 }

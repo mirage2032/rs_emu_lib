@@ -35,9 +35,9 @@ impl BaseInstruction for DI {
 }
 
 impl ExecutableInstruction<Z80> for DI {
-    fn execute(&mut self, _memory: &mut Memory, _cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        io.iff1 = false;
-        io.iff2 = false;
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
+        cpu.interrupts.iff1 = false;
+        cpu.interrupts.iff2 = false;
         Ok(())
     }
 }

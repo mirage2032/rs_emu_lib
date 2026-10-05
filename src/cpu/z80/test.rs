@@ -70,7 +70,6 @@ fn setup_z80(emulator: &mut Emulator<Z80>, data: &TestData) -> Result<(), String
     registers.gp.l = state.l;
     registers.i = state.i;
     registers.r = state.r;
-    //registers.other.insert("ei",BaseRegister::Bit8(state.ei));
     //registers.other.insert("wz",BaseRegister::Bit16(state.wz));
     registers.ix = state.ix;
     registers.iy = state.iy;
@@ -78,11 +77,13 @@ fn setup_z80(emulator: &mut Emulator<Z80>, data: &TestData) -> Result<(), String
     registers.gp_alt.bc = state.bc_;
     registers.gp_alt.de = state.de_;
     registers.gp_alt.hl = state.hl_;
-    //registers.other.insert("im",BaseRegister::Bit8(state.im));
     //registers.other.insert("p",BaseRegister::Bit16(state.p));
     //registers.other.insert("q",BaseRegister::Bit16(state.q));
-    emulator.io.iff1 = if state.iff1 == 1 { true } else { false };
-    emulator.io.iff2 = if state.iff2 == 1 { true } else { false };
+    let interrupts = &mut emulator.cpu.interrupts;
+    interrupts.iff1 = state.iff1 == 1;
+    interrupts.iff2 = state.iff2 == 1;
+    interrupts.im = state.im;
+    interrupts.ei_delay = state.ei == 1;
     for (address, value) in &state.ram {
         emulator.memory.write_8(*address, *value)?;
     }
@@ -127,10 +128,11 @@ fn assert_z80(emulator: &mut Emulator<Z80>, data: &TestData) {
     assert_eq!(registers.pc, state.pc);
     assert_eq!(registers.sp, state.sp);
     //assert_eq!(registers.other["wz"],BaseRegister::Bit16(test_state.wz));
-    assert_eq!(emulator.io.iff1, state.iff1 == 1);
-    assert_eq!(emulator.io.iff2, state.iff2 == 1);
-    //assert_eq!(registers.other["im"],BaseRegister::Bit8(test_state.im));
-    //assert_eq!(registers.other["ei"],BaseRegister::Bit8(test_state.ei));
+    let interrupts = &emulator.cpu.interrupts;
+    assert_eq!(interrupts.iff1, state.iff1 == 1);
+    assert_eq!(interrupts.iff2, state.iff2 == 1);
+    assert_eq!(interrupts.im, state.im);
+    assert_eq!(interrupts.ei_delay, state.ei == 1);
     //assert_eq!(registers.other["p"],BaseRegister::Bit16(test_state.p));
     //assert_eq!(registers.other["q"],BaseRegister::Bit16(test_state.q));
     for (address, value) in &state.ram {

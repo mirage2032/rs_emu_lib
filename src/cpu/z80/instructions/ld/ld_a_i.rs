@@ -35,9 +35,9 @@ impl BaseInstruction for LD_A_I {
 }
 
 impl ExecutableInstruction<Z80> for LD_A_I {
-    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.registers.gp.a = cpu.registers.i;
-        cpu.registers.gp.f.set_parity_overflow(io.iff2);
+        cpu.registers.gp.f.set_parity_overflow(cpu.interrupts.iff2);
         cpu.registers.gp.f.set_half_carry(false);
         cpu.registers.gp.f.set_sign(cpu.registers.i & 0x80 != 0);
         cpu.registers.gp.f.set_zero(cpu.registers.i == 0);

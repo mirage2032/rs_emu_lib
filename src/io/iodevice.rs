@@ -1,14 +1,21 @@
 use std::collections::HashMap;
 
-use super::InterruptType;
-
 pub trait IODevice: Send + Sync {
     fn ports(&self) -> Vec<u8>;
     fn read(&self, port: u8) -> Result<u8, &'static str>;
     fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str>;
-    fn step(&mut self);
-    fn will_interrupt(&self) -> Option<InterruptType>;
-    fn ack_int(&mut self) -> Result<(), &'static str>;
+    fn step(&mut self) {}
+    /// Whether the device is holding INT active, asking for a maskable interrupt.
+    /// For devices that drive INT themselves, like a Z80 CTC.
+    fn int_pending(&self) -> bool {
+        false
+    }
+    /// The CPU accepted the device's interrupt. Return the byte the device puts on
+    /// the data bus (the instruction to run in IM 0, the low byte of the vector
+    /// address in IM 2, ignored in IM 1), and normally stop holding INT.
+    fn int_ack(&mut self) -> u8 {
+        0xFF
+    }
 }
 
 pub struct IORegister {
@@ -41,12 +48,6 @@ impl IODevice for IORegister {
     }
 
     fn step(&mut self) {}
-    fn will_interrupt(&self) -> Option<InterruptType> {
-        None
-    }
-    fn ack_int(&mut self) -> Result<(), &'static str> {
-        Ok(())
-    }
 }
 
 impl Default for IORegister {

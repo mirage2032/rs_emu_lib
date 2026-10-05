@@ -45,4 +45,16 @@ impl Cpu for I8080 {
     fn set_halted(&mut self, halted: bool) {
         self.halted = halted;
     }
+    fn request_nmi(&mut self) {
+        unimplemented!()
+    }
+    fn request_int(&mut self, _: u8) {
+        unimplemented!()
+    }
+    fn set_int_line(&mut self, _: bool, _: u8) {
+        unimplemented!()
+    }
+    fn deadlocked(&self) -> bool {
+        unimplemented!()
+    }
 }

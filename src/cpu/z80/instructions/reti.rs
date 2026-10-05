@@ -36,10 +36,10 @@ impl BaseInstruction for RETI {
 }
 
 impl ExecutableInstruction<Z80> for RETI {
-    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.registers.pc = pop_16!(memory, cpu.registers.sp);
         cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
-        io.disable_int();
+        cpu.interrupts.iff1 = cpu.interrupts.iff2;
         Ok(())
     }
 }
