@@ -9,10 +9,7 @@ macro_rules! ld_pnn_rr {
 
             impl [<LD_PNN_ $cdest>] {
                 pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<[<LD_PNN_ $cdest>],MemoryReadError> {
-                    Ok([<LD_PNN_ $cdest>] {
-                        common: InstructionCommon::new(3, 16, true),
-                        nn:memory.read_16(pos.wrapping_add(1))?,
-                    })
+                    Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(1))?))
                 }
 
                 pub fn new_with_value(nn: u16) -> [<LD_PNN_ $cdest>] {

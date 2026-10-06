@@ -21,11 +21,7 @@ pub type LD_IY_PNN = LD_IDX_PNN<IY>;
 
 impl<R: IndexRegister> LD_IDX_PNN<R> {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<Self, MemoryReadError> {
-        Ok(Self {
-            common: InstructionCommon::new(4, 20, true),
-            nn: memory.read_16(pos.wrapping_add(2))?,
-            index: PhantomData,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(2))?))
     }
 
     pub fn new_with_value(nn: u16) -> Self {

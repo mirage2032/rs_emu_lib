@@ -16,10 +16,7 @@ pub struct OR_N {
 
 impl OR_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<OR_N, MemoryReadError> {
-        Ok(OR_N {
-            common: InstructionCommon::new(2, 7, true),
-            n: memory.read_8(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(n: u8) -> OR_N {

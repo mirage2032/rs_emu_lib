@@ -16,10 +16,7 @@ pub struct OUT_N_A {
 
 impl OUT_N_A {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<OUT_N_A, MemoryReadError> {
-        Ok(OUT_N_A {
-            common: InstructionCommon::new(2, 11, true),
-            n: memory.read_8(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(n: u8) -> OUT_N_A {

@@ -16,10 +16,7 @@ pub struct CALL_C_NN {
 
 impl CALL_C_NN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<CALL_C_NN, MemoryReadError> {
-        Ok(CALL_C_NN {
-            common: InstructionCommon::new(3, 10, true),
-            nn: memory.read_16(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(nn: u16) -> CALL_C_NN {

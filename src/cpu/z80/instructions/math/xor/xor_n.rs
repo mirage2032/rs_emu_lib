@@ -16,10 +16,7 @@ pub struct XOR_N {
 
 impl XOR_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<XOR_N, MemoryReadError> {
-        Ok(XOR_N {
-            common: InstructionCommon::new(2, 7, true),
-            n: memory.read_8(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(n: u8) -> XOR_N {

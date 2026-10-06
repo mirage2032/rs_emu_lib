@@ -15,10 +15,7 @@ pub struct LD_MISC_SP_PNN {
 
 impl LD_MISC_SP_PNN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_MISC_SP_PNN, MemoryReadError> {
-        Ok(LD_MISC_SP_PNN {
-            common: InstructionCommon::new(4, 20, true),
-            nn: memory.read_16(pos.wrapping_add(2))?,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(2))?))
     }
 
     pub fn new_with_value(nn: u16) -> LD_MISC_SP_PNN {

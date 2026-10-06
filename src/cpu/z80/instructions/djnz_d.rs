@@ -15,10 +15,7 @@ pub struct DJNZ_D {
 
 impl DJNZ_D {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<DJNZ_D, MemoryReadError> {
-        Ok(DJNZ_D {
-            common: InstructionCommon::new(2, 8, true),
-            d: memory.read_8(pos.wrapping_add(1))? as i8,
-        })
+        Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(d: u8) -> DJNZ_D {

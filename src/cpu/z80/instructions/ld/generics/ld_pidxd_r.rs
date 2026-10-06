@@ -13,11 +13,7 @@ macro_rules! ld_pidxd_r {
 
             impl<R: IndexRegister> [<LD_PIDXD_ $cdest>]<R> {
                 pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<Self,MemoryReadError> {
-                    Ok(Self {
-                        common: InstructionCommon::new(3, 19, true),
-                        d:memory.read_8(pos.wrapping_add(2))? as i8,
-                        index: PhantomData,
-                    })
+                    Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(2))?))
                 }
 
                 pub fn new_with_value(d: u8) -> Self {

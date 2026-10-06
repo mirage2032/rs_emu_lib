@@ -22,11 +22,7 @@ pub type RR_PIYD = RR_PIDXD<IY>;
 
 impl<R: IndexRegister> RR_PIDXD<R> {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<Self, MemoryReadError> {
-        Ok(Self {
-            common: InstructionCommon::new(4, 23, true),
-            d: memory.read_8(pos.wrapping_add(2))? as i8,
-            index: PhantomData,
-        })
+        Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(2))?))
     }
 
     pub fn new_with_value(d: u8) -> Self {

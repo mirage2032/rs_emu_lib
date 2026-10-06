@@ -15,10 +15,7 @@ pub struct JP_NZ_NN {
 
 impl JP_NZ_NN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JP_NZ_NN, MemoryReadError> {
-        Ok(JP_NZ_NN {
-            common: InstructionCommon::new(3, 10, true),
-            nn: memory.read_16(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(nn: u16) -> JP_NZ_NN {
