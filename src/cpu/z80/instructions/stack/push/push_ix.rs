@@ -38,7 +38,6 @@ impl BaseInstruction for PUSH_IX {
 impl ExecutableInstruction<Z80> for PUSH_IX {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         push_16!(cpu.registers.ix, memory, cpu.registers.sp);
-        cpu.registers.inc_r();
 
         Ok(())
     }

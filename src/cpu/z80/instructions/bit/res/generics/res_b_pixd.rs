@@ -43,7 +43,6 @@ macro_rules! res_b_pixd {
                     let mut value = memory.read_8(offset as u16)?;
                     value = value & !(1 << $bit);
                     memory.write_8(offset as u16, value)?;
-                    cpu.registers.inc_r();
                     Ok(())
                 }
             }

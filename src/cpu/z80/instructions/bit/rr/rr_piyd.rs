@@ -51,7 +51,6 @@ impl ExecutableInstruction<Z80> for RR_PIYD {
         let mut value = memory.read_8(addr)?;
         value = alu::rr8(&mut cpu.registers.gp.f, value);
         memory.write_8(addr, value)?;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

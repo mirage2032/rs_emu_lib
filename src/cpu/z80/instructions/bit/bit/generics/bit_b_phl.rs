@@ -34,7 +34,6 @@ macro_rules! bit_b_phl {
                 fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let value = memory.read_8(cpu.registers.gp.hl)?;
                     alu::bit(&mut cpu.registers.gp.f, $bit, value, None);
-                    cpu.registers.inc_r();
 
                     Ok(())
                 }

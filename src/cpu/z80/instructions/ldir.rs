@@ -54,7 +54,6 @@ impl ExecutableInstruction<Z80> for LDIR {
         if bc != 0 {
             alu::block_repeat(&mut cpu.registers.gp.f, cpu.registers.pc);
         }
-        cpu.registers.inc_r();
         Ok(())
     }
 }

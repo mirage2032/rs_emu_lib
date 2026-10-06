@@ -40,7 +40,6 @@ impl ExecutableInstruction<Z80> for IN_D_C {
         let value = io.read(cpu.registers.gp.c)?;
         alu::sz53p(&mut cpu.registers.gp.f, value);
         cpu.registers.gp.d = value;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

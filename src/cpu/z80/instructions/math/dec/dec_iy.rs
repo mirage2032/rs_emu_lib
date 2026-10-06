@@ -37,7 +37,6 @@ impl BaseInstruction for DEC_IY {
 impl ExecutableInstruction<Z80> for DEC_IY {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.iy = cpu.registers.iy.wrapping_sub(1);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

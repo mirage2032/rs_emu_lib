@@ -37,7 +37,6 @@ impl BaseInstruction for OUT_C_A {
 impl ExecutableInstruction<Z80> for OUT_C_A {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
         io.write(cpu.registers.gp.c, cpu.registers.gp.a)?;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

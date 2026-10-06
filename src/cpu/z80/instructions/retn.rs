@@ -50,7 +50,6 @@ impl BaseInstruction for RETN {
 impl ExecutableInstruction<Z80> for RETN {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.registers.pc = pop_16!(memory, cpu.registers.sp);
-        cpu.registers.inc_r();
         cpu.interrupts.iff1 = cpu.interrupts.iff2;
         Ok(())
     }

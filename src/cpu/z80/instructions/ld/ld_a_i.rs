@@ -41,7 +41,6 @@ impl ExecutableInstruction<Z80> for LD_A_I {
         cpu.registers.gp.a = i;
         alu::sz53p(&mut cpu.registers.gp.f, i);
         cpu.registers.gp.f.set_parity_overflow(cpu.interrupts.iff2);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

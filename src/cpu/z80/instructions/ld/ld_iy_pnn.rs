@@ -49,7 +49,6 @@ impl ExecutableInstruction<Z80> for LD_IY_PNN {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let val = memory.read_16(self.nn)?;
         cpu.registers.iy = val;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

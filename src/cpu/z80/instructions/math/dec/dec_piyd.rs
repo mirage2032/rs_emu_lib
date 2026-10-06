@@ -51,7 +51,6 @@ impl ExecutableInstruction<Z80> for DEC_PIYD {
         let mut val = memory.read_8(offset)?;
         val = alu::dec8(&mut cpu.registers.gp.f, val);
         memory.write_8(offset,val)?;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

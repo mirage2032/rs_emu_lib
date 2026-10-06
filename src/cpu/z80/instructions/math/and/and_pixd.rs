@@ -49,7 +49,6 @@ impl ExecutableInstruction<Z80> for AND_PIXD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let val = memory.read_8(cpu.registers.ix.wrapping_add(self.d as u16))?;
         cpu.registers.gp.a = alu::and8(&mut cpu.registers.gp.f, cpu.registers.gp.a, val);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

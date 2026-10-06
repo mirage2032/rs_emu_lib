@@ -120,11 +120,17 @@ impl Cpu for Z80 {
                 .ins_from_machinecode(memory, self.registers.pc)
                 .map_err(|e| e.to_string())?
         };
-        // println!("Executing: {:?}", self.registers.gp[0].f);
-        // println!("HL: {:X},BC:{:X}", self.registers.gp[0].hl,self.registers.gp[0].bc);
-        // The opcode fetch counts R up before the instruction runs, so LD A,R
-        // reads R with it counted. A prefixed instruction counts its second fetch.
-        self.registers.inc_r();
+        // Each opcode fetch counts R up: two for a prefixed instruction (the CB, DD,
+        // ED or FD and the opcode after it), one for anything else, including
+        // accepting an interrupt and an idle HALT step. They count before the
+        // instruction runs, so LD A,R reads R with both of its fetches counted.
+        let fetches = match instruction.to_bytes().first() {
+            Some(0xCB | 0xDD | 0xED | 0xFD) => 2,
+            _ => 1,
+        };
+        for _ in 0..fetches {
+            self.registers.inc_r();
+        }
         instruction.execute(memory, self, io)?;
         let common = instruction.common();
         if common.increment_pc {
@@ -132,7 +138,6 @@ impl Cpu for Z80 {
             let new_pc = self.registers.pc.wrapping_add(inst_length);
             self.registers.pc = new_pc;
         }
-        // println!("Executing: {:?}", self.registers.gp[0].f);
         Ok(instruction)
     }
     fn parser(&self) -> &dyn InstructionParser<Z80> {

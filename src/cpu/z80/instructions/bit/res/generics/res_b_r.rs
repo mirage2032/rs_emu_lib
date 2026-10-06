@@ -33,7 +33,6 @@ macro_rules! res_b_r {
             impl ExecutableInstruction<Z80> for [<RES_ $bit _ $srclit>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     cpu.registers.gp.$src &= !(1 << $bit);
-                    cpu.registers.inc_r();
 
                     Ok(())
                 }

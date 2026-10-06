@@ -51,7 +51,6 @@ impl ExecutableInstruction<Z80> for CP_PIXD {
         let offset = cpu.registers.ix.wrapping_add(self.d as u16);
         let value = memory.read_8(offset as u16)?;
         alu::cp8(&mut cpu.registers.gp.f, cpu.registers.gp.a, value);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

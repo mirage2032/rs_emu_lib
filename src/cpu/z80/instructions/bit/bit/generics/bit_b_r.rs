@@ -34,7 +34,6 @@ macro_rules! bit_b_r {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
                     alu::bit(&mut gp.f, $bit, gp.$src, Some(gp.$src));
-                    cpu.registers.inc_r();
 
                     Ok(())
                 }

@@ -51,7 +51,6 @@ impl ExecutableInstruction<Z80> for ADD_A_PIYD {
         let offset = cpu.registers.iy.wrapping_add(self.d as u16);
         let value = memory.read_8(offset as u16)?;
         cpu.registers.gp.a = alu::add8(&mut cpu.registers.gp.f, cpu.registers.gp.a, value, false);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

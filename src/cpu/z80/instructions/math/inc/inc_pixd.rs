@@ -52,7 +52,6 @@ impl ExecutableInstruction<Z80> for INC_PIXD {
         let value = memory.read_8(address)?;
         let result = alu::inc8(&mut cpu.registers.gp.f, value);
         memory.write_8(address, result)?;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

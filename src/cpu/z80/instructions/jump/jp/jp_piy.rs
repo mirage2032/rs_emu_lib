@@ -37,7 +37,6 @@ impl BaseInstruction for JP_PIY {
 impl ExecutableInstruction<Z80> for JP_PIY {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.registers.pc = cpu.registers.iy;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

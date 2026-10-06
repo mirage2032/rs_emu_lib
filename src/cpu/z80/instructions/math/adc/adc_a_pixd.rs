@@ -52,7 +52,6 @@ impl ExecutableInstruction<Z80> for ADC_A_PIXD {
         let value = memory.read_8(offset as u16)?;
         let carry = cpu.registers.gp.f.carry();
         cpu.registers.gp.a = alu::add8(&mut cpu.registers.gp.f, cpu.registers.gp.a, value, carry);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

@@ -45,7 +45,6 @@ impl ExecutableInstruction<Z80> for LDI {
         cpu.registers.gp.bc = cpu.registers.gp.bc.wrapping_sub(1);
         let (a, bc) = (cpu.registers.gp.a, cpu.registers.gp.bc);
         alu::block_ld(&mut cpu.registers.gp.f, a, value, bc);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

@@ -50,7 +50,6 @@ impl ExecutableInstruction<Z80> for OR_PIYD {
         let val = memory.read_8(cpu.registers.iy.wrapping_add(self.d as u16))?;
         cpu.registers.gp.a = alu::or8(&mut cpu.registers.gp.f, cpu.registers.gp.a, val);
 
-        cpu.registers.inc_r();
         Ok(())
     }
 }

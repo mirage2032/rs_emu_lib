@@ -37,7 +37,6 @@ impl BaseInstruction for LD_A_R {
 
 impl ExecutableInstruction<Z80> for LD_A_R {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
-        cpu.registers.inc_r(); // the second opcode fetch counts before R is read
         let r = cpu.registers.r;
         cpu.registers.gp.a = r;
         alu::sz53p(&mut cpu.registers.gp.f, r);

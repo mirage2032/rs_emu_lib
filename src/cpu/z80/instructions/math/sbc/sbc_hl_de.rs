@@ -40,7 +40,6 @@ impl ExecutableInstruction<Z80> for SBC_HL_DE {
         let (a, b) = (cpu.registers.gp.hl, cpu.registers.gp.de);
         let carry = cpu.registers.gp.f.carry();
         cpu.registers.gp.hl = alu::sbc16(&mut cpu.registers.gp.f, a, b, carry);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

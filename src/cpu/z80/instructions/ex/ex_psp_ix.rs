@@ -40,7 +40,6 @@ impl ExecutableInstruction<Z80> for EX_PSP_IX {
         let val = memory.read_16(cpu.registers.sp)?;
         memory.write_16(cpu.registers.sp, cpu.registers.ix)?;
         cpu.registers.ix = val;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

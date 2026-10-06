@@ -37,7 +37,6 @@ impl BaseInstruction for JP_PIX {
 impl ExecutableInstruction<Z80> for JP_PIX {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.registers.pc = cpu.registers.ix;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

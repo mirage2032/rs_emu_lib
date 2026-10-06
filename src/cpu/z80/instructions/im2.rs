@@ -46,7 +46,6 @@ impl BaseInstruction for IM2 {
 impl ExecutableInstruction<Z80> for IM2 {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
         cpu.interrupts.im = 2;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

@@ -43,7 +43,6 @@ impl ExecutableInstruction<Z80> for ADC_HL_SP {
         let (a, b) = (cpu.registers.gp.hl, cpu.registers.sp);
         let carry = cpu.registers.gp.f.carry();
         cpu.registers.gp.hl = alu::adc16(&mut cpu.registers.gp.f, a, b, carry);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

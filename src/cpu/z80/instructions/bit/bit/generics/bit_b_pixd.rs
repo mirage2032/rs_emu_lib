@@ -42,7 +42,6 @@ macro_rules! bit_b_pixd {
                     let offset = cpu.registers.ix.wrapping_add(self.d as u16);
                     let value = memory.read_8(offset as u16)?;
                     alu::bit(&mut cpu.registers.gp.f, $bit, value, Some((offset >> 8) as u8));
-                    cpu.registers.inc_r();
                     Ok(())
                 }
             }

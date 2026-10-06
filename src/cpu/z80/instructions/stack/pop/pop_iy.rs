@@ -39,7 +39,6 @@ impl ExecutableInstruction<Z80> for POP_IY {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let result = pop_16!(memory, cpu.registers.sp);
         cpu.registers.iy = result;
-        cpu.registers.inc_r();
 
         Ok(())
     }

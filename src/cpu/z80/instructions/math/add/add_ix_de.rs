@@ -39,7 +39,6 @@ impl ExecutableInstruction<Z80> for ADD_IX_DE {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let (a, b) = (cpu.registers.ix, cpu.registers.gp.de);
         cpu.registers.ix = alu::add16(&mut cpu.registers.gp.f, a, b);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

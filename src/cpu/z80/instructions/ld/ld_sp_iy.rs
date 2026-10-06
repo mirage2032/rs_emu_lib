@@ -37,7 +37,6 @@ impl BaseInstruction for LD_SP_IY {
 impl ExecutableInstruction<Z80> for LD_SP_IY {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.sp = cpu.registers.iy;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

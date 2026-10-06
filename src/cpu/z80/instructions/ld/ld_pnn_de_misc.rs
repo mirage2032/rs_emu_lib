@@ -48,7 +48,6 @@ impl BaseInstruction for LD_PNN_DE {
 impl ExecutableInstruction<Z80> for LD_PNN_DE {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         memory.write_16(self.nn, cpu.registers.gp.de)?;
-        cpu.registers.inc_r();
         Ok(())
     }
 }

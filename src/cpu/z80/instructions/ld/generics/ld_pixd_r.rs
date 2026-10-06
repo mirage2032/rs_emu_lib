@@ -44,7 +44,6 @@ macro_rules! ld_pixd_r {
 
                 let addr = cpu.registers.ix.wrapping_add(self.d as u16);
                 memory.write_8(addr, cpu.registers.gp.$dest)?;
-                cpu.registers.inc_r();
         Ok(())
                 }
             }

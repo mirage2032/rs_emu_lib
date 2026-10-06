@@ -38,7 +38,6 @@ impl BaseInstruction for NEG {
 impl ExecutableInstruction<Z80> for NEG {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.gp.a = alu::neg8(&mut cpu.registers.gp.f, cpu.registers.gp.a);
-        cpu.registers.inc_r();
         Ok(())
     }
 }

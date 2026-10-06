@@ -50,7 +50,6 @@ impl BaseInstruction for LD_PIXD_N {
 impl ExecutableInstruction<Z80> for LD_PIXD_N {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         memory.write_8(cpu.registers.ix.wrapping_add(self.d as u16), self.n)?;
-        cpu.registers.inc_r();
         Ok(())
     }
 }
