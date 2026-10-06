@@ -4,6 +4,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{pop_16, BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -37,8 +38,8 @@ impl BaseInstruction for LDIR {
 
 impl ExecutableInstruction<Z80> for LDIR {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        let hl_data = memory.read_8(cpu.registers.gp.hl)?;
-        memory.write_8(cpu.registers.gp.de, hl_data)?;
+        let value = memory.read_8(cpu.registers.gp.hl)?;
+        memory.write_8(cpu.registers.gp.de, value)?;
         cpu.registers.gp.hl = cpu.registers.gp.hl.wrapping_add(1);
         cpu.registers.gp.de = cpu.registers.gp.de.wrapping_add(1);
         cpu.registers.gp.bc = cpu.registers.gp.bc.wrapping_sub(1);
@@ -48,9 +49,11 @@ impl ExecutableInstruction<Z80> for LDIR {
             self.common.cycles = 21;
             self.common.increment_pc = false;
         }
-        cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.gp.f.set_half_carry(false);
-        cpu.registers.gp.f.set_parity_overflow(cpu.registers.gp.bc != 0);
+        let (a, bc) = (cpu.registers.gp.a, cpu.registers.gp.bc);
+        alu::block_ld(&mut cpu.registers.gp.f, a, value, bc);
+        if bc != 0 {
+            alu::block_repeat(&mut cpu.registers.gp.f, cpu.registers.pc);
+        }
         cpu.registers.inc_r();
         Ok(())
     }

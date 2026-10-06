@@ -33,7 +33,7 @@ macro_rules! rrc_r {
             impl ExecutableInstruction<Z80> for [<RRC_ $sdest>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
-                    rrc_r_setf!(gp.$src, gp.f);
+                    gp.$src = alu::rrc8(&mut gp.f, gp.$src);
                     cpu.registers.inc_r();
 
                     Ok(())

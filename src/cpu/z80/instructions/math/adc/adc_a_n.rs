@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
@@ -47,7 +48,8 @@ impl BaseInstruction for ADC_A_N {
 
 impl ExecutableInstruction<Z80> for ADC_A_N {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        super::adc_r_r_setf!(&mut cpu.registers.gp.a, self.n, cpu.registers.gp.f);
+        let carry = cpu.registers.gp.f.carry();
+        cpu.registers.gp.a = alu::add8(&mut cpu.registers.gp.f, cpu.registers.gp.a, self.n, carry);
         Ok(())
     }
 }

@@ -4,7 +4,7 @@ use crate::cpu::z80::instructions::bit::bit::generics::bit_b_phl::bit_b_phl;
 use crate::cpu::z80::instructions::bit::bit::generics::bit_b_pixd::bit_b_pixd;
 use crate::cpu::z80::instructions::bit::bit::generics::bit_b_piyd::bit_b_piyd;
 use crate::cpu::z80::instructions::bit::bit::generics::bit_b_r::bit_b_r;
-use crate::cpu::z80::instructions::bit::bit::generics::bit_b_r_setf;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;
 use crate::cpu::ExecutableInstruction;

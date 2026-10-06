@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::math::sbc::generics::sbc_rr_rr;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory};
@@ -37,7 +37,9 @@ impl BaseInstruction for SBC_HL_DE {
 
 impl ExecutableInstruction<Z80> for SBC_HL_DE {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        sbc_rr_rr!(cpu.registers.gp.hl, cpu.registers.gp.de, cpu.registers.gp.f);
+        let (a, b) = (cpu.registers.gp.hl, cpu.registers.gp.de);
+        let carry = cpu.registers.gp.f.carry();
+        cpu.registers.gp.hl = alu::sbc16(&mut cpu.registers.gp.f, a, b, carry);
         cpu.registers.inc_r();
         Ok(())
     }

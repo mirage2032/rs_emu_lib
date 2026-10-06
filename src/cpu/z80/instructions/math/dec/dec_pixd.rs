@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
@@ -47,15 +48,10 @@ impl BaseInstruction for DEC_PIXD {
 
 impl ExecutableInstruction<Z80> for DEC_PIXD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let mem_addr = cpu.registers.ix.wrapping_add(self.d as u16);
-        let val = memory.read_8(mem_addr)?;
-        cpu.registers.gp.f.set_half_carry(val & 0x0f == 0);
-        let val = val.wrapping_sub(1);
-        cpu.registers.gp.f.set_sign(val & 0x80 != 0);
-        cpu.registers.gp.f.set_parity_overflow(val == 0x7F);
-        cpu.registers.gp.f.set_zero(val == 0);
-        cpu.registers.gp.f.set_add_sub(true);
-        memory.write_8(mem_addr, val)?;
+        let address = cpu.registers.ix.wrapping_add(self.d as u16);
+        let value = memory.read_8(address)?;
+        let result = alu::dec8(&mut cpu.registers.gp.f, value);
+        memory.write_8(address, result)?;
         cpu.registers.inc_r();
         Ok(())
     }

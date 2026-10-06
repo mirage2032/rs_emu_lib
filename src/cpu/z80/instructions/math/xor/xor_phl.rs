@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
 
@@ -37,7 +38,7 @@ impl BaseInstruction for XOR_PHL {
 impl ExecutableInstruction<Z80> for XOR_PHL {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let val = memory.read_8(cpu.registers.gp.hl)?;
-        super::xor_r_r_setf!(&mut cpu.registers.gp.a, &val, &mut cpu.registers.gp.f);
+        cpu.registers.gp.a = alu::xor8(&mut cpu.registers.gp.f, cpu.registers.gp.a, val);
         Ok(())
     }
 }

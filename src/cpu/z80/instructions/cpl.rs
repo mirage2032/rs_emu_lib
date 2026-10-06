@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -36,14 +37,7 @@ impl BaseInstruction for CPL {
 
 impl ExecutableInstruction<Z80> for CPL {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let inverted_a = !cpu.registers.gp.a;
-        cpu.registers.gp.a = inverted_a;
-
-        cpu.registers.gp.f.set_half_carry(true);
-        cpu.registers.gp.f.set_add_sub(true);
-
-        cpu.registers.gp.f.set_bit3((inverted_a >> 3) & 1 == 1);
-        cpu.registers.gp.f.set_bit5((inverted_a >> 5) & 1 == 1);
+        cpu.registers.gp.a = alu::cpl(&mut cpu.registers.gp.f, cpu.registers.gp.a);
         Ok(())
     }
 }

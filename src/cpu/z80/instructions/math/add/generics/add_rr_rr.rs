@@ -32,11 +32,8 @@ macro_rules! add_rr_rr {
 
             impl ExecutableInstruction<Z80> for [<ADD_ $cdest _ $csrc>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                    add_rr_rr_setf!(
-                        cpu.registers.gp.[<$dest>],
-                        cpu.registers.gp.[<$src>],
-                        cpu.registers.gp.f
-                    );
+                    let (a, b) = (cpu.registers.gp.[<$dest>], cpu.registers.gp.[<$src>]);
+                    cpu.registers.gp.[<$dest>] = alu::add16(&mut cpu.registers.gp.f, a, b);
                     Ok(())
                 }
             }

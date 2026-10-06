@@ -33,7 +33,7 @@ macro_rules! inc_r {
             impl ExecutableInstruction<Z80> for [<INC_ $cdest>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
-                    inc_r_setf!(&mut gp.[<$dest>], &mut gp.f);
+                    gp.[<$dest>] = alu::inc8(&mut gp.f, gp.[<$dest>]);
                     Ok(())
                 }
             }

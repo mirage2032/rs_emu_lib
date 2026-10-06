@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::math::sub::generics::sub_r_setf;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
@@ -48,7 +48,7 @@ impl BaseInstruction for SUB_PIXD {
 impl ExecutableInstruction<Z80> for SUB_PIXD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let val = memory.read_8(cpu.registers.ix.wrapping_add(self.d as u16))?;
-        sub_r_setf!(cpu.registers.gp.a, val, cpu.registers.gp.f);
+        cpu.registers.gp.a = alu::sub8(&mut cpu.registers.gp.f, cpu.registers.gp.a, val, false);
         cpu.registers.inc_r();
         Ok(())
     }

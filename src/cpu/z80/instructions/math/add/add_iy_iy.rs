@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::math::add::generics::add_rr_rr_setf;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::Memory;
@@ -37,7 +37,8 @@ impl BaseInstruction for ADD_IY_IY {
 
 impl ExecutableInstruction<Z80> for ADD_IY_IY {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        add_rr_rr_setf!(cpu.registers.iy, cpu.registers.iy, cpu.registers.gp.f);
+        let (a, b) = (cpu.registers.iy, cpu.registers.iy);
+        cpu.registers.iy = alu::add16(&mut cpu.registers.gp.f, a, b);
         cpu.registers.inc_r();
         Ok(())
     }

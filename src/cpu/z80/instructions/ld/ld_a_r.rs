@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -39,11 +40,8 @@ impl ExecutableInstruction<Z80> for LD_A_R {
         cpu.registers.inc_r(); // the second opcode fetch counts before R is read
         let r = cpu.registers.r;
         cpu.registers.gp.a = r;
+        alu::sz53p(&mut cpu.registers.gp.f, r);
         cpu.registers.gp.f.set_parity_overflow(cpu.interrupts.iff2);
-        cpu.registers.gp.f.set_half_carry(false);
-        cpu.registers.gp.f.set_sign(r & 0x80 != 0);
-        cpu.registers.gp.f.set_zero(r == 0);
-        cpu.registers.gp.f.set_add_sub(false);
         Ok(())
     }
 }

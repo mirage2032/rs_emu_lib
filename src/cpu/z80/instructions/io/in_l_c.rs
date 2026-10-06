@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -36,15 +37,9 @@ impl BaseInstruction for IN_L_C {
 
 impl ExecutableInstruction<Z80> for IN_L_C {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        cpu.registers.gp.l = io.read(cpu.registers.gp.c)?;
-        cpu.registers.gp.f.set_half_carry(false);
-        cpu.registers
-            .gp
-            .f
-            .set_parity_overflow(cpu.registers.gp.l.count_ones() % 2 == 0);
-        cpu.registers.gp.f.set_zero(cpu.registers.gp.l == 0);
-        cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.gp.f.set_sign(cpu.registers.gp.l & 0x80 != 0);
+        let value = io.read(cpu.registers.gp.c)?;
+        alu::sz53p(&mut cpu.registers.gp.f, value);
+        cpu.registers.gp.l = value;
         cpu.registers.inc_r();
         Ok(())
     }

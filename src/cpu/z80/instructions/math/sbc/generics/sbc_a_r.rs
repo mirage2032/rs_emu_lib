@@ -32,10 +32,9 @@ macro_rules! sbc_a_r {
 
             impl ExecutableInstruction<Z80> for [<SBC_A_ $csrc>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                    sbc_r_r!(cpu.registers.gp.a,
-                        cpu.registers.gp.[<$src>],
-                        cpu.registers.gp.f
-                    );
+                    let gp = &mut cpu.registers.gp;
+                    let carry = gp.f.carry();
+                    gp.a = alu::sub8(&mut gp.f, gp.a, gp.[<$src>], carry);
                     Ok(())
                 }
             }

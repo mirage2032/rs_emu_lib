@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
@@ -37,23 +38,9 @@ impl BaseInstruction for DEC_PHL {
 
 impl ExecutableInstruction<Z80> for DEC_PHL {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let value_before = memory.read_8(cpu.registers.gp.hl)?;
-        let result = value_before.wrapping_sub(1);
+        let value = memory.read_8(cpu.registers.gp.hl)?;
+        let result = alu::dec8(&mut cpu.registers.gp.f, value);
         memory.write_8(cpu.registers.gp.hl, result)?;
-        // Update flags
-        cpu.registers.gp.f.set_sign((result & (1 << 7)) != 0);
-        cpu.registers.gp.f.set_parity_overflow(value_before == 0x80);
-        cpu.registers
-            .gp
-            .f
-            .set_half_carry((value_before & 0x0F) == 0);
-        cpu.registers.gp.f.set_zero(result == 0);
-        cpu.registers.gp.f.set_add_sub(true);
-
-        // Set undocumented flags
-        cpu.registers.gp.f.set_bit3((result >> 3) & 1 == 1);
-        cpu.registers.gp.f.set_bit5((result >> 5) & 1 == 1);
-
         Ok(())
     }
 }

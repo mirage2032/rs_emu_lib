@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::bit::rlc::generics::rlc_r_setf;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
@@ -49,7 +49,7 @@ impl ExecutableInstruction<Z80> for RLC_PIYD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let addr = cpu.registers.iy.wrapping_add(self.d as u16);
         let mut value = memory.read_8(addr)?;
-        rlc_r_setf!(value, cpu.registers.gp.f);
+        value = alu::rlc8(&mut cpu.registers.gp.f, value);
         memory.write_8(addr, value)?;
         cpu.registers.inc_r();
         Ok(())

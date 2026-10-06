@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -36,12 +37,8 @@ impl BaseInstruction for CCF {
 
 impl ExecutableInstruction<Z80> for CCF {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers
-            .gp
-            .f
-            .set_half_carry(cpu.registers.gp.f.carry());
-        cpu.registers.gp.f.set_carry(!cpu.registers.gp.f.carry());
-        cpu.registers.gp.f.set_add_sub(false);
+        let a = cpu.registers.gp.a;
+        alu::ccf(&mut cpu.registers.gp.f, a);
         Ok(())
     }
 }

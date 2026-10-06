@@ -31,31 +31,14 @@ use emu_lib::memory::{Memory, MemoryDevice};
 use libtest_mimic::{Arguments, Failed, Trial};
 use serde::Deserialize;
 
-/// Files whose instructions don't set F's bits 3 and 5 (undocumented copies of
-/// result bits) yet. Only those two bits of F go unchecked for them.
+/// Files whose instructions take F's bits 3 and 5 (undocumented copies of other
+/// bits) from internal registers the emulator doesn't model. Only those two bits
+/// of F go unchecked for them.
 #[rustfmt::skip]
 const UNCHECKED_F_BITS_3_5: &[&str] = &[
-    "37", "3f", // SCF, CCF
-    // BIT b,r and BIT b,(HL)
-    "cb 40", "cb 41", "cb 42", "cb 43", "cb 44", "cb 45", "cb 46", "cb 47",
-    "cb 48", "cb 49", "cb 4a", "cb 4b", "cb 4c", "cb 4d", "cb 4e", "cb 4f",
-    "cb 50", "cb 51", "cb 52", "cb 53", "cb 54", "cb 55", "cb 56", "cb 57",
-    "cb 58", "cb 59", "cb 5a", "cb 5b", "cb 5c", "cb 5d", "cb 5e", "cb 5f",
-    "cb 60", "cb 61", "cb 62", "cb 63", "cb 64", "cb 65", "cb 66", "cb 67",
-    "cb 68", "cb 69", "cb 6a", "cb 6b", "cb 6c", "cb 6d", "cb 6e", "cb 6f",
-    "cb 70", "cb 71", "cb 72", "cb 73", "cb 74", "cb 75", "cb 76", "cb 77",
-    "cb 78", "cb 79", "cb 7a", "cb 7b", "cb 7c", "cb 7d", "cb 7e", "cb 7f",
-    "dd 34", "dd 35", // INC (IX+d), DEC (IX+d)
-    // BIT b,(IX+d), BIT b,(IY+d)
-    "dd cb __ 46", "dd cb __ 4e", "dd cb __ 56", "dd cb __ 5e",
-    "dd cb __ 66", "dd cb __ 6e", "dd cb __ 76", "dd cb __ 7e",
-    "fd cb __ 46", "fd cb __ 4e", "fd cb __ 56", "fd cb __ 5e",
-    "fd cb __ 66", "fd cb __ 6e", "fd cb __ 76", "fd cb __ 7e",
-    "ed 40", "ed 48", "ed 50", "ed 58", "ed 60", "ed 68", "ed 78", // IN r,(C)
-    "ed 42", "ed 52", "ed 62", "ed 72", // SBC HL,rr
-    "ed 44", // NEG
-    "ed 57", "ed 5f", // LD A,I, LD A,R
-    "ed a0", "ed b0", "ed b8", // LDI, LDIR, LDDR
+    "37", "3f", // SCF, CCF: from Q, which records whether the last instruction set F
+    // BIT b,(HL): from WZ, the address latch
+    "cb 46", "cb 4e", "cb 56", "cb 5e", "cb 66", "cb 6e", "cb 76", "cb 7e",
 ];
 
 /// How many failing cases a failed test lists.

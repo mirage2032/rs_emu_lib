@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::math::sbc::generics::sbc_r_r;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
@@ -47,7 +47,8 @@ impl BaseInstruction for SBC_A_N {
 
 impl ExecutableInstruction<Z80> for SBC_A_N {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        sbc_r_r!(cpu.registers.gp.a, self.n, cpu.registers.gp.f);
+        let carry = cpu.registers.gp.f.carry();
+        cpu.registers.gp.a = alu::sub8(&mut cpu.registers.gp.f, cpu.registers.gp.a, self.n, carry);
         Ok(())
     }
 }

@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use super::super::memory::Memory;
 use interrupt::{Halted, InterruptAck};
 
+mod alu;
 pub mod instructions;
 pub mod interrupt;
 pub mod parser;

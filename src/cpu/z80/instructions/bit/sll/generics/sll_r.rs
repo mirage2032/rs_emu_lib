@@ -33,7 +33,7 @@ macro_rules! sll_r {
             impl ExecutableInstruction<Z80> for [<SLL_ $sdest>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
-                    sll_r_setf!(gp.$src, gp.f);
+                    gp.$src = alu::sll8(&mut gp.f, gp.$src);
                     cpu.registers.inc_r();
 
                     Ok(())

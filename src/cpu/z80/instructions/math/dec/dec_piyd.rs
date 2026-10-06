@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::math::dec::generics::dec_r_setf;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::{Memory, MemoryDevice};
@@ -49,7 +49,7 @@ impl ExecutableInstruction<Z80> for DEC_PIYD {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         let offset = cpu.registers.iy.wrapping_add(self.d as u16);
         let mut val = memory.read_8(offset)?;
-        dec_r_setf!(&mut val,&mut cpu.registers.gp.f);
+        val = alu::dec8(&mut cpu.registers.gp.f, val);
         memory.write_8(offset,val)?;
         cpu.registers.inc_r();
         Ok(())

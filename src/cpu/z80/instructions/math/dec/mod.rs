@@ -4,10 +4,10 @@ use std::fmt::Display;
 use hex_literal::hex;
 
 use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::instructions::math::dec::generics::dec_r_setf;
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 

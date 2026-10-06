@@ -41,7 +41,7 @@ macro_rules! bit_b_pixd {
                 fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let offset = cpu.registers.ix.wrapping_add(self.d as u16);
                     let value = memory.read_8(offset as u16)?;
-                    bit_b_r_setf!(value,$bit, cpu.registers.gp.f);
+                    alu::bit(&mut cpu.registers.gp.f, $bit, value, Some((offset >> 8) as u8));
                     cpu.registers.inc_r();
                     Ok(())
                 }

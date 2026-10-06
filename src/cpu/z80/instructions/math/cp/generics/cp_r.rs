@@ -33,7 +33,7 @@ macro_rules! cp_r {
             impl ExecutableInstruction<Z80> for [<CP_ $sdest>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
-                    cp_r_setf!(gp.a, gp.$src, gp.f);
+                    alu::cp8(&mut gp.f, gp.a, gp.$src);
 
                     Ok(())
                 }
