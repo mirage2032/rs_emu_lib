@@ -24,7 +24,7 @@ impl INC_PIXD {
 
     pub fn new_with_value(d: i8) -> INC_PIXD {
         INC_PIXD {
-            common: InstructionCommon::new(2, 23, true),
+            common: InstructionCommon::new(3, 23, true),
             d,
         }
     }

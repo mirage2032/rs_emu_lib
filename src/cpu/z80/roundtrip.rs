@@ -1,7 +1,9 @@
 //! Every opcode the decoder knows must survive a round trip: decoded from its
 //! bytes, it encodes back to the same bytes, and its text assembles to an
 //! instruction that decodes to the same text (a longer equivalent encoding,
-//! like `ED 6B` for `LD HL,(nn)`, is fine).
+//! like `ED 6B` for `LD HL,(nn)`, is fine). When the assembler picks the same
+//! encoding, it must build the same instruction: same length, T-states, and
+//! whether PC moves on after it.
 
 use crate::cpu::instruction::InstructionParser;
 use crate::cpu::z80::parser::Z80_PARSER;
@@ -32,20 +34,24 @@ fn every_opcode_round_trips() {
         };
         let encoded = decoded.to_bytes();
         if encoded[..] != bytes[..encoded.len()] {
-            failures.push(format!("{:02X?} decodes to `{decoded}` but encodes to {:02X?}", &bytes[..encoded.len()], encoded));
+            failures.push(format!("{:02X?} decodes to `{decoded}` but encodes to {encoded:02X?}", &bytes[..encoded.len()]));
             continue;
         }
         let text = decoded.to_string();
-        match Z80_PARSER.ins_from_asm_string(&text) {
-            Ok(assembled) => {
-                let mut memory = Memory::new_full_ram();
-                memory.load(&assembled.to_bytes(), true).unwrap();
-                let again = Z80_PARSER.ins_from_machinecode(&memory, 0).map(|i| i.to_string()).ok();
-                if again.as_deref() != Some(text.as_str()) {
-                    failures.push(format!("`{text}` assembles to {:02X?}, which decodes to {again:?}", assembled.to_bytes()));
-                }
+        let assembled = match Z80_PARSER.ins_from_asm_string(&text) {
+            Ok(assembled) => assembled,
+            Err(error) => {
+                failures.push(format!("`{text}` doesn't assemble: {error}"));
+                continue;
             }
-            Err(_) => {} // Not every decoded form is accepted as assembly text; that's a parser gap, not a mismatch.
+        };
+        let mut memory = Memory::new_full_ram();
+        memory.load(&assembled.to_bytes(), true).unwrap();
+        let again = Z80_PARSER.ins_from_machinecode(&memory, 0).map(|i| i.to_string()).ok();
+        if again.as_deref() != Some(text.as_str()) {
+            failures.push(format!("`{text}` assembles to {:02X?}, which decodes to {again:?}", assembled.to_bytes()));
+        } else if assembled.to_bytes() == encoded && assembled.common() != decoded.common() {
+            failures.push(format!("`{text}` assembles to {:?}, but decodes to {:?}", assembled.common(), decoded.common()));
         }
     }
     assert!(failures.is_empty(), "{} opcodes don't round-trip:\n{}", failures.len(), failures.join("\n"));

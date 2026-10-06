@@ -18,7 +18,7 @@ macro_rules! ld_r_pnn {
 
                 pub fn new_with_value(nn: u16) -> [<LD_ $cdest _PNN>] {
                     [<LD_ $cdest _PNN>] {
-                        common: InstructionCommon::new(3, 16, true),
+                        common: InstructionCommon::new(3, 13, true),
                         nn,
                     }
                 }

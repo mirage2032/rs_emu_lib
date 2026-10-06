@@ -5,7 +5,7 @@ use crate::memory::{Memory, MemoryDevice};
 use std::fmt::{Debug, Display};
 use thiserror::Error;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InstructionCommon {
     pub length: u16,
     pub cycles: u16,

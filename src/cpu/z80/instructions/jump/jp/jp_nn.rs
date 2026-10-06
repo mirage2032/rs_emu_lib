@@ -23,7 +23,7 @@ impl JP_NN {
 
     pub fn new_with_value(nn: u16) -> JP_NN {
         JP_NN {
-            common: InstructionCommon::new(3, 10, true),
+            common: InstructionCommon::new(3, 10, false),
             nn,
         }
     }
