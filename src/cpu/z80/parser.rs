@@ -779,6 +779,9 @@ impl InstructionParser<Z80> for Z80Parser {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
                         Box::new(math::inc::inc_pidxd::INC_PIXD::new_with_value(offset as i8))
                     }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(math::inc::inc_pidxd::INC_PIYD::new_with_value(offset as i8))
+                    }
                     Err(_) => match destination {
                         "bc" => Box::new(math::inc::INC_BC::new()),
                         "de" => Box::new(math::inc::INC_DE::new()),
@@ -2347,6 +2350,7 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x2A => Box::new(ld::ld_idx_pnn::LD_IY_PNN::new(memory, pos)?),
                     0x2B => Box::new(math::dec::dec_idx::DEC_IY::new()),
                     0x29 => Box::new(math::add::add_idx_idx::ADD_IY_IY::new()),
+                    0x34 => Box::new(math::inc::inc_pidxd::INC_PIYD::new(memory, pos)?),
                     0x35 => Box::new(math::dec::dec_pidxd::DEC_PIYD::new(memory,pos)?),
                     0x36 => Box::new(ld::ld_pidxd_n::LD_PIYD_N::new(memory,pos)?),
                     0x39 => Box::new(math::add::add_idx_sp::ADD_IY_SP::new()),
