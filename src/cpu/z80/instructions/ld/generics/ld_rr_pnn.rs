@@ -1,6 +1,5 @@
 macro_rules! ld_rr_pnn {
     ($dest: expr ,$opcode:literal,$cdest:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<LD_ $cdest _PNN>] {

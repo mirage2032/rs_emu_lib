@@ -30,8 +30,12 @@ pub struct Z80Registers {
     pub pc: u16,
 }
 impl Z80Registers {
+    /// Exchanges BC, DE and HL with their alternates, as EXX does. AF isn't
+    /// exchanged: EX AF,AF' does that.
     pub fn swap(&mut self) {
-        std::mem::swap(&mut self.gp, &mut self.gp_alt);
+        std::mem::swap(&mut self.gp.bc, &mut self.gp_alt.bc);
+        std::mem::swap(&mut self.gp.de, &mut self.gp_alt.de);
+        std::mem::swap(&mut self.gp.hl, &mut self.gp_alt.hl);
     }
     /// Counts R up, as each opcode fetch does. Only the low 7 bits count; bit 7
     /// keeps what LD R,A put there.

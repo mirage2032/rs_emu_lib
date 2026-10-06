@@ -1,6 +1,5 @@
 macro_rules! sra_r {
         ($src:expr,$opcode:literal,$sdest:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<SRA_ $sdest>] {

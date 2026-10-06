@@ -1,6 +1,5 @@
 macro_rules! adc_r_r {
         ($dest:expr,$src:expr,$opcode:literal,$cdest:literal,$csrc:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<ADC_ $cdest _ $csrc>] {

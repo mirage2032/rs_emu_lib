@@ -1,6 +1,5 @@
 macro_rules! bit_b_r {
         ($bit:literal, $src:expr,$srclit:literal,$opcode:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<BIT_ $bit _ $srclit>] {
