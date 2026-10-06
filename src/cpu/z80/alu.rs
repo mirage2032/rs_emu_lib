@@ -289,12 +289,66 @@ pub fn block_ld(f: &mut Flags, a: u8, value: u8, bc: u16) {
     f.set_add_sub(false);
 }
 
-/// When LDIR or LDDR repeats, bits 5 and 3 come from the high byte of PC, the
-/// instruction's own address, instead.
+/// When LDIR, LDDR, CPIR or CPDR repeats, bits 5 and 3 come from the high byte of
+/// PC, the instruction's own address, instead.
 pub fn block_repeat(f: &mut Flags, pc: u16) {
     let high = (pc >> 8) as u8;
     f.set_bit5(high & 0x20 != 0);
     f.set_bit3(high & 0x08 != 0);
+}
+
+/// CPI, CPD, CPIR and CPDR: S, Z and H as A - value sets them, N set, and P/V
+/// set while BC (after its decrement) isn't 0. Bits 5 and 3 are bits 1 and 3 of
+/// A - value - H. C is left alone.
+pub fn block_cp(f: &mut Flags, a: u8, value: u8, bc: u16) {
+    let result = a.wrapping_sub(value);
+    let half_carry = a & 0x0F < value & 0x0F;
+    let n = result.wrapping_sub(half_carry as u8);
+    f.set_sign(result & 0x80 != 0);
+    f.set_zero(result == 0);
+    f.set_bit5(n & 0x02 != 0);
+    f.set_half_carry(half_carry);
+    f.set_bit3(n & 0x08 != 0);
+    f.set_parity_overflow(bc != 0);
+    f.set_add_sub(true);
+}
+
+/// INI, IND, OUTI, OUTD and their repeating forms: S, Z, 5 and 3 come from B
+/// (after its decrement), and N from bit 7 of the byte moved. `k` is that byte
+/// plus C + 1 (INI, INIR), C - 1 (IND, INDR) or L after HL steps (the OUT
+/// forms): H and C are set if it passes 255, and P/V is the parity of its low
+/// 3 bits XOR B.
+pub fn block_io(f: &mut Flags, value: u8, k: u16, b: u8) {
+    f.set_sign(b & 0x80 != 0);
+    f.set_zero(b == 0);
+    f.set_bit5(b & 0x20 != 0);
+    f.set_half_carry(k > 0xFF);
+    f.set_bit3(b & 0x08 != 0);
+    f.set_parity_overflow(parity((k as u8 & 0x07) ^ b));
+    f.set_add_sub(value & 0x80 != 0);
+    f.set_carry(k > 0xFF);
+}
+
+/// While INIR, INDR, OTIR and OTDR repeat, bits 5 and 3 come from PC's high byte,
+/// as for LDIR, and H and P/V change too, depending on C, the byte moved and B.
+pub fn block_io_repeat(f: &mut Flags, pc: u16, value: u8, b: u8) {
+    block_repeat(f, pc);
+    // P/V flips when the low 3 bits of `x` have odd parity.
+    let flip_pv = |f: &mut Flags, x: u8| {
+        let pv = f.parity_overflow();
+        f.set_parity_overflow(pv ^ !parity(x & 0x07));
+    };
+    if f.carry() {
+        if value & 0x80 != 0 {
+            flip_pv(f, b.wrapping_sub(1));
+            f.set_half_carry(b & 0x0F == 0x00);
+        } else {
+            flip_pv(f, b.wrapping_add(1));
+            f.set_half_carry(b & 0x0F == 0x0F);
+        }
+    } else {
+        flip_pv(f, b);
+    }
 }
 
 /// DAA: corrects A to packed BCD after an addition, or after a subtraction if N

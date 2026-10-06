@@ -1,6 +1,7 @@
 #![allow(non_camel_case_types)]
 
 pub mod bit;
+pub mod block;
 pub mod call;
 pub mod ccf;
 pub mod cpl;
@@ -32,7 +33,4 @@ pub mod stack;
 pub mod im2;
 pub mod im0;
 pub mod im1;
-pub mod ldir;
-pub mod ldi;
-pub mod lddr;
 // pub mod im0;
