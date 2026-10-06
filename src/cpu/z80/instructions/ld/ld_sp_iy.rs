@@ -36,7 +36,7 @@ impl BaseInstruction for LD_SP_IY {
 
 impl ExecutableInstruction<Z80> for LD_SP_IY {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.sp = cpu.registers.ix;
+        cpu.registers.sp = cpu.registers.iy;
         cpu.registers.inc_r();
         Ok(())
     }
@@ -47,6 +47,6 @@ mod tests {
     use crate::cpu::test::*;
     use crate::cpu::z80::test::*;
 
-    test_z80!("fd e9");
+    test_z80!("fd f9");
     test_instruction_parse!(LD_SP_IY);
 }
