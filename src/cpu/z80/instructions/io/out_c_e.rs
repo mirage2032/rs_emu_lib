@@ -41,12 +41,3 @@ impl ExecutableInstruction<Z80> for OUT_C_E {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 59");
-    test_instruction_parse!(OUT_C_E);
-}

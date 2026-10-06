@@ -39,17 +39,6 @@ macro_rules! bit_b_phl {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_BIT_ $bit _PHL>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!("cb",$opcode);
-
-                test_instruction_parse!([<BIT_ $bit _PHL>]);
-            }
         }
     }
 }

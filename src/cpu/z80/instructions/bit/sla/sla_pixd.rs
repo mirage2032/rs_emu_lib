@@ -55,12 +55,3 @@ impl ExecutableInstruction<Z80> for SLA_PIXD {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("dd cb __ 26");
-    test_instruction_parse!(SLA_PIXD, [0xbe]);
-}

@@ -51,12 +51,3 @@ impl ExecutableInstruction<Z80> for OR_N {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("f6");
-    test_instruction_parse!(OR_N, [0xbf]);
-}

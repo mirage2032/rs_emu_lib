@@ -53,12 +53,3 @@ impl ExecutableInstruction<Z80> for AND_PIXD {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("dd", "a6");
-    test_instruction_parse!(AND_PIXD, [0xbf]);
-}

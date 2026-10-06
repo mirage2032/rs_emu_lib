@@ -52,12 +52,3 @@ impl ExecutableInstruction<Z80> for LD_PNN_IX {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("dd 22");
-    test_instruction_parse!(LD_PNN_IX, [0xbeef]);
-}

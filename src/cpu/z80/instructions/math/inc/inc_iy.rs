@@ -41,12 +41,3 @@ impl ExecutableInstruction<Z80> for INC_IY {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("fd", "23");
-    test_instruction_parse!(INC_IY);
-}

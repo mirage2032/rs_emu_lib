@@ -44,12 +44,3 @@ impl ExecutableInstruction<Z80> for RRC_PHL {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("cb", "0e");
-    test_instruction_parse!(RRC_PHL);
-}

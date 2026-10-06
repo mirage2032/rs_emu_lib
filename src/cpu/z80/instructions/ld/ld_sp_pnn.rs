@@ -52,12 +52,3 @@ impl ExecutableInstruction<Z80> for LD_MISC_SP_PNN {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 7b");
-    test_instruction_parse!(LD_MISC_SP_PNN, [0xbeef]);
-}

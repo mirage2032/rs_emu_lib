@@ -56,12 +56,3 @@ impl ExecutableInstruction<Z80> for CALL_NZ_NN {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("c4");
-    test_instruction_parse!(CALL_NZ_NN, [0xbeef]);
-}

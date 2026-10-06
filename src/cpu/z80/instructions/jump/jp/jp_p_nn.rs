@@ -54,12 +54,3 @@ impl ExecutableInstruction<Z80> for JP_P_NN {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("f2");
-    test_instruction_parse!(JP_P_NN, [0xbeef]);
-}

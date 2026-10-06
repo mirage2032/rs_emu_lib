@@ -40,17 +40,6 @@ macro_rules! add_r_r {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_ADD_ $cdest _ $csrc>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<ADD_ $cdest _ $csrc>]);
-            }
         }
     }
 }

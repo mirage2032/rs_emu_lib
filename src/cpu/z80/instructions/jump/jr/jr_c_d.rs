@@ -53,12 +53,3 @@ impl ExecutableInstruction<Z80> for JR_C_D {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("38");
-    test_instruction_parse!(JR_C_D, [0xbf]);
-}

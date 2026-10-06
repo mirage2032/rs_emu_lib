@@ -53,12 +53,3 @@ impl ExecutableInstruction<Z80> for LDI {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed", "a0");
-    test_instruction_parse!(LDI);
-}

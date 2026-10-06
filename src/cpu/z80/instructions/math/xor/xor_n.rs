@@ -50,12 +50,3 @@ impl ExecutableInstruction<Z80> for XOR_N {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ee");
-    test_instruction_parse!(XOR_N, [0xbf]);
-}

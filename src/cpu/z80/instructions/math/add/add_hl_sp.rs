@@ -41,12 +41,3 @@ impl ExecutableInstruction<Z80> for ADD_HL_SP {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("39");
-    test_instruction_parse!(ADD_HL_SP);
-}

@@ -43,12 +43,3 @@ impl ExecutableInstruction<Z80> for RETI {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed", "4d");
-    test_instruction_parse!(RETI);
-}

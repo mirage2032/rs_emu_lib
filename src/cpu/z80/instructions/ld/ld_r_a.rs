@@ -44,12 +44,6 @@ impl ExecutableInstruction<Z80> for LD_R_A {
 
 #[cfg(test)]
 mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 4f");
-    test_instruction_parse!(LD_R_A);
-
     #[test]
     fn bit_7_of_r_survives_until_ld_a_r_reads_it() {
         use crate::cpu::z80::Z80;

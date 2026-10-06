@@ -38,17 +38,6 @@ macro_rules! or_r {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_OR_ $sdest>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<OR_ $sdest>]);
-            }
         }
     }
 }

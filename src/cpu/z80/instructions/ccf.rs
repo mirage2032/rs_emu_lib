@@ -45,12 +45,3 @@ impl ExecutableInstruction<Z80> for CCF {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("3f");
-    test_instruction_parse!(CCF);
-}

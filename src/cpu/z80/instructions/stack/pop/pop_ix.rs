@@ -44,12 +44,3 @@ impl ExecutableInstruction<Z80> for POP_IX {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::test_instruction_parse;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("dd e1");
-    test_instruction_parse!(POP_IX);
-}

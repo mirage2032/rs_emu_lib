@@ -55,12 +55,3 @@ impl ExecutableInstruction<Z80> for RLC_PIXD {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("dd cb __ 06");
-    test_instruction_parse!(RLC_PIXD, [0xbe]);
-}

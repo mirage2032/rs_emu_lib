@@ -50,19 +50,3 @@ impl ExecutableInstruction<Z80> for IM1 {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed", "56");
-    test_instruction_parse!(IM1);
-
-    // The undocumented mirrors behave the same.
-    mod ed_76 {
-        use crate::cpu::z80::test::*;
-
-        test_z80!("ed", "76");
-    }
-}

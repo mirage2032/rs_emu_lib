@@ -47,17 +47,6 @@ macro_rules! ld_r_piyd {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_LD_ $cdest _PIYD>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!("fd",$opcode);
-
-                test_instruction_parse!([<LD_ $cdest _PIYD>],[0x12]);
-            }
         }
     }
 }

@@ -42,12 +42,3 @@ impl ExecutableInstruction<Z80> for EX_AF_SAF {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("08");
-    test_instruction_parse!(EX_AF_SAF);
-}

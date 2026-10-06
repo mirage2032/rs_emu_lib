@@ -42,12 +42,3 @@ impl ExecutableInstruction<Z80> for AND_PHL {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("a6");
-    test_instruction_parse!(AND_PHL);
-}

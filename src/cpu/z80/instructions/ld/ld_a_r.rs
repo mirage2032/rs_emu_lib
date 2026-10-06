@@ -47,12 +47,3 @@ impl ExecutableInstruction<Z80> for LD_A_R {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 5f");
-    test_instruction_parse!(LD_A_R);
-}

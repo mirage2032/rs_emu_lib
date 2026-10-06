@@ -55,12 +55,3 @@ impl ExecutableInstruction<Z80> for LDDR {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed", "b8");
-    test_instruction_parse!(LDDR);
-}

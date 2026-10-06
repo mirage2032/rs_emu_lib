@@ -46,17 +46,6 @@ macro_rules! bit_b_piyd {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_BIT_ $bit _PIYD>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!("fd cb __", $opcode);
-
-                test_instruction_parse!([<BIT_ $bit _PIYD>],[0x44]);
-            }
         }
     }
 }

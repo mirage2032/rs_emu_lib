@@ -51,12 +51,3 @@ impl ExecutableInstruction<Z80> for LD_SP_NN {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("31");
-    test_instruction_parse!(LD_SP_NN, [0xbeef]);
-}

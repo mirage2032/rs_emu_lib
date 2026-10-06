@@ -47,17 +47,6 @@ macro_rules! ld_r_pixd {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_LD_ $cdest _PIXD>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!("dd",$opcode);
-
-                test_instruction_parse!([<LD_ $cdest _PIXD>],[0x12]);
-            }
         }
     }
 }

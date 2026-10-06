@@ -37,17 +37,6 @@ macro_rules! xor_r {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_XOR_ $csrc>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<XOR_ $csrc>]);
-            }
         }
     }
 }

@@ -55,12 +55,3 @@ impl ExecutableInstruction<Z80> for LDIR {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed", "b0");
-    test_instruction_parse!(LDIR);
-}

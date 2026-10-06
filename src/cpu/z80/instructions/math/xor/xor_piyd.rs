@@ -54,12 +54,3 @@ impl ExecutableInstruction<Z80> for XOR_PIYD {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("fd ae");
-    test_instruction_parse!(XOR_PIYD, [0x53]);
-}

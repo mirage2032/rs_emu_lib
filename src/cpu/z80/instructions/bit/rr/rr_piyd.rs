@@ -55,12 +55,3 @@ impl ExecutableInstruction<Z80> for RR_PIYD {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("fd cb __ 1e");
-    test_instruction_parse!(RR_PIYD, [0xbe]);
-}

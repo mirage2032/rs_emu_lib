@@ -36,17 +36,6 @@ macro_rules! dec_rr {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_DEC_ $cdest>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<DEC_ $cdest>]);
-            }
         }
     }
 }

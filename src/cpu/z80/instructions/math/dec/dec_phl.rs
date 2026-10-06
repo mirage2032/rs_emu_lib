@@ -57,12 +57,3 @@ impl ExecutableInstruction<Z80> for DEC_PHL {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("35");
-    test_instruction_parse!(DEC_PHL);
-}

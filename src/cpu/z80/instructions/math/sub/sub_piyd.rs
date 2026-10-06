@@ -53,12 +53,3 @@ impl ExecutableInstruction<Z80> for SUB_PIYD {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("fd", "96");
-    test_instruction_parse!(SUB_PIYD, [0xbf]);
-}

@@ -33,5 +33,15 @@ Accepting an interrupt is a `step()` of its own, which returns a pseudo-instruct
 HALT is a state: a halted CPU idles in 4 T-state steps until an interrupt arrives. `run_ticks` stops
 with `StopReason::Halt` only when nothing but an NMI could wake the CPU (halted with interrupts disabled).
 
+## Tests
+`cargo test` runs the [SingleStepTests](https://github.com/SingleStepTests/z80) Z80 suite: 1,000 cases for each
+opcode, checked against the real Z80's registers, flags, memory writes, port accesses and T-states. The data
+(about 280 MB to download, 1.4 GB checked out) is a dev-dependency, so crates that use this library never fetch it.
+
+```sh
+cargo test --test singlestep -- "ed b0"          # the files whose name contains "ed b0"
+cargo test --test singlestep -- --list --ignored # opcodes the emulator doesn't implement yet
+```
+
 ## This project will serve as my Computer Science Bachelor's project.
 

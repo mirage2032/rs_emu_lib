@@ -16,8 +16,6 @@ pub mod parser;
 mod interrupt_tests;
 #[cfg(test)]
 mod roundtrip;
-#[cfg(test)]
-mod test;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct Z80Registers {

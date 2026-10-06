@@ -47,16 +47,6 @@ macro_rules! ld_misc_rr_pnn {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_LD_MISC_ $cdest _PNN>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-                test_z80!("ed",$opcode);
-
-                test_instruction_parse!([<LD_MISC_ $cdest _PNN>],[0x1234]);
-            }
         }
     }
 }

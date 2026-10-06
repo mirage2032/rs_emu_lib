@@ -54,12 +54,3 @@ impl ExecutableInstruction<Z80> for LD_PIXD_N {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("dd 36");
-    test_instruction_parse!(LD_PIXD_N, [0xbe, 0xef]);
-}

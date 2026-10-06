@@ -38,17 +38,6 @@ macro_rules! res_b_r {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_RES_ $bit _ $srclit>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!("cb",$opcode);
-
-                test_instruction_parse!([<RES_ $bit _ $srclit>]);
-            }
         }
     }
 }

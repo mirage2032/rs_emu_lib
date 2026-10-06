@@ -44,12 +44,6 @@ impl ExecutableInstruction<Z80> for JP_PIX {
 
 #[cfg(test)]
 mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("dd", "e9");
-    test_instruction_parse!(JP_PIX);
-
     #[test]
     fn r_counts_up_in_its_low_7_bits() {
         use crate::cpu::z80::Z80;

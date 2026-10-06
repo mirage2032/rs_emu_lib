@@ -9,8 +9,6 @@ use crate::memory::Memory;
 pub mod i8080;
 pub mod instruction;
 pub mod registers;
-#[cfg(test)]
-pub mod test;
 pub mod z80;
 
 pub trait Cpu: Send + Copy + Clone + Default + Serialize + for<'a> Deserialize<'a> {

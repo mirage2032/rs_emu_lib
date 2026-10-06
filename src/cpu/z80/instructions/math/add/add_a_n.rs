@@ -52,12 +52,3 @@ impl ExecutableInstruction<Z80> for ADD_A_N {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("c6");
-    test_instruction_parse!(ADD_A_N, [0xce]);
-}

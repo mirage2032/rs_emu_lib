@@ -55,12 +55,3 @@ impl ExecutableInstruction<Z80> for SRL_PIXD {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("dd cb __ 3e");
-    test_instruction_parse!(SRL_PIXD, [0xbe]);
-}

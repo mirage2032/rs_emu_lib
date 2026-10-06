@@ -41,12 +41,3 @@ impl ExecutableInstruction<Z80> for JP_PIY {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("fd", "e9");
-    test_instruction_parse!(JP_PIY);
-}

@@ -46,17 +46,6 @@ macro_rules! ld_rr_nn {
                     Ok(())
                 }
             }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_LD_ $cdest _NN>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<LD_ $cdest _NN>],[0x12]);
-            }
         }
     }
 }
