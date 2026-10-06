@@ -44,7 +44,9 @@ impl BaseInstruction for IN_A_N {
 
 impl ExecutableInstruction<Z80> for IN_A_N {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        cpu.registers.gp.a = io.read(self.n)?;
+        // A is the port address's high byte.
+        let port = u16::from_le_bytes([self.n, cpu.registers.gp.a]);
+        cpu.registers.gp.a = io.read(port)?;
         Ok(())
     }
 }

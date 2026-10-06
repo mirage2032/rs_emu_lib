@@ -43,8 +43,10 @@ impl BaseInstruction for OUT_N_A {
 }
 
 impl ExecutableInstruction<Z80> for OUT_N_A {
-    fn execute(&mut self, _memory: &mut Memory, _cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        io.write(self.n, _cpu.registers.gp.a)?;
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
+        // A is the port address's high byte.
+        let port = u16::from_le_bytes([self.n, cpu.registers.gp.a]);
+        io.write(port, cpu.registers.gp.a)?;
         Ok(())
     }
 }

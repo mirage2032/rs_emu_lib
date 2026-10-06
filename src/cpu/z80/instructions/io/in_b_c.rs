@@ -37,7 +37,7 @@ impl BaseInstruction for IN_B_C {
 
 impl ExecutableInstruction<Z80> for IN_B_C {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        let value = io.read(cpu.registers.gp.c)?;
+        let value = io.read(cpu.registers.gp.bc)?;
         alu::sz53p(&mut cpu.registers.gp.f, value);
         cpu.registers.gp.b = value;
         Ok(())

@@ -338,10 +338,10 @@ impl IODevice for VectoredDevice {
     fn ports(&self) -> Vec<u8> {
         vec![]
     }
-    fn read(&self, _: u8) -> Result<u8, &'static str> {
+    fn read(&self, _: u16) -> Result<u8, &'static str> {
         Ok(0)
     }
-    fn write(&mut self, _: u8, _: u8) -> Result<(), &'static str> {
+    fn write(&mut self, _: u16, _: u8) -> Result<(), &'static str> {
         Ok(())
     }
     fn int_pending(&self) -> bool {

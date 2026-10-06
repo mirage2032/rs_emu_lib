@@ -32,21 +32,12 @@ impl IO {
             devices: Vec::new(),
         }
     }
-    pub fn read(&self, port: u8) -> Result<u8, &str> {
-        // let device: Weak<Mutex<Box<dyn IODevice>>> = self
-        //     .port_map
-        //     .get(&port)
-        //     .ok_or("Attempting to read from unconnected port")?
-        //     .clone();
-        // device
-        //     .upgrade()
-        //     .ok_or("Attempting to read from removed device")?
-        //     .lock()
-        //     .expect("Failed to get IO lock")
-        //     .read(port)
+    /// Reads from the device whose port is the low byte of `port`, passing it the
+    /// whole 16-bit address.
+    pub fn read(&self, port: u16) -> Result<u8, &str> {
         let device: Weak<Mutex<Box<dyn IODevice>>> = self
             .port_map
-            .get(&port)
+            .get(&(port as u8))
             .ok_or("Attempting to read from unconnected port")?
             .clone();
         device
@@ -57,10 +48,12 @@ impl IO {
             .read(port)
     }
 
-    pub fn write(&mut self, port: u8, data: u8) -> Result<(), &str> {
+    /// Writes to the device whose port is the low byte of `port`, passing it the
+    /// whole 16-bit address.
+    pub fn write(&mut self, port: u16, data: u8) -> Result<(), &str> {
         let device = self
             .port_map
-            .get(&port)
+            .get(&(port as u8))
             .ok_or("Attempting to write to unconnected port")?;
         device
             .upgrade()

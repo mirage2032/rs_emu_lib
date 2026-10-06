@@ -99,7 +99,7 @@ fn record_read(address: u16, _data: u8) {
 #[derive(Default)]
 struct PortScript {
     reads: VecDeque<u8>,
-    log: Vec<(u8, u8, char)>,
+    log: Vec<(u16, u8, char)>,
 }
 
 struct ScriptedPorts(Arc<Mutex<PortScript>>);
@@ -108,13 +108,13 @@ impl IODevice for ScriptedPorts {
     fn ports(&self) -> Vec<u8> {
         (0..=0xFF).collect()
     }
-    fn read(&self, port: u8) -> Result<u8, &'static str> {
+    fn read(&self, port: u16) -> Result<u8, &'static str> {
         let mut script = self.0.lock().unwrap();
         let data = script.reads.pop_front().unwrap_or(0xFF);
         script.log.push((port, data, 'r'));
         Ok(data)
     }
-    fn write(&mut self, port: u8, data: u8) -> Result<(), &'static str> {
+    fn write(&mut self, port: u16, data: u8) -> Result<(), &'static str> {
         self.0.lock().unwrap().log.push((port, data, 'w'));
         Ok(())
     }
@@ -311,16 +311,18 @@ fn run_case(
         ));
     }
 
-    // Ports are 8-bit for now: compare the low byte of the address.
     let port_accesses = &ports.lock().unwrap().log;
-    let want_port_accesses: Vec<(u8, u8, char)> = case
-        .ports
-        .iter()
-        .map(|&(address, data, rw)| (address as u8, data, rw))
-        .collect();
-    if *port_accesses != want_port_accesses {
+    if *port_accesses != case.ports {
+        let show = |accesses: &[(u16, u8, char)]| -> Vec<String> {
+            accesses
+                .iter()
+                .map(|(port, data, rw)| format!("{rw} {port:04X}={data:02X}"))
+                .collect()
+        };
         differences.push(format!(
-            "port accesses {port_accesses:02X?}, expected {want_port_accesses:02X?}"
+            "port accesses {:?}, expected {:?}",
+            show(port_accesses),
+            show(&case.ports)
         ));
     }
 

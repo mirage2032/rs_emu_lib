@@ -144,11 +144,11 @@ impl IODevice for DisplayIO {
     fn ports(&self) -> Vec<u8> {
         vec![0xFE]
     }
-    fn read(&self, _port: u8) -> Result<u8, &'static str> {
+    fn read(&self, _port: u16) -> Result<u8, &'static str> {
         Ok(*self.val.lock().map_err(|_| "Could not acquire lock")?)
     }
 
-    fn write(&mut self, _pin: u8, data: u8) -> Result<(), &'static str> {
+    fn write(&mut self, _port: u16, data: u8) -> Result<(), &'static str> {
         *self.val.lock().map_err(|_| "Could not acquire lock")? = data;
         Ok(())
     }
