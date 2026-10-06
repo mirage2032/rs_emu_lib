@@ -15,8 +15,7 @@ mod generics;
 
 pub mod adc_a_n;
 pub mod adc_a_phl;
-pub mod adc_a_pixd;
-pub mod adc_a_piyd;
+pub mod adc_a_pidxd;
 pub mod adc_hl_bc;
 pub mod adc_hl_de;
 pub mod adc_hl_hl;

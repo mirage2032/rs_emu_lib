@@ -13,8 +13,7 @@ use crate::memory::Memory;
 
 pub mod cp_n;
 pub mod cp_phl;
-pub mod cp_pixd;
-pub mod cp_piyd;
+pub mod cp_pidxd;
 mod generics;
 
 generics::cp_r::cp_r!(b, "b8", "B");

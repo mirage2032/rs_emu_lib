@@ -12,10 +12,9 @@ use crate::io::IO;
 use crate::memory::Memory;
 
 mod generics;
-pub mod inc_ix;
-pub mod inc_iy;
+pub mod inc_idx;
 pub mod inc_phl;
-pub mod inc_pixd;
+pub mod inc_pidxd;
 pub mod inc_sp;
 
 generics::inc_r::inc_r!(b, "04", "B");

@@ -53,6 +53,46 @@ impl Default for Z80Registers {
         }
     }
 }
+/// IX or IY. Each instruction that uses one has a twin that uses the other and
+/// differs only in its prefix byte, so the pair is one type, generic over this
+/// trait: `ADD_A_PIDXD<IX>`, also named `ADD_A_PIXD`, is `ADD A,(IX+d)`.
+pub trait IndexRegister: std::fmt::Debug + Send + Sync + 'static {
+    /// The prefix byte: DD for IX, FD for IY.
+    const PREFIX: u8;
+    /// The register's name in assembly.
+    const NAME: &'static str;
+    fn get(registers: &Z80Registers) -> u16;
+    fn get_mut(registers: &mut Z80Registers) -> &mut u16;
+}
+
+#[derive(Debug)]
+pub struct IX;
+
+#[derive(Debug)]
+pub struct IY;
+
+impl IndexRegister for IX {
+    const PREFIX: u8 = 0xDD;
+    const NAME: &'static str = "IX";
+    fn get(registers: &Z80Registers) -> u16 {
+        registers.ix
+    }
+    fn get_mut(registers: &mut Z80Registers) -> &mut u16 {
+        &mut registers.ix
+    }
+}
+
+impl IndexRegister for IY {
+    const PREFIX: u8 = 0xFD;
+    const NAME: &'static str = "IY";
+    fn get(registers: &Z80Registers) -> u16 {
+        registers.iy
+    }
+    fn get_mut(registers: &mut Z80Registers) -> &mut u16 {
+        &mut registers.iy
+    }
+}
+
 /// The Z80's interrupt state: the interrupt flip-flops, the interrupt mode, and the
 /// requests waiting to be accepted. It is part of the CPU, so save states carry it
 /// and `Z80::default()` (a reset) clears it.

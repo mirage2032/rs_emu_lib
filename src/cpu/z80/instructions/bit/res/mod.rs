@@ -1,18 +1,19 @@
 use crate::cpu::instruction::InstructionCommon;
 use crate::cpu::z80::instructions::bit::res::fmt::Display;
 use crate::cpu::z80::instructions::bit::res::generics::res_b_phl::res_b_phl;
-use crate::cpu::z80::instructions::bit::res::generics::res_b_pixd::res_b_pixd;
-use crate::cpu::z80::instructions::bit::res::generics::res_b_piyd::res_b_piyd;
+use crate::cpu::z80::instructions::bit::res::generics::res_b_pidxd::res_b_pidxd;
 use crate::cpu::z80::instructions::bit::res::generics::res_b_r::res_b_r;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;
 use crate::cpu::ExecutableInstruction;
+use crate::cpu::z80::{IndexRegister, IX, IY};
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
 use crate::memory::MemoryDevice;
 use hex_literal::hex;
 use std::fmt;
+use std::marker::PhantomData;
 
 mod generics;
 
@@ -88,20 +89,12 @@ res_b_r!(7, l, "L", "bd");
 res_b_phl!(7, "be");
 res_b_r!(7, a, "A", "bf");
 
-res_b_pixd!(0, "86");
-res_b_pixd!(1, "8e");
-res_b_pixd!(2, "96");
-res_b_pixd!(3, "9e");
-res_b_pixd!(4, "a6");
-res_b_pixd!(5, "ae");
-res_b_pixd!(6, "b6");
-res_b_pixd!(7, "be");
+res_b_pidxd!(0, "86");
+res_b_pidxd!(1, "8e");
+res_b_pidxd!(2, "96");
+res_b_pidxd!(3, "9e");
+res_b_pidxd!(4, "a6");
+res_b_pidxd!(5, "ae");
+res_b_pidxd!(6, "b6");
+res_b_pidxd!(7, "be");
 
-res_b_piyd!(0, "86");
-res_b_piyd!(1, "8e");
-res_b_piyd!(2, "96");
-res_b_piyd!(3, "9e");
-res_b_piyd!(4, "a6");
-res_b_piyd!(5, "ae");
-res_b_piyd!(6, "b6");
-res_b_piyd!(7, "be");

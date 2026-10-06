@@ -13,8 +13,7 @@ use crate::memory::Memory;
 
 mod generics;
 pub mod rlc_phl;
-pub mod rlc_pixd;
-pub mod rlc_piyd;
+pub mod rlc_pidxd;
 
 generics::rlc_r::rlc_r!(b, "00", "B");
 generics::rlc_r::rlc_r!(c, "01", "C");
