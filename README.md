@@ -35,7 +35,7 @@ with `StopReason::Halt` only when nothing but an NMI could wake the CPU (halted 
 
 ## Tests
 `cargo test` runs the [SingleStepTests](https://github.com/SingleStepTests/z80) Z80 suite: 1,000 cases for each
-opcode, checked against the real Z80's registers, flags, memory writes, port accesses and T-states. The data
+opcode, checked against the real Z80's registers, flags, memory reads and writes, port accesses and T-states. The data
 (about 280 MB to download, 1.4 GB checked out) is a dev-dependency, so crates that use this library never fetch it.
 
 ```sh

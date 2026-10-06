@@ -2,10 +2,10 @@
 //! Each file of the suite is one test, named by the opcode it covers (`ed b0`,
 //! `dd cb __ 06`), and holds 1,000 cases. A case sets the registers, memory and
 //! ports, runs one instruction, and compares the result with the real Z80's:
-//! registers, flags, interrupt state, memory, which addresses were written, port
-//! accesses and T-states. (WZ, P and Q, internal state the emulator doesn't model,
-//! aren't compared.) It also checks that the instruction decoded is the one the
-//! file covers and that it encodes back to its bytes.
+//! registers, flags, interrupt state, memory, which addresses were read and
+//! written, port accesses and T-states. (WZ, P and Q, internal state the emulator
+//! doesn't model, aren't compared.) It also checks that the instruction decoded is
+//! the one the file covers and that it encodes back to its bytes.
 //!
 //! The data comes from the `emu_lib_json_tests` dev-dependency and is read when the
 //! tests run. Files for opcodes the emulator doesn't implement are ignored.
@@ -16,6 +16,7 @@
 //! cargo test --test singlestep -- --list --ignored # opcodes not implemented yet
 //! ```
 
+use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -83,6 +84,15 @@ struct Case {
     /// Port accesses in order: address, data, and `r` or `w`.
     #[serde(default)]
     ports: Vec<(u16, u8, char)>,
+}
+
+thread_local! {
+    /// The memory addresses read, in order. Each test runs on one thread.
+    static READS: RefCell<Vec<u16>> = const { RefCell::new(Vec::new()) };
+}
+
+fn record_read(address: u16, _data: u8) {
+    READS.with(|reads| reads.borrow_mut().push(address));
 }
 
 /// Port reads get the values the case lists, in order. Every access is logged.
@@ -181,10 +191,12 @@ fn run_case(
     };
     set_state(emu, &case.initial);
 
+    READS.with(|reads| reads.borrow_mut().clear());
     let instruction = match emu.step() {
         Ok(instruction) => instruction,
         Err(error) => return vec![format!("didn't run: {error}")],
     };
+    let reads = READS.with(|reads| reads.take());
     let mut differences = Vec::new();
 
     // The instruction is the file's, and encodes back to the bytes it was decoded from.
@@ -265,12 +277,31 @@ fn run_case(
             differences.push(format!("({address:#06X}) {got:#04X}, expected {data:#04X}"));
         }
     }
+    // Reads of the instruction's own bytes aren't compared: the decoder reads
+    // them its own way.
+    let in_instruction = |address: u16| address.wrapping_sub(case.initial.pc) < bytes.len() as u16;
+    let mut read: Vec<u16> = reads
+        .into_iter()
+        .filter(|&address| !in_instruction(address))
+        .collect();
+    read.sort_unstable();
+    let mut want_read: Vec<u16> = case
+        .cycles
+        .iter()
+        .filter(|cycle| cycle.2 == "r-m-")
+        .filter_map(|cycle| cycle.0)
+        .filter(|&address| !in_instruction(address))
+        .collect();
+    want_read.sort_unstable();
+    if read != want_read {
+        differences.push(format!("read {read:04X?}, expected {want_read:04X?}"));
+    }
     let mut written = emu.memory.get_changes().clone().unwrap_or_default();
     written.sort_unstable();
     let mut want_written: Vec<u16> = case
         .cycles
         .iter()
-        .filter(|cycle| cycle.2.get(1..3) == Some("wm"))
+        .filter(|cycle| cycle.2 == "-wm-")
         .filter_map(|cycle| cycle.0)
         .collect();
     want_written.sort_unstable();
@@ -316,6 +347,7 @@ fn run_file(path: &Path, opcode: &[Option<u8>], f_mask: u8) -> Result<(), Failed
         .add_device(Box::new(ScriptedPorts(ports.clone())))
         .unwrap();
     emu.memory.record_changes(true); // each step starts a new record
+    emu.memory.add_read_callback(Some(record_read));
     let mut failed = 0;
     let mut listed = Vec::new();
     for case in &cases {
