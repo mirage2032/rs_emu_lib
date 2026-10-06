@@ -1,9 +1,17 @@
 use regex::Regex;
+use std::sync::LazyLock;
 
 use crate::cpu::instruction::{ExecutableInstruction, InstructionParser, ParseError};
 use crate::cpu::z80::instructions::*;
 use crate::cpu::z80::Z80;
 use crate::memory::MemoryDevice;
+
+/// An instruction: its mnemonic and up to two operands, once commas are spaces.
+/// Compiled on first use, instead of for every instruction assembled.
+static ASM_SYNTAX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
+        .expect("Error building Z80 instruction parsing regex")
+});
 
 #[derive(Debug, Clone)]
 enum ImmediateValue {
@@ -67,10 +75,7 @@ impl InstructionParser<Z80> for Z80Parser {
         instruction: &str,
     ) -> Result<Box<dyn ExecutableInstruction<Z80>>, ParseError> {
         let filtered = instruction.to_lowercase().replace(",", " ");
-        //regex
-        let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
-            .expect("Error building Z80 instruction parsing regex");
-        let op = match re.captures(&filtered) {
+        let op = match ASM_SYNTAX.captures(&filtered) {
             Some(caps) => caps,
             None => {
                 return Err(ParseError::InvalidInstruction(format!(
