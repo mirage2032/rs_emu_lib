@@ -30,10 +30,10 @@ impl Cpu for I8080 {
         unimplemented!()
     }
 
-    fn registers(&self) -> AllRegisters {
+    fn registers(&self) -> AllRegisters<'_> {
         unimplemented!()
     }
-    fn registers_mut(&mut self) -> AllMutRegisters {
+    fn registers_mut(&mut self) -> AllMutRegisters<'_> {
         unimplemented!()
     }
     fn pc(&self) -> u16 {

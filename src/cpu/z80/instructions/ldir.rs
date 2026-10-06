@@ -2,7 +2,7 @@ use crate::memory::MemoryDevice;
 use std::fmt;
 use std::fmt::Display;
 
-use crate::cpu::instruction::{pop_16, BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::cpu::z80::alu;
 use crate::io::IO;
@@ -37,7 +37,7 @@ impl BaseInstruction for LDIR {
 }
 
 impl ExecutableInstruction<Z80> for LDIR {
-    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         let value = memory.read_8(cpu.registers.gp.hl)?;
         memory.write_8(cpu.registers.gp.de, value)?;
         cpu.registers.gp.hl = cpu.registers.gp.hl.wrapping_add(1);

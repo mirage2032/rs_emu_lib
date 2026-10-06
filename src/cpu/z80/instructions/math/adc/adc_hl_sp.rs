@@ -1,4 +1,3 @@
-use crate::cpu::z80::instructions::math::adc::hex;
 use std::fmt;
 use std::fmt::Display;
 
@@ -6,9 +5,7 @@ use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, Instructio
 use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
-use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
-use crate::memory::MemoryDevice;
 
 #[derive(Debug)]
 pub struct ADC_HL_SP {

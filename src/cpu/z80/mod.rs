@@ -149,7 +149,7 @@ impl Cpu for Z80 {
         &mut self,
         memory: &mut Memory,
         io: &mut IO,
-    ) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
+    ) -> Result<Box<dyn ExecutableInstruction<Self>>, String> {
         // Interrupts are checked before each instruction, NMI first. EI holds INT off
         // for one instruction, but never NMI.
         let after_ei = std::mem::take(&mut self.interrupts.ei_delay);
@@ -188,7 +188,7 @@ impl Cpu for Z80 {
         &parser::Z80_PARSER
     }
 
-    fn registers(&self) -> AllRegisters {
+    fn registers(&self) -> AllRegisters<'_> {
         let mut other8bit = HashMap::new();
         let mut other16bit = HashMap::new();
         other16bit.insert("ix", &self.registers.ix);
@@ -203,7 +203,7 @@ impl Cpu for Z80 {
             pc: &self.registers.pc,
         }
     }
-    fn registers_mut(&mut self) -> AllMutRegisters {
+    fn registers_mut(&mut self) -> AllMutRegisters<'_> {
         let mut other8bit = HashMap::new();
         let mut other16bit = HashMap::new();
         other16bit.insert("ix", &mut self.registers.ix);

@@ -65,7 +65,7 @@ impl InstructionParser<Z80> for Z80Parser {
     fn ins_from_asm_string(
         &self,
         instruction: &str,
-    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
+    ) -> Result<Box<dyn ExecutableInstruction<Z80>>, ParseError> {
         let filtered = instruction.to_lowercase().replace(",", " ");
         //regex
         let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
@@ -1662,7 +1662,7 @@ impl InstructionParser<Z80> for Z80Parser {
         &self,
         memory: &dyn MemoryDevice,
         pos: u16,
-    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
+    ) -> Result<Box<dyn ExecutableInstruction<Z80>>, ParseError> {
         let ins_byte0 = memory.read_8(pos)?;
         let instruction: Box<dyn ExecutableInstruction<Z80>> = match ins_byte0 {
             0x00u8 => Box::new(nop::NOP::new()),

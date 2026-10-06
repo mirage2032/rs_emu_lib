@@ -1,8 +1,7 @@
-use crate::memory::MemoryDevice;
 use std::fmt;
 use std::fmt::Display;
 
-use crate::cpu::instruction::{pop_16, BaseInstruction, ExecutableInstruction, InstructionCommon};
+use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::Memory;
@@ -44,7 +43,7 @@ impl BaseInstruction for IM1 {
 }
 
 impl ExecutableInstruction<Z80> for IM1 {
-    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.interrupts.im = 1;
         Ok(())
     }
