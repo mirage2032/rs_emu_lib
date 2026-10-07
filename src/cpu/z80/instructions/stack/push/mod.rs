@@ -13,8 +13,7 @@ use crate::memory::Memory;
 use crate::memory::MemoryDevice;
 
 mod generics;
-pub mod push_ix;
-pub mod push_iy;
+pub mod push_idx;
 
 generics::push_rr::push_rr!(bc, "c5", "BC");
 generics::push_rr::push_rr!(de, "d5", "DE");

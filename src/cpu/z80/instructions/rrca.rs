@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -36,23 +37,7 @@ impl BaseInstruction for RRCA {
 
 impl ExecutableInstruction<Z80> for RRCA {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        let carry = cpu.registers.gp.a << 7;
-        cpu.registers.gp.f.set_carry(carry != 0);
-        let a = (cpu.registers.gp.a >> 1) | carry;
-        cpu.registers.gp.a = a;
-        cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.gp.f.set_half_carry(false);
-        cpu.registers.gp.f.set_bit3((a >> 3) & 1 == 1);
-        cpu.registers.gp.f.set_bit5((a >> 5) & 1 == 1);
+        cpu.registers.gp.a = alu::rrca(&mut cpu.registers.gp.f, cpu.registers.gp.a);
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::test_instruction_parse;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("0f");
-    test_instruction_parse!(RRCA);
 }

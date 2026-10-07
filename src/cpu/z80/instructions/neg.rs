@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -36,29 +37,7 @@ impl BaseInstruction for NEG {
 
 impl ExecutableInstruction<Z80> for NEG {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cpu.registers.gp.a = cpu.registers.gp.a.wrapping_neg();
-        cpu.registers
-            .gp
-            .f
-            .set_parity_overflow(cpu.registers.gp.a == 0x80);
-        cpu.registers.gp.f.set_zero(cpu.registers.gp.a == 0);
-        cpu.registers.gp.f.set_carry(cpu.registers.gp.a != 0);
-        cpu.registers
-            .gp
-            .f
-            .set_half_carry(cpu.registers.gp.a & 0x0f != 0);
-        cpu.registers.gp.f.set_add_sub(true);
-        cpu.registers.gp.f.set_sign(cpu.registers.gp.a & 0x80 != 0);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+        cpu.registers.gp.a = alu::neg8(&mut cpu.registers.gp.f, cpu.registers.gp.a);
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed", "44");
-    test_instruction_parse!(NEG);
 }

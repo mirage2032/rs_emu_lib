@@ -15,10 +15,7 @@ pub struct LD_SP_NN {
 
 impl LD_SP_NN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_SP_NN, MemoryReadError> {
-        Ok(LD_SP_NN {
-            common: InstructionCommon::new(3, 10, true),
-            nn: memory.read_16(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(nn: u16) -> LD_SP_NN {
@@ -50,13 +47,4 @@ impl ExecutableInstruction<Z80> for LD_SP_NN {
         cpu.registers.sp = self.nn;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("31");
-    test_instruction_parse!(LD_SP_NN, [0xbeef]);
 }

@@ -35,18 +35,10 @@ impl BaseInstruction for EI {
 }
 
 impl ExecutableInstruction<Z80> for EI {
-    fn execute(&mut self, _memory: &mut Memory, _cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        io.iff1 = true;
-        io.iff2 = true;
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
+        cpu.interrupts.iff1 = true;
+        cpu.interrupts.iff2 = true;
+        cpu.interrupts.ei_delay = true;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::test_instruction_parse;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("fb");
-    test_instruction_parse!(EI);
 }

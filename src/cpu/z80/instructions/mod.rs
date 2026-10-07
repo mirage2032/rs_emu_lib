@@ -1,6 +1,7 @@
 #![allow(non_camel_case_types)]
 
 pub mod bit;
+pub mod block;
 pub mod call;
 pub mod ccf;
 pub mod cpl;
@@ -18,18 +19,18 @@ pub mod math;
 pub mod neg;
 pub mod nop;
 pub mod ret;
+pub mod reti;
 pub mod retn;
+pub mod rld;
 pub mod rla;
 pub mod rlca;
 pub mod rra;
 pub mod rrca;
+pub mod rrd;
 pub mod rst;
 pub mod scf;
 pub mod stack;
 pub mod im2;
 pub mod im0;
 pub mod im1;
-pub mod ldir;
-pub mod ldi;
-pub mod lddr;
 // pub mod im0;

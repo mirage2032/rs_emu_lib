@@ -1,7 +1,6 @@
 use std::sync::{mpsc, Arc, Mutex};
 
 use minifb::{Key, Window, WindowOptions};
-use emu_lib::io::InterruptType;
 use emu_lib::io::iodevice::IODevice;
 use crate::memdsp::Event;
 

@@ -4,21 +4,39 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
-      with:
-        submodules: true
+    - uses: actions-rust-lang/setup-rust-toolchain@v1
     - name: Build
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+
+  wasm32:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        target: wasm32-unknown-unknown
+    - name: Check
+      run: cargo check --target wasm32-unknown-unknown --verbose
+
+  emu_cli:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        rustflags: "" # instead of -D warnings: emu_cli still has warnings
+        cache-workspaces: emu_cli
+    - name: Build
+      working-directory: emu_cli
+      run: cargo build --verbose

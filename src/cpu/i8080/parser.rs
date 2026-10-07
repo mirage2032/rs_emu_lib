@@ -10,14 +10,14 @@ impl InstructionParser<I8080> for I8080Parser {
     fn ins_from_asm_string(
         &self,
         _instruction: &str,
-    ) -> Result<Box<(dyn ExecutableInstruction<I8080>)>, ParseError> {
+    ) -> Result<Box<dyn ExecutableInstruction<I8080>>, ParseError> {
         unimplemented!()
     }
     fn ins_from_machinecode(
         &self,
         _memory: &dyn MemoryDevice,
         _pos: u16,
-    ) -> Result<Box<(dyn ExecutableInstruction<I8080>)>, ParseError> {
+    ) -> Result<Box<dyn ExecutableInstruction<I8080>>, ParseError> {
         unimplemented!()
     }
 }

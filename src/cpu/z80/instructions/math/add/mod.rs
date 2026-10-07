@@ -4,26 +4,21 @@ use std::fmt::Display;
 use hex_literal::hex;
 
 use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::instructions::math::add::generics::{add_r_r_setf, add_rr_rr_setf};
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
 pub mod add_a_n;
 pub mod add_a_phl;
-pub mod add_a_pixd;
-pub mod add_a_piyd;
+pub mod add_a_pidxd;
 pub mod add_hl_sp;
-pub mod add_ix_bc;
-pub mod add_ix_de;
-pub mod add_ix_ix;
-pub mod add_ix_sp;
-pub mod add_iy_bc;
-pub mod add_iy_de;
-pub mod add_iy_iy;
-pub mod add_iy_sp;
+pub mod add_idx_bc;
+pub mod add_idx_de;
+pub mod add_idx_idx;
+pub mod add_idx_sp;
 mod generics;
 
 generics::add_r_r::add_r_r!(a, b, "80", "A", "B");

@@ -30,10 +30,10 @@ impl Cpu for I8080 {
         unimplemented!()
     }
 
-    fn registers(&self) -> AllRegisters {
+    fn registers(&self) -> AllRegisters<'_> {
         unimplemented!()
     }
-    fn registers_mut(&mut self) -> AllMutRegisters {
+    fn registers_mut(&mut self) -> AllMutRegisters<'_> {
         unimplemented!()
     }
     fn pc(&self) -> u16 {
@@ -44,5 +44,17 @@ impl Cpu for I8080 {
     }
     fn set_halted(&mut self, halted: bool) {
         self.halted = halted;
+    }
+    fn request_nmi(&mut self) {
+        unimplemented!()
+    }
+    fn request_int(&mut self, _: u8) {
+        unimplemented!()
+    }
+    fn set_int_line(&mut self, _: bool, _: u8) {
+        unimplemented!()
+    }
+    fn deadlocked(&self) -> bool {
+        unimplemented!()
     }
 }

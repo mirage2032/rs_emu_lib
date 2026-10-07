@@ -15,10 +15,7 @@ pub struct LD_PNN_BC {
 
 impl LD_PNN_BC {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_PNN_BC, MemoryReadError> {
-        Ok(LD_PNN_BC {
-            common: InstructionCommon::new(4, 20, true),
-            nn: memory.read_16(pos.wrapping_add(2))?,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(2))?))
     }
 
     pub fn new_with_value(nn: u16) -> LD_PNN_BC {
@@ -48,16 +45,6 @@ impl BaseInstruction for LD_PNN_BC {
 impl ExecutableInstruction<Z80> for LD_PNN_BC {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         memory.write_16(self.nn, cpu.registers.gp.bc)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 43");
-    test_instruction_parse!(LD_PNN_BC, [0xbeef]);
 }

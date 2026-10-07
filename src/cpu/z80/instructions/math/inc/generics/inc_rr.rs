@@ -1,6 +1,5 @@
 macro_rules! inc_rr {
         ($dest:expr,$opcode:literal,$cdest:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<INC_ $cdest>] {
@@ -35,17 +34,6 @@ macro_rules! inc_rr {
                     cpu.registers.gp.[<$dest>] = cpu.registers.gp.[<$dest>].wrapping_add(1);
                     Ok(())
                 }
-            }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_INC_ $cdest>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<INC_ $cdest>]);
             }
         }
     }

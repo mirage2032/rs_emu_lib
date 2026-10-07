@@ -35,6 +35,11 @@ fn print_registers(registers: &AllRegisters) {
     println!();
 }
 
+/// T-states per frame on a 48K Spectrum.
+const FRAME_TSTATES: usize = 69_888;
+/// T-states the ULA holds INT active for, at the start of each frame.
+const INT_TSTATES: usize = 32;
+
 fn main() {
     let refresh_rate = 50.08;
     let dsp = MemViz::new(2.0, refresh_rate);
@@ -43,7 +48,6 @@ fn main() {
     let attribute_mem = dsp.attribute_buffer();
     let attribute_len = attribute_mem.size();
     let border_io = dsp.border_io();
-    let timer_io = dsp.timer_io();
     // dsp.randomize();
     // thread::sleep(Duration::from_secs(2));
     println!("Creating emulator");
@@ -62,7 +66,6 @@ fn main() {
         }
     }
     io.add_device(Box::new(IORegister::new(other_io))).unwrap();
-    io.add_device(timer_io).expect("Failed to add device");
     io.add_device(border_io).expect("Failed to add device");
     emulator.io = io;
     let rom_path: PathBuf = PathBuf::from("roms/zx48.rom");
@@ -86,7 +89,11 @@ fn main() {
     let freq = 3_500_000.0;
     let stop_reason = emulator.run_with_callback(
         freq,
-        Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {
+        Some(move |emu: &mut Emulator<Z80>, _instruction: &dyn ExecutableInstruction<Z80>| {
+            // The ULA interrupts once per frame by holding INT for its first 32
+            // T-states; if interrupts are disabled all that time, the interrupt is
+            // lost. 0xFF is what the floating data bus reads.
+            emu.set_int_line(emu.cycles % FRAME_TSTATES < INT_TSTATES, 0xFF);
             // println!("{}", instruction);
             // println!("{:?}",emu.io.read(0xFE));
             //

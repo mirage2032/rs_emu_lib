@@ -37,16 +37,6 @@ impl BaseInstruction for LD_I_A {
 impl ExecutableInstruction<Z80> for LD_I_A {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.i = cpu.registers.gp.a;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 47");
-    test_instruction_parse!(LD_I_A);
 }

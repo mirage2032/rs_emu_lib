@@ -1,14 +1,28 @@
 use std::collections::HashMap;
 
-use super::InterruptType;
-
 pub trait IODevice: Send + Sync {
+    /// The ports the device answers, by the low byte of the port address.
     fn ports(&self) -> Vec<u8>;
-    fn read(&self, port: u8) -> Result<u8, &'static str>;
-    fn write(&mut self, pin: u8, data: u8) -> Result<(), &'static str>;
-    fn step(&mut self);
-    fn will_interrupt(&self) -> Option<InterruptType>;
-    fn ack_int(&mut self) -> Result<(), &'static str>;
+    /// Reads from `port`: the whole 16-bit address the CPU puts on the bus, which
+    /// is A:n for `IN A,(n)` and BC for the other port instructions. The device is
+    /// picked by the low byte; the high byte is there for devices that decode it,
+    /// like the ZX Spectrum's keyboard.
+    fn read(&self, port: u16) -> Result<u8, &'static str>;
+    /// Writes to `port`, the whole 16-bit address, as for `read`.
+    fn write(&mut self, port: u16, data: u8) -> Result<(), &'static str>;
+    fn step(&mut self) {}
+    /// Whether the device is holding INT active, asking for a maskable interrupt.
+    /// For devices that drive INT themselves, like a Z80 CTC. Anything else,
+    /// including a device raising an NMI, can use `Emulator::interrupt_handle`.
+    fn int_pending(&self) -> bool {
+        false
+    }
+    /// The CPU accepted the device's interrupt. Return the byte the device puts on
+    /// the data bus (the instruction to run in IM 0, the low byte of the vector
+    /// address in IM 2, ignored in IM 1), and normally stop holding INT.
+    fn int_ack(&mut self) -> u8 {
+        0xFF
+    }
 }
 
 pub struct IORegister {
@@ -29,24 +43,18 @@ impl IODevice for IORegister {
     fn ports(&self) -> Vec<u8> {
         self.registers.keys().copied().collect()
     }
-    fn read(&self, port: u8) -> Result<u8, &'static str> {
+    fn read(&self, port: u16) -> Result<u8, &'static str> {
         self.registers
-            .get(&port)
+            .get(&(port as u8))
             .copied()
             .ok_or("Attempting to read port not mapped to this device")
     }
-    fn write(&mut self, port: u8, data: u8) -> Result<(), &'static str> {
-        *self.registers.get_mut(&port).unwrap() = data;
+    fn write(&mut self, port: u16, data: u8) -> Result<(), &'static str> {
+        *self.registers.get_mut(&(port as u8)).unwrap() = data;
         Ok(())
     }
 
     fn step(&mut self) {}
-    fn will_interrupt(&self) -> Option<InterruptType> {
-        None
-    }
-    fn ack_int(&mut self) -> Result<(), &'static str> {
-        Ok(())
-    }
 }
 
 impl Default for IORegister {

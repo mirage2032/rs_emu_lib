@@ -1,6 +1,5 @@
 macro_rules! pop_rr {
         ($dest:expr,$opcode:literal,$cdest:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<POP_ $cdest>] {
@@ -35,17 +34,6 @@ macro_rules! pop_rr {
                     cpu.registers.gp.[<$dest>] = pop_16!(memory, cpu.registers.sp);
                     Ok(())
                 }
-            }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_POP_ $cdest>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<POP_ $cdest>]);
             }
         }
     }

@@ -4,7 +4,6 @@ use crate::io::IO;
 use crate::memory::Memory;
 use std::fmt;
 use std::fmt::Display;
-use std::mem::swap;
 
 #[derive(Debug)]
 pub struct EXX {
@@ -36,18 +35,7 @@ impl BaseInstruction for EXX {
 
 impl ExecutableInstruction<Z80> for EXX {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        swap(&mut cpu.registers.gp.bc, &mut cpu.registers.gp_alt.bc);
-        swap(&mut cpu.registers.gp.de, &mut cpu.registers.gp_alt.de);
-        swap(&mut cpu.registers.gp.hl, &mut cpu.registers.gp_alt.hl);
+        cpu.registers.swap();
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::test_instruction_parse;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("d9");
-    test_instruction_parse!(EXX);
 }

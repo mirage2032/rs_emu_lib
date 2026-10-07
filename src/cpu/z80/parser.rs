@@ -1,9 +1,17 @@
 use regex::Regex;
+use std::sync::LazyLock;
 
 use crate::cpu::instruction::{ExecutableInstruction, InstructionParser, ParseError};
 use crate::cpu::z80::instructions::*;
 use crate::cpu::z80::Z80;
 use crate::memory::MemoryDevice;
+
+/// An instruction: its mnemonic and up to two operands, once commas are spaces.
+/// Compiled on first use, instead of for every instruction assembled.
+static ASM_SYNTAX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
+        .expect("Error building Z80 instruction parsing regex")
+});
 
 #[derive(Debug, Clone)]
 enum ImmediateValue {
@@ -65,12 +73,9 @@ impl InstructionParser<Z80> for Z80Parser {
     fn ins_from_asm_string(
         &self,
         instruction: &str,
-    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
+    ) -> Result<Box<dyn ExecutableInstruction<Z80>>, ParseError> {
         let filtered = instruction.to_lowercase().replace(",", " ");
-        //regex
-        let re = Regex::new(r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
-            .expect("Error building Z80 instruction parsing regex");
-        let op = match re.captures(&filtered) {
+        let op = match ASM_SYNTAX.captures(&filtered) {
             Some(caps) => caps,
             None => {
                 return Err(ParseError::InvalidInstruction(format!(
@@ -93,12 +98,28 @@ impl InstructionParser<Z80> for Z80Parser {
             "ccf" => Box::new(ccf::CCF::new()),
             "exx" => Box::new(exx::EXX::new()),
             "retn" => Box::new(retn::RETN::new()),
+            "reti" => Box::new(reti::RETI::new()),
             "di" => Box::new(di::DI::new()),
             "ei" => Box::new(ei::EI::new()),
             "neg" => Box::new(neg::NEG::new()),
-            "ldi" => Box::new(ldi::LDI::new()),
-            "ldir" => Box::new(ldir::LDIR::new()),
-            "lddr" => Box::new(lddr::LDDR::new()),
+            "ldi" => Box::new(block::LDI::new()),
+            "ldd" => Box::new(block::LDD::new()),
+            "ldir" => Box::new(block::LDIR::new()),
+            "lddr" => Box::new(block::LDDR::new()),
+            "cpi" => Box::new(block::CPI::new()),
+            "cpd" => Box::new(block::CPD::new()),
+            "cpir" => Box::new(block::CPIR::new()),
+            "cpdr" => Box::new(block::CPDR::new()),
+            "ini" => Box::new(block::INI::new()),
+            "ind" => Box::new(block::IND::new()),
+            "inir" => Box::new(block::INIR::new()),
+            "indr" => Box::new(block::INDR::new()),
+            "outi" => Box::new(block::OUTI::new()),
+            "outd" => Box::new(block::OUTD::new()),
+            "otir" => Box::new(block::OTIR::new()),
+            "otdr" => Box::new(block::OTDR::new()),
+            "rld" => Box::new(rld::RLD::new()),
+            "rrd" => Box::new(rrd::RRD::new()),
             "im" => match get_op(2)? {
                 "0" => Box::new(im0::IM0::new()),
                 "1" => Box::new(im1::IM1::new()),
@@ -555,8 +576,8 @@ impl InstructionParser<Z80> for Z80Parser {
                         "de" => Box::new(ld::LD_DE_NN::new_with_value(val)),
                         "hl" => Box::new(ld::LD_HL_NN::new_with_value(val)),
                         "sp" => Box::new(ld::ld_sp_nn::LD_SP_NN::new_with_value(val)),
-                        "ix" => Box::new(ld::ld_ix_nn::LD_IX_NN::new_with_value(val)),
-                        "iy" => Box::new(ld::ld_iy_nn::LD_IY_NN::new_with_value(val)),
+                        "ix" => Box::new(ld::ld_idx_nn::LD_IX_NN::new_with_value(val)),
+                        "iy" => Box::new(ld::ld_idx_nn::LD_IY_NN::new_with_value(val)),
                         _ => {
                             return Err(ParseError::InvalidInstruction(format!(
                                 "Invalid destination \"{0}\"",
@@ -570,8 +591,8 @@ impl InstructionParser<Z80> for Z80Parser {
                         "de" => Box::new(ld::LD_MISC_DE_PNN::new_with_value(val)),
                         "hl" => Box::new(ld::LD_MISC_HL_PNN::new_with_value(val)),
                         "sp" => Box::new(ld::ld_sp_pnn::LD_MISC_SP_PNN::new_with_value(val)),
-                        "ix" => Box::new(ld::ld_ix_pnn::LD_IX_PNN::new_with_value(val)),
-                        "iy" => Box::new(ld::ld_iy_pnn::LD_IY_PNN::new_with_value(val)),
+                        "ix" => Box::new(ld::ld_idx_pnn::LD_IX_PNN::new_with_value(val)),
+                        "iy" => Box::new(ld::ld_idx_pnn::LD_IY_PNN::new_with_value(val)),
                         _ => {
                             return Err(ParseError::InvalidInstruction(format!(
                                 "Invalid destination \"{0}\"",
@@ -589,8 +610,8 @@ impl InstructionParser<Z80> for Z80Parser {
                         }
                     },
                     (Ok(ImmediateValue::Ptr(val)), Err(_)) => match source {
-                        "ix" => Box::new(ld::ld_pnn_ix::LD_PNN_IX::new_with_value(val)),
-                        "iy" => Box::new(ld::ld_pnn_iy::LD_PNN_IY::new_with_value(val)),
+                        "ix" => Box::new(ld::ld_pnn_idx::LD_PNN_IX::new_with_value(val)),
+                        "iy" => Box::new(ld::ld_pnn_idx::LD_PNN_IY::new_with_value(val)),
                         "hl" => Box::new(ld::LD_PNN_HL::new_with_value(val)),
                         "bc" => Box::new(ld::ld_pnn_bc_misc::LD_PNN_BC::new_with_value(val)),
                         "de" => Box::new(ld::ld_pnn_de_misc::LD_PNN_DE::new_with_value(val)),
@@ -604,10 +625,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         }
                     },
                     (Ok(ImmediateValue::OffsetIX(offset)), Ok(ImmediateValue::Val8(val))) => {
-                        Box::new(ld::ld_pixd_n::LD_PIXD_N::new_with_value(offset, val))
+                        Box::new(ld::ld_pidxd_n::LD_PIXD_N::new_with_value(offset, val))
                     }
                     (Ok(ImmediateValue::OffsetIY(offset)), Ok(ImmediateValue::Val8(val))) => {
-                        Box::new(ld::ld_piyd_n::LD_PIYD_N::new_with_value(offset, val))
+                        Box::new(ld::ld_pidxd_n::LD_PIYD_N::new_with_value(offset, val))
                     }
                     (Ok(ImmediateValue::OffsetIX(offset)), Err(_)) => match source {
                         "b" => Box::new(ld::LD_PIXD_B::new_with_value(offset)),
@@ -746,10 +767,12 @@ impl InstructionParser<Z80> for Z80Parser {
 
                         ("i", "a") => Box::new(ld::ld_i_a::LD_I_A::new()),
                         ("a", "i") => Box::new(ld::ld_a_i::LD_A_I::new()),
+                        ("r", "a") => Box::new(ld::ld_r_a::LD_R_A::new()),
+                        ("a", "r") => Box::new(ld::ld_a_r::LD_A_R::new()),
 
                         ("sp", "hl") => Box::new(ld::ld_sp_hl::LD_SP_HL::new()),
-                        ("sp", "ix") => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
-                        ("sp", "iy") => Box::new(ld::ld_sp_iy::LD_SP_IY::new()),
+                        ("sp", "ix") => Box::new(ld::ld_sp_idx::LD_SP_IX::new()),
+                        ("sp", "iy") => Box::new(ld::ld_sp_idx::LD_SP_IY::new()),
                         _ => {
                             return Err(ParseError::InvalidInstruction(format!(
                                 "Invalid operands \"{0}\" and \"{1}\"",
@@ -769,7 +792,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(math::inc::inc_pixd::INC_PIXD::new_with_value(offset as i8))
+                        Box::new(math::inc::inc_pidxd::INC_PIXD::new_with_value(offset as i8))
+                    }
+                    Ok(ImmediateValue::OffsetIY(offset)) => {
+                        Box::new(math::inc::inc_pidxd::INC_PIYD::new_with_value(offset as i8))
                     }
                     Err(_) => match destination {
                         "bc" => Box::new(math::inc::INC_BC::new()),
@@ -784,8 +810,8 @@ impl InstructionParser<Z80> for Z80Parser {
                         "l" => Box::new(math::inc::INC_L::new()),
                         "a" => Box::new(math::inc::INC_A::new()),
                         "(hl)" => Box::new(math::inc::inc_phl::INC_PHL::new()),
-                        "ix" => Box::new(math::inc::inc_ix::INC_IX::new()),
-                        "iy" => Box::new(math::inc::inc_iy::INC_IY::new()),
+                        "ix" => Box::new(math::inc::inc_idx::INC_IX::new()),
+                        "iy" => Box::new(math::inc::inc_idx::INC_IY::new()),
                         _ => {
                             return Err(ParseError::InvalidInstruction(format!(
                                 "Invalid operand \"{0}\"",
@@ -805,10 +831,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(math::dec::dec_pixd::DEC_PIXD::new_with_value(offset as i8))
+                        Box::new(math::dec::dec_pidxd::DEC_PIXD::new_with_value(offset as i8))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) =>{
-                        Box::new(math::dec::dec_piyd::DEC_PIYD::new_with_value(offset as i8))
+                        Box::new(math::dec::dec_pidxd::DEC_PIYD::new_with_value(offset as i8))
                     }
                     Err(_) => match destination {
                         "bc" => Box::new(math::dec::DEC_BC::new()),
@@ -823,8 +849,8 @@ impl InstructionParser<Z80> for Z80Parser {
                         "l" => Box::new(math::dec::DEC_L::new()),
                         "a" => Box::new(math::dec::DEC_A::new()),
                         "(hl)" => Box::new(math::dec::dec_phl::DEC_PHL::new()),
-                        "ix" => Box::new(math::dec::dec_ix::DEC_IX::new()),
-                        "iy" => Box::new(math::dec::dec_iy::DEC_IY::new()),
+                        "ix" => Box::new(math::dec::dec_idx::DEC_IX::new()),
+                        "iy" => Box::new(math::dec::dec_idx::DEC_IY::new()),
                         _ => {
                             return Err(ParseError::InvalidInstruction(format!(
                                 "Invalid operand \"{0}\"",
@@ -861,10 +887,10 @@ impl InstructionParser<Z80> for Z80Parser {
                     "ix" => {
                         let source = get_op(3)?;
                         match source {
-                            "bc" => Box::new(math::add::add_ix_bc::ADD_IX_BC::new()),
-                            "de" => Box::new(math::add::add_ix_de::ADD_IX_DE::new()),
-                            "sp" => Box::new(math::add::add_ix_sp::ADD_IX_SP::new()),
-                            "ix" => Box::new(math::add::add_ix_ix::ADD_IX_IX::new()),
+                            "bc" => Box::new(math::add::add_idx_bc::ADD_IX_BC::new()),
+                            "de" => Box::new(math::add::add_idx_de::ADD_IX_DE::new()),
+                            "sp" => Box::new(math::add::add_idx_sp::ADD_IX_SP::new()),
+                            "ix" => Box::new(math::add::add_idx_idx::ADD_IX_IX::new()),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(format!(
                                     "Invalid source \"{0}\"",
@@ -876,10 +902,10 @@ impl InstructionParser<Z80> for Z80Parser {
                     "iy" => {
                         let source = get_op(3)?;
                         match source {
-                            "bc" => Box::new(math::add::add_iy_bc::ADD_IY_BC::new()),
-                            "de" => Box::new(math::add::add_iy_de::ADD_IY_DE::new()),
-                            "sp" => Box::new(math::add::add_iy_sp::ADD_IY_SP::new()),
-                            "iy" => Box::new(math::add::add_iy_iy::ADD_IY_IY::new()),
+                            "bc" => Box::new(math::add::add_idx_bc::ADD_IY_BC::new()),
+                            "de" => Box::new(math::add::add_idx_de::ADD_IY_DE::new()),
+                            "sp" => Box::new(math::add::add_idx_sp::ADD_IY_SP::new()),
+                            "iy" => Box::new(math::add::add_idx_idx::ADD_IY_IY::new()),
                             _ => {
                                 return Err(ParseError::InvalidInstruction(format!(
                                     "Invalid source \"{0}\"",
@@ -908,10 +934,10 @@ impl InstructionParser<Z80> for Z80Parser {
                                 }
                             },
                             Ok(ImmediateValue::OffsetIX(offset)) => {
-                                Box::new(math::add::add_a_pixd::ADD_A_PIXD::new_with_value(offset))
+                                Box::new(math::add::add_a_pidxd::ADD_A_PIXD::new_with_value(offset))
                             }
                             Ok(ImmediateValue::OffsetIY(offset)) => {
-                                Box::new(math::add::add_a_piyd::ADD_A_PIYD::new_with_value(offset))
+                                Box::new(math::add::add_a_pidxd::ADD_A_PIYD::new_with_value(offset))
                             }
                             Ok(ImmediateValue::Val8(val)) => {
                                 Box::new(math::add::add_a_n::ADD_A_N::new_with_value(val))
@@ -940,10 +966,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         Box::new(math::adc::adc_a_n::ADC_A_N::new_with_value(val))
                     }
                     ("a", Ok(ImmediateValue::OffsetIX(offset)), _) => {
-                        Box::new(math::adc::adc_a_pixd::ADC_A_PIXD::new_with_value(offset))
+                        Box::new(math::adc::adc_a_pidxd::ADC_A_PIXD::new_with_value(offset))
                     }
                     ("a", Ok(ImmediateValue::OffsetIY(offset)), _) => {
-                        Box::new(math::adc::adc_a_piyd::ADC_A_PIYD::new_with_value(offset))
+                        Box::new(math::adc::adc_a_pidxd::ADC_A_PIYD::new_with_value(offset))
                     }
                     ("a", Err(_), "a") => Box::new(math::adc::ADC_A_A::new()),
                     ("a", Err(_), "b") => Box::new(math::adc::ADC_A_B::new()),
@@ -973,10 +999,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         Box::new(math::sbc::sbc_a_n::SBC_A_N::new_with_value(val))
                     }
                     ("a", Ok(ImmediateValue::OffsetIX(offset)), _) => {
-                        Box::new(math::sbc::sbc_a_pixd::SBC_A_PIXD::new_with_value(offset))
+                        Box::new(math::sbc::sbc_a_pidxd::SBC_A_PIXD::new_with_value(offset))
                     }
                     ("a", Ok(ImmediateValue::OffsetIY(offset)), _) => {
-                        Box::new(math::sbc::sbc_a_piyd::SBC_A_PIYD::new_with_value(offset))
+                        Box::new(math::sbc::sbc_a_pidxd::SBC_A_PIYD::new_with_value(offset))
                     }
                     ("a", Err(_), "a") => Box::new(math::sbc::SBC_A_A::new()),
                     ("a", Err(_), "b") => Box::new(math::sbc::SBC_A_B::new()),
@@ -1005,10 +1031,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         Box::new(math::xor::xor_n::XOR_N::new_with_value(val))
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(math::xor::xor_pixd::XOR_PIXD::new_with_value(offset))
+                        Box::new(math::xor::xor_pidxd::XOR_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(math::xor::xor_piyd::XOR_PIYD::new_with_value(offset))
+                        Box::new(math::xor::xor_pidxd::XOR_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "a" => Box::new(math::xor::XOR_A::new()),
@@ -1036,8 +1062,8 @@ impl InstructionParser<Z80> for Z80Parser {
                     ("de", "hl") => Box::new(ex::ex_de_hl::EX_DE_HL::new()),
                     ("af", "af'") => Box::new(ex::ex_af_saf::EX_AF_SAF::new()),
                     ("(sp)", "hl") => Box::new(ex::ex_psp_hl::EX_PSP_HL::new()),
-                    ("(sp)", "ix") => Box::new(ex::ex_psp_ix::EX_PSP_IX::new()),
-                    ("(sp)", "iy") => Box::new(ex::ex_psp_iy::EX_PSP_IY::new()),
+                    ("(sp)", "ix") => Box::new(ex::ex_psp_idx::EX_PSP_IX::new()),
+                    ("(sp)", "iy") => Box::new(ex::ex_psp_idx::EX_PSP_IY::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid operands \"{0}\" and \"{1}\"",
@@ -1069,10 +1095,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         Box::new(math::cp::cp_n::CP_N::new_with_value(val))
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(math::cp::cp_pixd::CP_PIXD::new_with_value(offset))
+                        Box::new(math::cp::cp_pidxd::CP_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(math::cp::cp_piyd::CP_PIYD::new_with_value(offset))
+                        Box::new(math::cp::cp_pidxd::CP_PIYD::new_with_value(offset))
                     }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
@@ -1105,10 +1131,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         Box::new(math::and::and_n::AND_N::new_with_value(val))
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(math::and::and_pixd::AND_PIXD::new_with_value(offset))
+                        Box::new(math::and::and_pidxd::AND_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(math::and::and_piyd::AND_PIYD::new_with_value(offset))
+                        Box::new(math::and::and_pidxd::AND_PIYD::new_with_value(offset))
                     }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
@@ -1141,10 +1167,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         Box::new(math::sub::sub_n::SUB_N::new_with_value(val))
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(math::sub::sub_pixd::SUB_PIXD::new_with_value(offset))
+                        Box::new(math::sub::sub_pidxd::SUB_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(math::sub::sub_piyd::SUB_PIYD::new_with_value(offset))
+                        Box::new(math::sub::sub_pidxd::SUB_PIYD::new_with_value(offset))
                     }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
@@ -1177,10 +1203,10 @@ impl InstructionParser<Z80> for Z80Parser {
                         Box::new(math::or::or_n::OR_N::new_with_value(val))
                     }
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(math::or::or_pixd::OR_PIXD::new_with_value(offset))
+                        Box::new(math::or::or_pidxd::OR_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(math::or::or_piyd::OR_PIYD::new_with_value(offset))
+                        Box::new(math::or::or_pidxd::OR_PIYD::new_with_value(offset))
                     }
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
@@ -1266,9 +1292,9 @@ impl InstructionParser<Z80> for Z80Parser {
                 } else if op1 == "(hl)" {
                     Box::new(jump::jp::jp_phl::JP_PHL::new())
                 } else if op1 == "(ix)" {
-                    Box::new(jump::jp::jp_pix::JP_PIX::new())
+                    Box::new(jump::jp::jp_pidx::JP_PIX::new())
                 } else if op1 == "(iy)" {
-                    Box::new(jump::jp::jp_piy::JP_PIY::new())
+                    Box::new(jump::jp::jp_pidx::JP_PIY::new())
                 } else {
                     return Err(ParseError::InvalidInstruction(
                         "Invalid instruction".to_string(),
@@ -1364,8 +1390,8 @@ impl InstructionParser<Z80> for Z80Parser {
                     "bc" => Box::new(stack::push::PUSH_BC::new()),
                     "de" => Box::new(stack::push::PUSH_DE::new()),
                     "hl" => Box::new(stack::push::PUSH_HL::new()),
-                    "ix" => Box::new(stack::push::push_ix::PUSH_IX::new()),
-                    "iy" => Box::new(stack::push::push_iy::PUSH_IY::new()),
+                    "ix" => Box::new(stack::push::push_idx::PUSH_IX::new()),
+                    "iy" => Box::new(stack::push::push_idx::PUSH_IY::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(
                             "Invalid instruction".to_string(),
@@ -1380,8 +1406,8 @@ impl InstructionParser<Z80> for Z80Parser {
                     "bc" => Box::new(stack::pop::POP_BC::new()),
                     "de" => Box::new(stack::pop::POP_DE::new()),
                     "hl" => Box::new(stack::pop::POP_HL::new()),
-                    "ix" => Box::new(stack::pop::pop_ix::POP_IX::new()),
-                    "iy" => Box::new(stack::pop::pop_iy::POP_IY::new()),
+                    "ix" => Box::new(stack::pop::pop_idx::POP_IX::new()),
+                    "iy" => Box::new(stack::pop::pop_idx::POP_IY::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(
                             "Invalid instruction".to_string(),
@@ -1393,10 +1419,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::rr::rr_pixd::RR_PIXD::new_with_value(offset))
+                        Box::new(bit::rr::rr_pidxd::RR_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(bit::rr::rr_piyd::RR_PIYD::new_with_value(offset))
+                        Box::new(bit::rr::rr_pidxd::RR_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "b" => Box::new(bit::rr::RR_B::new()),
@@ -1419,10 +1445,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::rlc::rlc_pixd::RLC_PIXD::new_with_value(offset))
+                        Box::new(bit::rlc::rlc_pidxd::RLC_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(bit::rlc::rlc_piyd::RLC_PIYD::new_with_value(offset))
+                        Box::new(bit::rlc::rlc_pidxd::RLC_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "b" => Box::new(bit::rlc::RLC_B::new()),
@@ -1445,10 +1471,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::rrc::rrc_pixd::RRC_PIXD::new_with_value(offset))
+                        Box::new(bit::rrc::rrc_pidxd::RRC_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(bit::rrc::rrc_piyd::RRC_PIYD::new_with_value(offset))
+                        Box::new(bit::rrc::rrc_pidxd::RRC_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "b" => Box::new(bit::rrc::RRC_B::new()),
@@ -1471,10 +1497,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::rl::rl_pixd::RL_PIXD::new_with_value(offset))
+                        Box::new(bit::rl::rl_pidxd::RL_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(bit::rl::rl_piyd::RL_PIYD::new_with_value(offset))
+                        Box::new(bit::rl::rl_pidxd::RL_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "b" => Box::new(bit::rl::RL_B::new()),
@@ -1497,10 +1523,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::sra::sra_pixd::SRA_PIXD::new_with_value(offset))
+                        Box::new(bit::sra::sra_pidxd::SRA_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(bit::sra::sra_piyd::SRA_PIYD::new_with_value(offset))
+                        Box::new(bit::sra::sra_pidxd::SRA_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "b" => Box::new(bit::sra::SRA_B::new()),
@@ -1523,10 +1549,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::srl::srl_pixd::SRL_PIXD::new_with_value(offset))
+                        Box::new(bit::srl::srl_pidxd::SRL_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(bit::srl::srl_piyd::SRL_PIYD::new_with_value(offset))
+                        Box::new(bit::srl::srl_pidxd::SRL_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "b" => Box::new(bit::srl::SRL_B::new()),
@@ -1549,10 +1575,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::sll::sll_pixd::SLL_PIXD::new_with_value(offset))
+                        Box::new(bit::sll::sll_pidxd::SLL_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(bit::sll::sll_piyd::SLL_PIYD::new_with_value(offset))
+                        Box::new(bit::sll::sll_pidxd::SLL_PIYD::new_with_value(offset))
                     }
                     _ => match destination {
                         "b" => Box::new(bit::sll::SLL_B::new()),
@@ -1575,10 +1601,10 @@ impl InstructionParser<Z80> for Z80Parser {
                 let destination = get_op(2)?;
                 match is_val(destination) {
                     Ok(ImmediateValue::OffsetIX(offset)) => {
-                        Box::new(bit::sla::sla_pixd::SLA_PIXD::new_with_value(offset))
+                        Box::new(bit::sla::sla_pidxd::SLA_PIXD::new_with_value(offset))
                     }
                     Ok(ImmediateValue::OffsetIY(offset)) => {
-                        Box::new(bit::sla::sla_piyd::SLA_PIYD::new_with_value(offset))
+                        Box::new(bit::sla::sla_pidxd::SLA_PIYD::new_with_value(offset))
                     }
                     Err(_) => match destination {
                         "b" => Box::new(bit::sla::SLA_B::new()),
@@ -1659,7 +1685,7 @@ impl InstructionParser<Z80> for Z80Parser {
         &self,
         memory: &dyn MemoryDevice,
         pos: u16,
-    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
+    ) -> Result<Box<dyn ExecutableInstruction<Z80>>, ParseError> {
         let ins_byte0 = memory.read_8(pos)?;
         let instruction: Box<dyn ExecutableInstruction<Z80>> = match ins_byte0 {
             0x00u8 => Box::new(nop::NOP::new()),
@@ -2143,18 +2169,18 @@ impl InstructionParser<Z80> for Z80Parser {
             0xDD => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
-                    0x09 => Box::new(math::add::add_ix_bc::ADD_IX_BC::new()),
-                    0x19 => Box::new(math::add::add_ix_de::ADD_IX_DE::new()),
-                    0x21 => Box::new(ld::ld_ix_nn::LD_IX_NN::new(memory, pos)?),
-                    0x22 => Box::new(ld::ld_pnn_ix::LD_PNN_IX::new(memory, pos)?),
-                    0x23 => Box::new(math::inc::inc_ix::INC_IX::new()),
-                    0x29 => Box::new(math::add::add_ix_ix::ADD_IX_IX::new()),
-                    0x2A => Box::new(ld::ld_ix_pnn::LD_IX_PNN::new(memory, pos)?),
-                    0x2B => Box::new(math::dec::dec_ix::DEC_IX::new()),
-                    0x34 => Box::new(math::inc::inc_pixd::INC_PIXD::new(memory, pos)?),
-                    0x35 => Box::new(math::dec::dec_pixd::DEC_PIXD::new(memory, pos)?),
-                    0x36 => Box::new(ld::ld_pixd_n::LD_PIXD_N::new(memory, pos)?),
-                    0x39 => Box::new(math::add::add_ix_sp::ADD_IX_SP::new()),
+                    0x09 => Box::new(math::add::add_idx_bc::ADD_IX_BC::new()),
+                    0x19 => Box::new(math::add::add_idx_de::ADD_IX_DE::new()),
+                    0x21 => Box::new(ld::ld_idx_nn::LD_IX_NN::new(memory, pos)?),
+                    0x22 => Box::new(ld::ld_pnn_idx::LD_PNN_IX::new(memory, pos)?),
+                    0x23 => Box::new(math::inc::inc_idx::INC_IX::new()),
+                    0x29 => Box::new(math::add::add_idx_idx::ADD_IX_IX::new()),
+                    0x2A => Box::new(ld::ld_idx_pnn::LD_IX_PNN::new(memory, pos)?),
+                    0x2B => Box::new(math::dec::dec_idx::DEC_IX::new()),
+                    0x34 => Box::new(math::inc::inc_pidxd::INC_PIXD::new(memory, pos)?),
+                    0x35 => Box::new(math::dec::dec_pidxd::DEC_PIXD::new(memory, pos)?),
+                    0x36 => Box::new(ld::ld_pidxd_n::LD_PIXD_N::new(memory, pos)?),
+                    0x39 => Box::new(math::add::add_idx_sp::ADD_IX_SP::new()),
                     0x46 => Box::new(ld::LD_B_PIXD::new(memory, pos)?),
                     0x4e => Box::new(ld::LD_C_PIXD::new(memory, pos)?),
                     0x56 => Box::new(ld::LD_D_PIXD::new(memory, pos)?),
@@ -2169,25 +2195,25 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x75 => Box::new(ld::LD_PIXD_L::new(memory, pos)?),
                     0x77 => Box::new(ld::LD_PIXD_A::new(memory, pos)?),
                     0x7e => Box::new(ld::LD_A_PIXD::new(memory, pos)?),
-                    0x86 => Box::new(math::add::add_a_pixd::ADD_A_PIXD::new(memory, pos)?),
-                    0x8e => Box::new(math::adc::adc_a_pixd::ADC_A_PIXD::new(memory, pos)?),
-                    0x96 => Box::new(math::sub::sub_pixd::SUB_PIXD::new(memory, pos)?),
-                    0x9e => Box::new(math::sbc::sbc_a_pixd::SBC_A_PIXD::new(memory, pos)?),
-                    0xA6 => Box::new(math::and::and_pixd::AND_PIXD::new(memory, pos)?),
-                    0xAE => Box::new(math::xor::xor_pixd::XOR_PIXD::new(memory, pos)?),
-                    0xB6 => Box::new(math::or::or_pixd::OR_PIXD::new(memory, pos)?),
-                    0xBE => Box::new(math::cp::cp_pixd::CP_PIXD::new(memory, pos)?),
+                    0x86 => Box::new(math::add::add_a_pidxd::ADD_A_PIXD::new(memory, pos)?),
+                    0x8e => Box::new(math::adc::adc_a_pidxd::ADC_A_PIXD::new(memory, pos)?),
+                    0x96 => Box::new(math::sub::sub_pidxd::SUB_PIXD::new(memory, pos)?),
+                    0x9e => Box::new(math::sbc::sbc_a_pidxd::SBC_A_PIXD::new(memory, pos)?),
+                    0xA6 => Box::new(math::and::and_pidxd::AND_PIXD::new(memory, pos)?),
+                    0xAE => Box::new(math::xor::xor_pidxd::XOR_PIXD::new(memory, pos)?),
+                    0xB6 => Box::new(math::or::or_pidxd::OR_PIXD::new(memory, pos)?),
+                    0xBE => Box::new(math::cp::cp_pidxd::CP_PIXD::new(memory, pos)?),
                     0xCB => {
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
-                            0x06 => Box::new(bit::rlc::rlc_pixd::RLC_PIXD::new(memory, pos)?),
-                            0x0E => Box::new(bit::rrc::rrc_pixd::RRC_PIXD::new(memory, pos)?),
-                            0x16 => Box::new(bit::rl::rl_pixd::RL_PIXD::new(memory, pos)?),
-                            0x1E => Box::new(bit::rr::rr_pixd::RR_PIXD::new(memory, pos)?),
-                            0x26 => Box::new(bit::sla::sla_pixd::SLA_PIXD::new(memory, pos)?),
-                            0x2E => Box::new(bit::sra::sra_pixd::SRA_PIXD::new(memory, pos)?),
-                            0x36 => Box::new(bit::sll::sll_pixd::SLL_PIXD::new(memory, pos)?),
-                            0x3E => Box::new(bit::srl::srl_pixd::SRL_PIXD::new(memory, pos)?),
+                            0x06 => Box::new(bit::rlc::rlc_pidxd::RLC_PIXD::new(memory, pos)?),
+                            0x0E => Box::new(bit::rrc::rrc_pidxd::RRC_PIXD::new(memory, pos)?),
+                            0x16 => Box::new(bit::rl::rl_pidxd::RL_PIXD::new(memory, pos)?),
+                            0x1E => Box::new(bit::rr::rr_pidxd::RR_PIXD::new(memory, pos)?),
+                            0x26 => Box::new(bit::sla::sla_pidxd::SLA_PIXD::new(memory, pos)?),
+                            0x2E => Box::new(bit::sra::sra_pidxd::SRA_PIXD::new(memory, pos)?),
+                            0x36 => Box::new(bit::sll::sll_pidxd::SLL_PIXD::new(memory, pos)?),
+                            0x3E => Box::new(bit::srl::srl_pidxd::SRL_PIXD::new(memory, pos)?),
                             0x46 => Box::new(bit::bit::BIT_0_PIXD::new(memory, pos)?),
                             0x4E => Box::new(bit::bit::BIT_1_PIXD::new(memory, pos)?),
                             0x56 => Box::new(bit::bit::BIT_2_PIXD::new(memory, pos)?),
@@ -2220,11 +2246,11 @@ impl InstructionParser<Z80> for Z80Parser {
                             }
                         }
                     }
-                    0xE1 => Box::new(stack::pop::pop_ix::POP_IX::new()),
-                    0xE3 => Box::new(ex::ex_psp_ix::EX_PSP_IX::new()),
-                    0xE5 => Box::new(stack::push::push_ix::PUSH_IX::new()),
-                    0xE9 => Box::new(jump::jp::jp_pix::JP_PIX::new()),
-                    0xF9 => Box::new(ld::ld_sp_ix::LD_SP_IX::new()),
+                    0xE1 => Box::new(stack::pop::pop_idx::POP_IX::new()),
+                    0xE3 => Box::new(ex::ex_psp_idx::EX_PSP_IX::new()),
+                    0xE5 => Box::new(stack::push::push_idx::PUSH_IX::new()),
+                    0xE9 => Box::new(jump::jp::jp_pidx::JP_PIX::new()),
+                    0xF9 => Box::new(ld::ld_sp_idx::LD_SP_IX::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid IX instruction: 0x{:02x}",
@@ -2263,34 +2289,63 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x49 => Box::new(io::out_c_c::OUT_C_C::new()),
                     0x4A => Box::new(math::adc::adc_hl_bc::ADC_HL_BC::new()),
                     0x4B => Box::new(ld::LD_MISC_BC_PNN::new(memory, pos)?),
+                    0x4D => Box::new(reti::RETI::new()),
+                    0x4E => Box::new(im0::IM0::with_opcode(0x4E)),
+                    0x4F => Box::new(ld::ld_r_a::LD_R_A::new()),
                     0x50 => Box::new(io::in_d_c::IN_D_C::new()),
                     0x51 => Box::new(io::out_c_d::OUT_C_D::new()),
                     0x52 => Box::new(math::sbc::sbc_hl_de::SBC_HL_DE::new()),
                     0x53 => Box::new(ld::ld_pnn_de_misc::LD_PNN_DE::new(memory, pos)?),
+                    0x55 => Box::new(retn::RETN::with_opcode(0x55)),
                     0x56 => Box::new(im1::IM1::new()),
                     0x57 => Box::new(ld::ld_a_i::LD_A_I::new()),
                     0x58 => Box::new(io::in_e_c::IN_E_C::new()),
                     0x59 => Box::new(io::out_c_e::OUT_C_E::new()),
                     0x5A => Box::new(math::adc::adc_hl_de::ADC_HL_DE::new()),
                     0x5B => Box::new(ld::LD_MISC_DE_PNN::new(memory, pos)?),
+                    0x5D => Box::new(retn::RETN::with_opcode(0x5D)),
                     0x5E => Box::new(im2::IM2::new()),
+                    0x5F => Box::new(ld::ld_a_r::LD_A_R::new()),
                     0x60 => Box::new(io::in_h_c::IN_H_C::new()),
                     0x61 => Box::new(io::out_c_h::OUT_C_H::new()),
                     0x62 => Box::new(math::sbc::sbc_hl_hl::SBC_HL_HL::new()),
                     // 0x63 => Box::new(ld::ld_pnn_hl_misc::LD_PNN_HL::new(memory, pos)?),
+                    0x65 => Box::new(retn::RETN::with_opcode(0x65)),
+                    0x66 => Box::new(im0::IM0::with_opcode(0x66)),
+                    0x67 => Box::new(rrd::RRD::new()),
                     0x68 => Box::new(io::in_l_c::IN_L_C::new()),
                     0x69 => Box::new(io::out_c_l::OUT_C_L::new()),
                     0x6A => Box::new(math::adc::adc_hl_hl::ADC_HL_HL::new()),
                     0x6B => Box::new(ld::LD_MISC_HL_PNN::new(memory, pos)?),
+                    0x6D => Box::new(retn::RETN::with_opcode(0x6D)),
+                    0x6E => Box::new(im0::IM0::with_opcode(0x6E)),
+                    0x6F => Box::new(rld::RLD::new()),
                     0x72 => Box::new(math::sbc::sbc_hl_sp::SBC_HL_SP::new()),
                     0x73 => Box::new(ld::ld_pnn_sp::LD_PNN_SP::new(memory, pos)?),
+                    0x75 => Box::new(retn::RETN::with_opcode(0x75)),
+                    0x76 => Box::new(im1::IM1::with_opcode(0x76)),
                     0x78 => Box::new(io::in_a_c::IN_A_C::new()),
                     0x79 => Box::new(io::out_c_a::OUT_C_A::new()),
                     0x7A => Box::new(math::adc::adc_hl_sp::ADC_HL_SP::new()),
                     0x7B => Box::new(ld::ld_sp_pnn::LD_MISC_SP_PNN::new(memory, pos)?),
-                    0xA0 => Box::new(ldi::LDI::new()),
-                    0xB0 => Box::new(ldir::LDIR::new()),
-                    0xB8 => Box::new(lddr::LDDR::new()),
+                    0x7D => Box::new(retn::RETN::with_opcode(0x7D)),
+                    0x7E => Box::new(im2::IM2::with_opcode(0x7E)),
+                    0xA0 => Box::new(block::LDI::new()),
+                    0xA1 => Box::new(block::CPI::new()),
+                    0xA2 => Box::new(block::INI::new()),
+                    0xA3 => Box::new(block::OUTI::new()),
+                    0xA8 => Box::new(block::LDD::new()),
+                    0xA9 => Box::new(block::CPD::new()),
+                    0xAA => Box::new(block::IND::new()),
+                    0xAB => Box::new(block::OUTD::new()),
+                    0xB0 => Box::new(block::LDIR::new()),
+                    0xB1 => Box::new(block::CPIR::new()),
+                    0xB2 => Box::new(block::INIR::new()),
+                    0xB3 => Box::new(block::OTIR::new()),
+                    0xB8 => Box::new(block::LDDR::new()),
+                    0xB9 => Box::new(block::CPDR::new()),
+                    0xBA => Box::new(block::INDR::new()),
+                    0xBB => Box::new(block::OTDR::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid MISC instruction: 0x{:02x}",
@@ -2317,17 +2372,18 @@ impl InstructionParser<Z80> for Z80Parser {
             0xFD => {
                 let ins_byte1 = memory.read_8(pos.wrapping_add(1))?;
                 match ins_byte1 {
-                    0x09 => Box::new(math::add::add_iy_bc::ADD_IY_BC::new()),
-                    0x19 => Box::new(math::add::add_iy_de::ADD_IY_DE::new()),
-                    0x21 => Box::new(ld::ld_iy_nn::LD_IY_NN::new(memory, pos)?),
-                    0x22 => Box::new(ld::ld_pnn_iy::LD_PNN_IY::new(memory, pos)?),
-                    0x23 => Box::new(math::inc::inc_iy::INC_IY::new()),
-                    0x2A => Box::new(ld::ld_iy_pnn::LD_IY_PNN::new(memory, pos)?),
-                    0x2B => Box::new(math::dec::dec_iy::DEC_IY::new()),
-                    0x29 => Box::new(math::add::add_iy_iy::ADD_IY_IY::new()),
-                    0x35 => Box::new(math::dec::dec_piyd::DEC_PIYD::new(memory,pos)?),
-                    0x36 => Box::new(ld::ld_piyd_n::LD_PIYD_N::new(memory,pos)?),
-                    0x39 => Box::new(math::add::add_iy_sp::ADD_IY_SP::new()),
+                    0x09 => Box::new(math::add::add_idx_bc::ADD_IY_BC::new()),
+                    0x19 => Box::new(math::add::add_idx_de::ADD_IY_DE::new()),
+                    0x21 => Box::new(ld::ld_idx_nn::LD_IY_NN::new(memory, pos)?),
+                    0x22 => Box::new(ld::ld_pnn_idx::LD_PNN_IY::new(memory, pos)?),
+                    0x23 => Box::new(math::inc::inc_idx::INC_IY::new()),
+                    0x2A => Box::new(ld::ld_idx_pnn::LD_IY_PNN::new(memory, pos)?),
+                    0x2B => Box::new(math::dec::dec_idx::DEC_IY::new()),
+                    0x29 => Box::new(math::add::add_idx_idx::ADD_IY_IY::new()),
+                    0x34 => Box::new(math::inc::inc_pidxd::INC_PIYD::new(memory, pos)?),
+                    0x35 => Box::new(math::dec::dec_pidxd::DEC_PIYD::new(memory,pos)?),
+                    0x36 => Box::new(ld::ld_pidxd_n::LD_PIYD_N::new(memory,pos)?),
+                    0x39 => Box::new(math::add::add_idx_sp::ADD_IY_SP::new()),
                     0x46 => Box::new(ld::LD_B_PIYD::new(memory, pos)?),
                     0x4e => Box::new(ld::LD_C_PIYD::new(memory, pos)?),
                     0x56 => Box::new(ld::LD_D_PIYD::new(memory, pos)?),
@@ -2342,25 +2398,25 @@ impl InstructionParser<Z80> for Z80Parser {
                     0x75 => Box::new(ld::LD_PIYD_L::new(memory, pos)?),
                     0x77 => Box::new(ld::LD_PIYD_A::new(memory, pos)?),
                     0x7e => Box::new(ld::LD_A_PIYD::new(memory, pos)?),
-                    0x86 => Box::new(math::add::add_a_piyd::ADD_A_PIYD::new(memory, pos)?),
-                    0x8E => Box::new(math::adc::adc_a_piyd::ADC_A_PIYD::new(memory, pos)?),
-                    0x96 => Box::new(math::sub::sub_piyd::SUB_PIYD::new(memory, pos)?),
-                    0x9E => Box::new(math::sbc::sbc_a_piyd::SBC_A_PIYD::new(memory, pos)?),
-                    0xA6 => Box::new(math::and::and_piyd::AND_PIYD::new(memory, pos)?),
-                    0xAE => Box::new(math::xor::xor_piyd::XOR_PIYD::new(memory, pos)?),
-                    0xB6 => Box::new(math::or::or_piyd::OR_PIYD::new(memory, pos)?),
-                    0xBE => Box::new(math::cp::cp_piyd::CP_PIYD::new(memory, pos)?),
+                    0x86 => Box::new(math::add::add_a_pidxd::ADD_A_PIYD::new(memory, pos)?),
+                    0x8E => Box::new(math::adc::adc_a_pidxd::ADC_A_PIYD::new(memory, pos)?),
+                    0x96 => Box::new(math::sub::sub_pidxd::SUB_PIYD::new(memory, pos)?),
+                    0x9E => Box::new(math::sbc::sbc_a_pidxd::SBC_A_PIYD::new(memory, pos)?),
+                    0xA6 => Box::new(math::and::and_pidxd::AND_PIYD::new(memory, pos)?),
+                    0xAE => Box::new(math::xor::xor_pidxd::XOR_PIYD::new(memory, pos)?),
+                    0xB6 => Box::new(math::or::or_pidxd::OR_PIYD::new(memory, pos)?),
+                    0xBE => Box::new(math::cp::cp_pidxd::CP_PIYD::new(memory, pos)?),
                     0xCB => {
                         let ins_byte3 = memory.read_8(pos.wrapping_add(3))?;
                         match ins_byte3 {
-                            0x06 => Box::new(bit::rlc::rlc_piyd::RLC_PIYD::new(memory, pos)?),
-                            0x0E => Box::new(bit::rrc::rrc_piyd::RRC_PIYD::new(memory, pos)?),
-                            0x16 => Box::new(bit::rl::rl_piyd::RL_PIYD::new(memory, pos)?),
-                            0x1E => Box::new(bit::rr::rr_piyd::RR_PIYD::new(memory, pos)?),
-                            0x26 => Box::new(bit::sla::sla_piyd::SLA_PIYD::new(memory, pos)?),
-                            0x2E => Box::new(bit::sra::sra_piyd::SRA_PIYD::new(memory, pos)?),
-                            0x36 => Box::new(bit::sll::sll_piyd::SLL_PIYD::new(memory, pos)?),
-                            0x3E => Box::new(bit::srl::srl_piyd::SRL_PIYD::new(memory, pos)?),
+                            0x06 => Box::new(bit::rlc::rlc_pidxd::RLC_PIYD::new(memory, pos)?),
+                            0x0E => Box::new(bit::rrc::rrc_pidxd::RRC_PIYD::new(memory, pos)?),
+                            0x16 => Box::new(bit::rl::rl_pidxd::RL_PIYD::new(memory, pos)?),
+                            0x1E => Box::new(bit::rr::rr_pidxd::RR_PIYD::new(memory, pos)?),
+                            0x26 => Box::new(bit::sla::sla_pidxd::SLA_PIYD::new(memory, pos)?),
+                            0x2E => Box::new(bit::sra::sra_pidxd::SRA_PIYD::new(memory, pos)?),
+                            0x36 => Box::new(bit::sll::sll_pidxd::SLL_PIYD::new(memory, pos)?),
+                            0x3E => Box::new(bit::srl::srl_pidxd::SRL_PIYD::new(memory, pos)?),
                             0x46 => Box::new(bit::bit::BIT_0_PIYD::new(memory, pos)?),
                             0x4E => Box::new(bit::bit::BIT_1_PIYD::new(memory, pos)?),
                             0x56 => Box::new(bit::bit::BIT_2_PIYD::new(memory, pos)?),
@@ -2393,11 +2449,11 @@ impl InstructionParser<Z80> for Z80Parser {
                             }
                         }
                     }
-                    0xE1 => Box::new(stack::pop::pop_iy::POP_IY::new()),
-                    0xE3 => Box::new(ex::ex_psp_iy::EX_PSP_IY::new()),
-                    0xE5 => Box::new(stack::push::push_iy::PUSH_IY::new()),
-                    0xE9 => Box::new(jump::jp::jp_piy::JP_PIY::new()),
-                    0xF9 => Box::new(ld::ld_sp_iy::LD_SP_IY::new()),
+                    0xE1 => Box::new(stack::pop::pop_idx::POP_IY::new()),
+                    0xE3 => Box::new(ex::ex_psp_idx::EX_PSP_IY::new()),
+                    0xE5 => Box::new(stack::push::push_idx::PUSH_IY::new()),
+                    0xE9 => Box::new(jump::jp::jp_pidx::JP_PIY::new()),
+                    0xF9 => Box::new(ld::ld_sp_idx::LD_SP_IY::new()),
                     _ => {
                         return Err(ParseError::InvalidInstruction(format!(
                             "Invalid IY instruction 0x{:02x}",

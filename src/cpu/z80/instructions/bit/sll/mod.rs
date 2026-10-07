@@ -4,17 +4,16 @@ use std::fmt::Display;
 use hex_literal::hex;
 
 use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::instructions::bit::sll::generics::sll_r_setf;
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
 mod generics;
 pub mod sll_phl;
-pub mod sll_pixd;
-pub mod sll_piyd;
+pub mod sll_pidxd;
 
 generics::sll_r::sll_r!(b, "30", "B");
 generics::sll_r::sll_r!(c, "31", "C");

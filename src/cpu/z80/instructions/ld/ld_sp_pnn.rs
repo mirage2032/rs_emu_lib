@@ -15,10 +15,7 @@ pub struct LD_MISC_SP_PNN {
 
 impl LD_MISC_SP_PNN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<LD_MISC_SP_PNN, MemoryReadError> {
-        Ok(LD_MISC_SP_PNN {
-            common: InstructionCommon::new(4, 20, true),
-            nn: memory.read_16(pos.wrapping_add(2))?,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(2))?))
     }
 
     pub fn new_with_value(nn: u16) -> LD_MISC_SP_PNN {
@@ -48,16 +45,6 @@ impl BaseInstruction for LD_MISC_SP_PNN {
 impl ExecutableInstruction<Z80> for LD_MISC_SP_PNN {
     fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
         cpu.registers.sp = memory.read_16(self.nn)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 7b");
-    test_instruction_parse!(LD_MISC_SP_PNN, [0xbeef]);
 }

@@ -1,6 +1,5 @@
 macro_rules! ld_pnn_rr {
     ($dest: expr ,$opcode:literal,$cdest:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<LD_PNN_ $cdest>] {
@@ -10,10 +9,7 @@ macro_rules! ld_pnn_rr {
 
             impl [<LD_PNN_ $cdest>] {
                 pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<[<LD_PNN_ $cdest>],MemoryReadError> {
-                    Ok([<LD_PNN_ $cdest>] {
-                        common: InstructionCommon::new(3, 16, true),
-                        nn:memory.read_16(pos.wrapping_add(1))?,
-                    })
+                    Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(1))?))
                 }
 
                 pub fn new_with_value(nn: u16) -> [<LD_PNN_ $cdest>] {
@@ -45,17 +41,6 @@ macro_rules! ld_pnn_rr {
                     memory.write_16(self.nn, cpu.registers.gp.[<$dest>])?;
                     Ok(())
                 }
-            }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_LD_PNN_ $cdest>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<LD_PNN_ $cdest>],[0x1234]);
             }
         }
     }

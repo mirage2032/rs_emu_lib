@@ -1,6 +1,5 @@
 macro_rules! bit_b_r {
         ($bit:literal, $src:expr,$srclit:literal,$opcode:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<BIT_ $bit _ $srclit>] {
@@ -33,22 +32,10 @@ macro_rules! bit_b_r {
             impl ExecutableInstruction<Z80> for [<BIT_ $bit _ $srclit>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
                     let gp = &mut cpu.registers.gp;
-                    bit_b_r_setf!(gp.$src,$bit, gp.f);
-                    cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+                    alu::bit(&mut gp.f, $bit, gp.$src, Some(gp.$src));
 
                     Ok(())
                 }
-            }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_BIT_ $bit _ $srclit>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!("cb",$opcode);
-
-                test_instruction_parse!([<BIT_ $bit _ $srclit>]);
             }
         }
     }

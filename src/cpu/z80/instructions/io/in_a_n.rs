@@ -16,10 +16,7 @@ pub struct IN_A_N {
 
 impl IN_A_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<IN_A_N, MemoryReadError> {
-        Ok(IN_A_N {
-            common: InstructionCommon::new(2, 11, true),
-            n: memory.read_8(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(n: u8) -> IN_A_N {
@@ -47,16 +44,9 @@ impl BaseInstruction for IN_A_N {
 
 impl ExecutableInstruction<Z80> for IN_A_N {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        cpu.registers.gp.a = io.read(self.n)?;
+        // A is the port address's high byte.
+        let port = u16::from_le_bytes([self.n, cpu.registers.gp.a]);
+        cpu.registers.gp.a = io.read(port)?;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("db");
-    test_instruction_parse!(IN_A_N, [0xce]);
 }

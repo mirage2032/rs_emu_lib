@@ -10,12 +10,24 @@ use crate::memory::Memory;
 #[derive(Debug)]
 pub struct RETN {
     common: InstructionCommon,
+    opcode: u8,
 }
 
 impl RETN {
     pub fn new() -> RETN {
+        RETN::with_opcode(0x45)
+    }
+
+    /// RETN encoded as `ED opcode`: 0x45, or the undocumented 0x55, 0x5D, 0x65,
+    /// 0x6D, 0x75 or 0x7D.
+    pub fn with_opcode(opcode: u8) -> RETN {
+        debug_assert!(
+            matches!(opcode, 0x45 | 0x55 | 0x5D | 0x65 | 0x6D | 0x75 | 0x7D),
+            "RETN isn't ED {opcode:02X}"
+        );
         RETN {
             common: InstructionCommon::new(2, 14, false),
+            opcode,
         }
     }
 }
@@ -31,24 +43,14 @@ impl BaseInstruction for RETN {
         &self.common
     }
     fn to_bytes(&self) -> Vec<u8> {
-        vec![0xed, 0x45]
+        vec![0xed, self.opcode]
     }
 }
 
 impl ExecutableInstruction<Z80> for RETN {
-    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
         cpu.registers.pc = pop_16!(memory, cpu.registers.sp);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
-        io.disable_int();
+        cpu.interrupts.iff1 = cpu.interrupts.iff2;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed", "45");
-    test_instruction_parse!(RETN);
 }

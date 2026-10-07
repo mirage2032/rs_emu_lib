@@ -4,20 +4,18 @@ use std::fmt::Display;
 use hex_literal::hex;
 
 use crate::cpu::instruction::InstructionCommon;
-use crate::cpu::z80::instructions::math::dec::generics::dec_r_setf;
 use crate::cpu::z80::ExecutableInstruction;
 use crate::cpu::z80::Z80;
 use crate::cpu::BaseInstruction;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
-pub mod dec_ix;
-pub mod dec_iy;
+pub mod dec_idx;
 pub mod dec_phl;
-pub mod dec_pixd;
+pub mod dec_pidxd;
 pub mod dec_sp;
 mod generics;
-pub mod dec_piyd;
 
 generics::dec_r::dec_r!(b, "05", "B");
 generics::dec_r::dec_r!(c, "0d", "C");

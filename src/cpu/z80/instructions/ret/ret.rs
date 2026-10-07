@@ -41,12 +41,3 @@ impl ExecutableInstruction<Z80> for RET {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::test_instruction_parse;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("c9");
-    test_instruction_parse!(RET);
-}

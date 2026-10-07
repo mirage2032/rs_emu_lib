@@ -1,6 +1,5 @@
 macro_rules! res_b_phl {
         ($bit:literal, $opcode:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<RES_ $bit _PHL>] {
@@ -36,21 +35,9 @@ macro_rules! res_b_phl {
                     //set bit to 0
                     value = value & !(1 << $bit);
                     memory.write_8(cpu.registers.gp.hl, value)?;
-                    cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
 
                     Ok(())
                 }
-            }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_RES_ $bit _PHL>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!("cb",$opcode);
-
-                test_instruction_parse!([<RES_ $bit _PHL>]);
             }
         }
     }

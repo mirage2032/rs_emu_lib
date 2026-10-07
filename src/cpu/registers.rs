@@ -19,7 +19,7 @@ pub struct Flags {
 
 #[cfg(target_endian = "big")]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[repr(C)]
+#[repr(C, align(2))]
 pub struct GPByteRegisters {
     pub a: u8,
     pub f: Flags,
@@ -33,7 +33,7 @@ pub struct GPByteRegisters {
 
 #[cfg(target_endian = "little")]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[repr(C)]
+#[repr(C, align(2))]
 pub struct GPByteRegisters {
     pub f: Flags,
     pub a: u8,
@@ -68,6 +68,14 @@ pub struct GPWordRegisters {
     pub de: u16,
     pub hl: u16,
 }
+
+// Deref reinterprets the byte registers as word registers, so the two must have
+// the same size and the byte registers at least the words' alignment.
+const _: () = {
+    use std::mem::{align_of, size_of};
+    assert!(size_of::<GPByteRegisters>() == size_of::<GPWordRegisters>());
+    assert!(align_of::<GPByteRegisters>() >= align_of::<GPWordRegisters>());
+};
 
 impl Deref for GPByteRegisters {
     type Target = GPWordRegisters;

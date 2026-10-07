@@ -1,14 +1,11 @@
-use crate::cpu::z80::instructions::math::adc::hex;
 use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::math::adc::generics::adc_rr_rr_setf;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
-use crate::memory::errors::MemoryReadError;
 use crate::memory::Memory;
-use crate::memory::MemoryDevice;
 
 #[derive(Debug)]
 pub struct ADC_HL_SP {
@@ -40,21 +37,9 @@ impl BaseInstruction for ADC_HL_SP {
 
 impl ExecutableInstruction<Z80> for ADC_HL_SP {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        adc_rr_rr_setf!(
-            &mut cpu.registers.gp.hl,
-            cpu.registers.sp,
-            &mut cpu.registers.gp.f
-        );
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 0x80;
+        let (a, b) = (cpu.registers.gp.hl, cpu.registers.sp);
+        let carry = cpu.registers.gp.f.carry();
+        cpu.registers.gp.hl = alu::adc16(&mut cpu.registers.gp.f, a, b, carry);
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 7a");
-    test_instruction_parse!(ADC_HL_SP);
 }

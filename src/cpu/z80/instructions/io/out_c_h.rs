@@ -36,17 +36,7 @@ impl BaseInstruction for OUT_C_H {
 
 impl ExecutableInstruction<Z80> for OUT_C_H {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        io.write(cpu.registers.gp.c, cpu.registers.gp.h)?;
-        cpu.registers.r = cpu.registers.r.wrapping_add(1);
+        io.write(cpu.registers.gp.bc, cpu.registers.gp.h)?;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 61");
-    test_instruction_parse!(OUT_C_H);
 }

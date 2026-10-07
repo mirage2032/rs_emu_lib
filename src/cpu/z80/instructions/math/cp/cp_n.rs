@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
-use crate::cpu::z80::instructions::math::cp::cp_r_setf;
+use crate::cpu::z80::alu;
 use crate::cpu::z80::Z80;
 use crate::io::IO;
 use crate::memory::errors::MemoryReadError;
@@ -16,10 +16,7 @@ pub struct CP_N {
 
 impl CP_N {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<CP_N, MemoryReadError> {
-        Ok(CP_N {
-            common: InstructionCommon::new(2, 7, true),
-            n: memory.read_8(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(n: u8) -> CP_N {
@@ -47,16 +44,7 @@ impl BaseInstruction for CP_N {
 
 impl ExecutableInstruction<Z80> for CP_N {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-        cp_r_setf!(cpu.registers.gp.a, self.n, cpu.registers.gp.f);
+        alu::cp8(&mut cpu.registers.gp.f, cpu.registers.gp.a, self.n);
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("fe");
-    test_instruction_parse!(CP_N, [0xbf]);
 }

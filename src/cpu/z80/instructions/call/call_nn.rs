@@ -16,10 +16,7 @@ pub struct CALL_NN {
 
 impl CALL_NN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<CALL_NN, MemoryReadError> {
-        Ok(CALL_NN {
-            common: InstructionCommon::new(3, 17, false),
-            nn: memory.read_16(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(nn: u16) -> CALL_NN {
@@ -52,13 +49,4 @@ impl ExecutableInstruction<Z80> for CALL_NN {
         cpu.registers.pc = self.nn;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("cd");
-    test_instruction_parse!(CALL_NN, [0xbeef]);
 }

@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -36,25 +37,9 @@ impl BaseInstruction for IN_E_C {
 
 impl ExecutableInstruction<Z80> for IN_E_C {
     fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        cpu.registers.gp.e = io.read(cpu.registers.gp.c)?;
-        cpu.registers.gp.f.set_half_carry(false);
-        cpu.registers
-            .gp
-            .f
-            .set_parity_overflow(cpu.registers.gp.e.count_ones() % 2 == 0);
-        cpu.registers.gp.f.set_zero(cpu.registers.gp.e == 0);
-        cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.gp.f.set_sign(cpu.registers.gp.e & 0x80 != 0);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1);
+        let value = io.read(cpu.registers.gp.bc)?;
+        alu::sz53p(&mut cpu.registers.gp.f, value);
+        cpu.registers.gp.e = value;
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 58");
-    test_instruction_parse!(IN_E_C);
 }

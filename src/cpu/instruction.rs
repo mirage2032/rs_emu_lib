@@ -5,7 +5,7 @@ use crate::memory::{Memory, MemoryDevice};
 use std::fmt::{Debug, Display};
 use thiserror::Error;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InstructionCommon {
     pub length: u16,
     pub cycles: u16,
@@ -86,17 +86,6 @@ pub trait InstructionParser<T: Cpu> {
 }
 //MACROS
 //STACK PUSH/POP
-macro_rules! push_8 {
-    ($val:expr, $memory:expr, $sp:expr) => {
-        $sp = $sp.wrapping_sub(1);
-        $memory
-            .write_8($sp, $val)
-            .map_err(|_| "Error pushing value to stack")?;
-    };
-}
-
-pub(crate) use push_8;
-
 macro_rules! push_16 {
     ($val:expr, $memory:expr, $sp:expr) => {
         $sp = $sp.wrapping_sub(2);
@@ -107,18 +96,6 @@ macro_rules! push_16 {
 }
 
 pub(crate) use push_16;
-
-macro_rules! pop_8 {
-    ($memory:expr, $sp:expr) => {{
-        let val = $memory
-            .read_8($sp)
-            .map_err(|_| "Error popping value from stack")?;
-        $sp += $sp.wrapping_add(1);
-        val
-    }};
-}
-
-pub(crate) use pop_8;
 
 macro_rules! pop_16 {
     ($memory:expr, $sp:expr) => {{

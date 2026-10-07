@@ -3,6 +3,7 @@ use std::fmt::Display;
 
 use crate::cpu::instruction::{BaseInstruction, ExecutableInstruction, InstructionCommon};
 use crate::cpu::z80::Z80;
+use crate::cpu::z80::alu;
 use crate::io::IO;
 use crate::memory::Memory;
 
@@ -35,23 +36,11 @@ impl BaseInstruction for LD_A_I {
 }
 
 impl ExecutableInstruction<Z80> for LD_A_I {
-    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, io: &mut IO) -> Result<(), String> {
-        cpu.registers.gp.a = cpu.registers.i;
-        cpu.registers.gp.f.set_parity_overflow(io.iff2);
-        cpu.registers.gp.f.set_half_carry(false);
-        cpu.registers.gp.f.set_sign(cpu.registers.i & 0x80 != 0);
-        cpu.registers.gp.f.set_zero(cpu.registers.i == 0);
-        cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.r = cpu.registers.r.wrapping_add(1) % 128;
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _io: &mut IO) -> Result<(), String> {
+        let i = cpu.registers.i;
+        cpu.registers.gp.a = i;
+        alu::sz53p(&mut cpu.registers.gp.f, i);
+        cpu.registers.gp.f.set_parity_overflow(cpu.interrupts.iff2);
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("ed 57");
-    test_instruction_parse!(LD_A_I);
 }

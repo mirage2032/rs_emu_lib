@@ -1,5 +1,4 @@
 pub mod ex_af_saf;
 pub mod ex_de_hl;
 pub mod ex_psp_hl;
-pub mod ex_psp_ix;
-pub mod ex_psp_iy;
+pub mod ex_psp_idx;

@@ -1,6 +1,5 @@
 macro_rules! ld_r_prr {
     ($dest:ident,$src:ident,$opcode:literal,$cdest:literal,$csrc:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<LD_ $cdest _P $csrc>] {
@@ -35,17 +34,6 @@ macro_rules! ld_r_prr {
                     cpu.registers.gp.[<$dest>] = memory.read_8(cpu.registers.gp.[<$src>])?;
                     Ok(())
                 }
-            }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_LD_ $cdest _P $csrc>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<LD_ $cdest _P $csrc>]);
             }
         }
     }

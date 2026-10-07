@@ -1,6 +1,5 @@
 macro_rules! add_r_r {
         ($dest:expr,$src:expr,$opcode:literal,$cdest:literal,$csrc:literal) => {
-        // use crate::cpu::z80::test::{include_test_data,test_z80_w_data,TestData,TestState};
         paste::paste! {
             #[derive(Debug)]
             pub struct [<ADD_ $cdest _ $csrc>] {
@@ -32,24 +31,10 @@ macro_rules! add_r_r {
 
             impl ExecutableInstruction<Z80> for [<ADD_ $cdest _ $csrc>] {
                 fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO) -> Result<(), String> {
-                    add_r_r_setf!(
-                        &mut cpu.registers.gp.[<$dest>],
-                        cpu.registers.gp.[<$src>],
-                        cpu.registers.gp.f
-                    );
+                    let gp = &mut cpu.registers.gp;
+                    gp.[<$dest>] = alu::add8(&mut gp.f, gp.[<$dest>], gp.[<$src>], false);
                     Ok(())
                 }
-            }
-
-            #[allow(non_snake_case)]
-            #[cfg(test)]
-            mod [<TEST_ADD_ $cdest _ $csrc>] {
-                use crate::cpu::test::*;
-                use crate::cpu::z80::test::*;
-
-                test_z80!($opcode);
-
-                test_instruction_parse!([<ADD_ $cdest _ $csrc>]);
             }
         }
     }

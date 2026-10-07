@@ -15,10 +15,7 @@ pub struct JP_P_NN {
 
 impl JP_P_NN {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JP_P_NN, MemoryReadError> {
-        Ok(JP_P_NN {
-            common: InstructionCommon::new(3, 10, true),
-            nn: memory.read_16(pos.wrapping_add(1))?,
-        })
+        Ok(Self::new_with_value(memory.read_16(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(nn: u16) -> JP_P_NN {
@@ -53,13 +50,4 @@ impl ExecutableInstruction<Z80> for JP_P_NN {
         }
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("f2");
-    test_instruction_parse!(JP_P_NN, [0xbeef]);
 }

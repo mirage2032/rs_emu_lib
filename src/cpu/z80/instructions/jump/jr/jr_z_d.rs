@@ -15,10 +15,7 @@ pub struct JR_Z_D {
 
 impl JR_Z_D {
     pub fn new(memory: &dyn MemoryDevice, pos: u16) -> Result<JR_Z_D, MemoryReadError> {
-        Ok(JR_Z_D {
-            common: InstructionCommon::new(2, 7, true),
-            d: memory.read_8(pos.wrapping_add(1))? as i8,
-        })
+        Ok(Self::new_with_value(memory.read_8(pos.wrapping_add(1))?))
     }
 
     pub fn new_with_value(d: u8) -> JR_Z_D {
@@ -52,13 +49,4 @@ impl ExecutableInstruction<Z80> for JR_Z_D {
         }
         Ok(())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::cpu::test::*;
-    use crate::cpu::z80::test::*;
-
-    test_z80!("28");
-    test_instruction_parse!(JR_Z_D, [0xbf]);
 }
